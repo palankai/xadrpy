@@ -1,0 +1,3 @@
+"""
+Console commands for xadrpy
+"""

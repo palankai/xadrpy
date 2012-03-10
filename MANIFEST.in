@@ -1,5 +1,6 @@
 include LICENSE
 include AUTHORS
+include CHANGELOG
 include README.rst
 include src/xadrpy/VERSION
 include MANIFEST.in

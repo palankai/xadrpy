@@ -33,6 +33,7 @@ setup(
     url='https://github.com/pacsee/xadrpy',
     license='GNU LGPL',
     zip_safe=False,
+    scripts=['src/xadrpy/xadrpy.py'],
     install_requires=[
         'Django==1.3.1',
     ],)
