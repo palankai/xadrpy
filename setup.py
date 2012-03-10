@@ -33,4 +33,5 @@ setup(
     license='GNU LGPL',
     zip_safe=False,
     install_requires=[
+        'Django==1.3.1',
     ],)
