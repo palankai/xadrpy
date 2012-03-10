@@ -1,0 +1,62 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+
+  <title>{% block meta-title %}{% endblock %}</title>
+  <meta name="description" content="{% block meta-description %}{% endblock %}" />
+  <meta name="keywords" content="{% block meta-keywords %}{% endblock %}" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  {% block extrahead %}{% endblock %}
+
+  <!-- CSS concatenated and minified via ant build script-->
+  {% block basecss %}
+  <link rel="stylesheet" href="{{ STATIC_URL }}html5/css/style.css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}html5/css/xreset.css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}libs/jquery-ui/css/ui-lightness/jquery-ui.full.css" />
+  {% endblock %}
+
+  {% block extrastyle %}{% endblock %}
+  <!-- end CSS-->
+
+  {% block basescript %}
+  <script src="{{ STATIC_URL }}libs/modernizr-2.0.6.min.js"></script>
+  <script src="{{ STATIC_URL }}libs/jquery.min.js"></script>
+  <script src="{{ STATIC_URL }}libs/jquery-ui/jquery-ui.full.min.js"></script>
+  <script src="{{ STATIC_URL }}libs/plugins.js"></script>
+  <script src="{{ STATIC_URL }}libs/jquery.cookie.js"></script>
+  <script src="{{ STATIC_URL }}libs/jquery.form.js"></script>
+  <script src="{{ STATIC_URL }}libs/jquery.metadata.js"></script>
+  <script src="{{ STATIC_URL }}libs/json2.js"></script>
+  {% endblock %}
+  
+  {% block extrascript %}{% endblock %}
+  {% block endhead %}{% endblock %}
+</head>
+
+<body class="{% block bodyclass %}{% endblock%}">{% block body %}
+  <div id="container">
+  {% block container %}
+    <header id="header">{% block header %}{% endblock %}</header>
+    <div id="main" role="main">
+    {% block main %}
+	    <div id="content">{% block content %}{% endblock %}</div>
+	{% endblock %}
+    </div>
+    <footer id="footer">{% block footer %}{% endblock %}</footer>
+  {% endblock %}
+  </div> <!--! end of #container -->
+  {% block endcontainer %}{% endblock %}
+  {% endblock %}
+  
+  <!--[if lt IE 7 ]>
+    <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+    <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+  <![endif]-->
+  {% block endbody %}{% endblock %}
+</body>
+</html>
