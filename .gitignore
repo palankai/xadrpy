@@ -6,5 +6,6 @@
 .settings
 *.egg-info
 /local-resources
-/dists
+/dist
+/build
 /docs/build
