@@ -1,4 +1,5 @@
-from fabric.api import local
+from fabric.api import local, prompt
+import os
 
 def sandbox_setup():
     """
@@ -18,4 +19,31 @@ def sandbox_cleanup():
     """
     Clean sandbox directories
     """
-    local("rmdir -p --ignore-fail-on-non-empty sandbox/local")
+    local("rm -rf sandbox/local")
+
+def sandbox_run():
+    """
+    Run sandbox developer server
+    """
+    if not os.path.exists("sandbox/local"):
+        sandbox_setup()
+    local("python sandbox/manage.py runserver")
+
+def docs_cleanup():
+    local("rm -rf docs/build/*")
+
+def setup_cleanup():
+    local("rm -rf dist")
+    local("rm -rf build")
+    remove_egg_info = prompt('Remove *.egg-info to (y/n):', default="n", validate=r'^[yn]$')
+    if remove_egg_info == "y":
+        local("rm -rf `find . -name '*.egg-info'`")
+
+def cleanup():
+    local("python setup.py clean")
+    local("rm `find . -name '*.pyc'`")
+    sandbox_cleanup()
+    docs_cleanup()
+    setup_cleanup()
+    
+        
