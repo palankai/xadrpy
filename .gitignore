@@ -1,0 +1,9 @@
+*.pyc
+*.pyo
+.DS_Store
+.project
+.pydevproject
+.settings
+*.egg-info
+/local-resources
+/dists
