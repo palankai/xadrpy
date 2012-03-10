@@ -46,4 +46,5 @@ def cleanup():
     docs_cleanup()
     setup_cleanup()
     
-        
+def release():
+    local("python setup.py sdist upload")
