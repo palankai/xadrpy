@@ -13,7 +13,7 @@ setup(
     packages=find_packages('src'),
     package_dir={'':'src'},
     include_package_data=True,    
-    version=read('VERSION').strip(),
+    version=read(os.path.join('src','xadrpy','VERSION')).strip(),
     description="Django tool",
     long_description='''Django tool with many useful packages, modules.''',
     classifiers=[

@@ -1,7 +1,7 @@
 include LICENSE
 include AUTHORS
-include VERSION
 include README.rst
+include src/xadrpy/VERSION
 include MANIFEST.in
 
 recursive-include src *.html
