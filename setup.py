@@ -35,6 +35,4 @@ setup(
     zip_safe=False,
     scripts=['src/xadrpy/xadrpy.py'],
     install_requires=[
-        'Django==1.3.1',
-        'argparse==1.2.1',
     ],)

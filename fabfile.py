@@ -30,9 +30,15 @@ def sandbox_run():
     local("python sandbox/manage.py runserver")
 
 def docs_cleanup():
+    """
+    Clean documents build directory
+    """
     local("rm -rf docs/build/*")
 
 def setup_cleanup():
+    """
+    Clean build directories, optional remove .egg-info folders
+    """
     local("rm -rf dist")
     local("rm -rf build")
     remove_egg_info = prompt('Remove *.egg-info to (y/n):', default="n", validate=r'^[yn]$')
@@ -40,6 +46,9 @@ def setup_cleanup():
         local("rm -rf `find . -name '*.egg-info'`")
 
 def cleanup():
+    """
+    Clean source code
+    """
     local("python setup.py clean")
     local("rm `find . -name '*.pyc'`")
     sandbox_cleanup()
@@ -47,4 +56,7 @@ def cleanup():
     setup_cleanup()
     
 def release():
+    """
+    Release a new version of source code
+    """
     local("python setup.py sdist upload")
