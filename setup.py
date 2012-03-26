@@ -15,7 +15,7 @@ setup(
     include_package_data=True,    
     version=read(os.path.join('src','xadrpy','VERSION')).strip(),
     description="Django tool",
-    long_description='''Django tool with many useful packages, modules.''',
+    long_description='''Django and python tool with many useful packages, modules.''',
     classifiers=[
         'Programming Language :: Python',
         'Operating System :: OS Independent',
