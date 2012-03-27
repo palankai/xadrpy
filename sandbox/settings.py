@@ -104,9 +104,7 @@ TEMPLATE_LOADERS = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    'accounts.backends.UsernameBackend',
-    'accounts.backends.UserBackend',
-    'xFacebook.backends.FacebookBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 
@@ -145,6 +143,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     
     'xadrpy.contrib.html',
+    
+    'xadrpy.utils',
 )
 
 # A sample logging configuration. The only tangible logging

@@ -1,5 +1,10 @@
 from fabric.api import local, prompt
 import os
+import sys
+import unittest2
+
+sys.path.append(os.path.join(os.path.realpath(os.path.dirname(__file__)),"src")) 
+
 
 def sandbox_setup():
     """
@@ -45,6 +50,12 @@ def setup_cleanup():
     if remove_egg_info == "y":
         local("rm -rf `find . -name '*.egg-info'`")
 
+def source_cleanup():
+    """
+    Clean source code
+    """
+    local("rm `find . -name '*.pyc'`")
+
 def cleanup():
     """
     Clean source code
@@ -60,3 +71,10 @@ def release():
     Release a new version of source code
     """
     local("python setup.py sdist upload")
+
+def test_all():
+    """
+    Testing the xadpry framework
+    """
+    source_cleanup()
+    local("python sandbox/manage.py test")
