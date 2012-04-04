@@ -1,5 +1,9 @@
 Change Log
 
+xadrpy-0.1.3
+* add @encoded_response
+* add FormException
+
 xadrpy-0.1.2
 * add html
 * add sandbox

@@ -143,8 +143,11 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     
     'xadrpy.contrib.html',
+    'xadrpy.com.response',
+    'xadrpy.forms',
     
     'xadrpy.utils',
+    
 )
 
 # A sample logging configuration. The only tangible logging
