@@ -1,0 +1,4 @@
+from django.conf import settings
+
+UNIQUE_ID_DEFAULT_LENGTH = getattr(settings, "XADRPY_UNIQUE_ID_DEFAULT_LENGTH", 32)
+UNIQUE_ID_DEFAULT_CHARS = getattr(settings, "XADRPY_UNIQUE_ID_DEFAULT_CHARS",'0123456789ABCDEF')

@@ -142,11 +142,19 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     
-    'xadrpy.contrib.html',
+    'south',
+    
+    'xadrpy',
     'xadrpy.com.response',
     'xadrpy.forms',
-    
     'xadrpy.utils',
+
+    'xadrpy.contrib.html',
+    'xadrpy.contrib.permanent_session',
+    'xadrpy.contrib.unique_id',
+    
+    
+    'field_usage',
     
 )
 
