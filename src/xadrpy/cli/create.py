@@ -49,7 +49,6 @@ class CreateHandler(CLIHandler):
         os.system("git init")
         shutil.copyfile(os.path.join(conf.SKELETONS_PATH,template_name,"requirements.txt"), "requirements.txt")
         shutil.copyfile(os.path.join(conf.SKELETONS_PATH,template_name,".gitignore"), ".gitignore")
-        shutil.copyfile(os.path.join(conf.SKELETONS_PATH,template_name,"favicon.ico"), "public/favicon.ico")
         shutil.copyfile(os.path.join(conf.SKELETONS_PATH,template_name,"robots.txt"), "public/robots.txt")
         shutil.copyfile(os.path.join(conf.SKELETONS_PATH,template_name,"crossdomain.xml"), "public/crossdomain.xml")
         shutil.copytree(os.path.join(conf.SKELETONS_PATH,template_name,"vendor"), "vendor")
