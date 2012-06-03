@@ -4,11 +4,14 @@
 {% block meta-description %}{{ block.super }}{% endblock %}
 {% block meta-keywords %}{{ block.super }}{% endblock %}
 
-{% block extrahead %}{{ block.super }}{% endblock %}
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" type="image/x-icon" />
+{% endblock %}
 
 {% block extrastyle %}
 	{{ block.super }}
-	<link rel="stylesheet" href="{{ STATIC_URL }}main/css/main.css" />	
+	<link rel="stylesheet" href="{{ STATIC_URL }}main/css/main.css" />
 {% endblock %}
 
 {% block extrascript %}
