@@ -1,0 +1,14 @@
+*.pyc
+*.pyo
+*.log
+.DS_Store
+.project
+.pydevproject
+.settings
+*.pid
+*.sock
+/local-resources
+/local
+/public/static
+/public/media
+settings_local.py

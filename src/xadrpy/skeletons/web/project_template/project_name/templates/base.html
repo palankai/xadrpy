@@ -1,0 +1,17 @@
+{% extends "html5/base.html" %}
+
+{% block meta-title %}{{ block.super }}{% endblock %}
+{% block meta-description %}{{ block.super }}{% endblock %}
+{% block meta-keywords %}{{ block.super }}{% endblock %}
+
+{% block extrahead %}{{ block.super }}{% endblock %}
+
+{% block extrastyle %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{{ STATIC_URL }}main/css/main.css" />	
+{% endblock %}
+
+{% block extrascript %}
+	{{ block.super }}
+	<script type="text/javascript" src="{{ STATIC_URL }}main/js/main.js"></script>
+{% endblock %}

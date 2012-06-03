@@ -1,0 +1,14 @@
+Django>=1.4
+PIL>=1.1.7
+South>=0.7.5
+argparse>=1.2.1
+django-ckeditor>=3.6.2
+django-filebrowser>=3.4.2
+django-grappelli>=2.3.8
+django-imagekit>=2.0.1
+django-rosetta>=0.6.6
+django-mptt>=0.5.2
+simplejson>=2.3.2
+psycopg2==2.4.2
+Whoosh==2.1.0
+django-haystack==1.2.6
