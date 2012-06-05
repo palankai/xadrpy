@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+
+  <title>{{ application.get_title }}</title>
+  <meta name="description" content="{{ application.get_description }}" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/extjsapp/resources/css/ext-all.css" />
+  
+  <script type="text/javascript">
+  	STATIC_URL = "{{ STATIC_URL }}";
+  	MEDIA_URL = "{{ MEDIA_URL }}";
+  	CSRF_TOKEN = "{{ csrf_token }}";
+  </script>
+
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/extjsapp/libs/json2.js"></script>
+  {% if debug %}
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/extjsapp/ext-debug.js"></script>
+  {% else%}
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/extjsapp/ext.js"></script>
+  {% endif %}
+  <script type="text/javascript">
+  	Ext.require("Ext.Ajax", function() {
+  	  Ext.Ajax.on("beforerequest", function(conn, xhr, eopts) {
+		  function getCookie(name) {
+		        var cookieValue = null;
+		        if (document.cookie && document.cookie != '') {
+		            var cookies = document.cookie.split(';');
+		            for (var i = 0; i < cookies.length; i++) {
+		                var cookie = Ext.String.trim(cookies[i]);
+		                // Does this cookie string begin with the name we want?
+		                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+		                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		                    break;
+		                }
+		            }
+		        }
+		        return cookieValue;
+		    }
+		  
+		    function sameOrigin(url) {
+		        // url could be relative or scheme relative or absolute
+		        var host = document.location.host; // host + port
+		        var protocol = document.location.protocol;
+		        var sr_origin = '//' + host;
+		        var origin = protocol + sr_origin;
+		        // Allow absolute or scheme relative URLs to same origin
+		        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+		            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+		            // or any other URL that isn't scheme relative or absolute i.e relative.
+		            !(/^(\/\/|http:|https:).*/.test(url));
+		    }
+		    
+		    function safeMethod(method) {
+		        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+		    }
+		    if (!safeMethod(xhr.method) && sameOrigin(xhr.url)) {
+		        xhr.headers = {
+	        		"X-CSRFToken": getCookie('csrftoken')		
+		        }
+		    }		  
+	  });
+  	});
+  </script>
+  <script type="text/javascript" src="{{ STATIC_URL }}{{ appjs }}"></script>
+</head>
+
+<body class="{{ application.get_body_class }}">
+   <div id="main" role="main">
+   </div>
+  <!--[if lt IE 7 ]>
+    <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+    <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+  <![endif]-->
+</body>
+</html>
