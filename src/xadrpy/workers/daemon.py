@@ -9,6 +9,8 @@ import socket
 from multiprocessing import Pipe
 from xadrpy.workers.lib import get_container_class
 from conf import CONTAINERS
+from xadrpy.utils.annotations import Annotable, Annotation
+import copy
 
 class DaemonError( Exception ): pass
 class DaemonAlreadyRunningException( DaemonError ): pass
@@ -19,6 +21,12 @@ class DaemonContainer( object ):
     def __init__(self, environment):
         self.environment = environment
         self.logger = logging.getLogger(self.__class__.__name__)
+    
+    def set_worker(self, worker):
+        self.worker = worker
+    
+    def get_worker(self):
+        return self.worker
     
     def on_start(self):
         pass
@@ -37,6 +45,199 @@ class DaemonContainer( object ):
     
     def on_message(self, message):
         pass
+    
+    def on_call(self, name, args, kwargs):
+        pass
+
+class Service( DaemonContainer, Annotable ):
+    
+    class ScheduledJob( Annotation ):
+        
+        def set_job(self, job):
+            self.job = job
+        
+        def get_job(self, job):
+            return job
+        
+        def clear_job(self, job):
+            self.job = None
+    
+    class IntervalJob( ScheduledJob ):
+        """
+        Schedules a job to be completed on specified intervals.
+        
+        weeks - number of weeks to wait
+        days - number of days to wait
+        hours - number of hours to wait
+        minutes - number of minutes to wait
+        seconds - number of seconds to wait
+        start_date - when to first execute the job and start the counter (default is after the given interval)
+        args - list of positional arguments to call func with
+        kwargs - dict of keyword arguments to call func with
+        name - name of the job
+        jobstore - alias of the job store to add the job to
+        misfire_grace_time - seconds after the designated run time that the job is still allowed to be run      
+        """
+
+        def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None, args=None, kwargs=None, **options):
+            self.weeks = weeks
+            self.days = days
+            self.hours = hours
+            self.minutes = minutes
+            self.seconds = seconds
+            self.start_date = start_date
+            self.args = args
+            self.kwargs = kwargs
+            self.options = options
+            
+            
+    
+    class CronJob( ScheduledJob ):
+        """
+        Schedules a job to be completed on times that match the given expressions.
+        
+        year - year to run on
+        month - month to run on
+        day - day of month to run on
+        week - week of the year to run on
+        day_of_week - weekday to run on (0 = Monday)
+        hour - hour to run on
+        second - second to run on
+        args - list of positional arguments to call func with
+        kwargs - dict of keyword arguments to call func with
+        name - name of the job
+        jobstore - alias of the job store to add the job to
+        misfire_grace_time - seconds after the designated run time that the job is still allowed to be run
+        """
+        
+        def __init__(self, year=None, month=None, day=None, week=None, day_of_week=None, hour=None, minute=None, second=None, start_date=None, args=None, kwargs=None, **options):
+            self.year = year
+            self.month = month
+            self.day = day
+            self.week = week
+            self.day_of_week = day_of_week
+            self.hour = hour
+            self.minute = minute
+            self.second = second
+            self.start_date = start_date
+            self.args = args
+            self.kwargs = kwargs
+            self.options = options
+
+    class DateJob( ScheduledJob ):
+        """
+        Schedules a job to be completed on a specific date and time.
+        
+        date (datetime.date) - the date/time to run the job at
+        name - name of the job
+        jobstore - stored the job in the named (or given) job store
+        misfire_grace_time - seconds after the designated run time that the job is still allowed to be run
+        """
+        
+        def __init__(self, date, args=None, kwargs=None, **options):
+            self.date = date
+            self.args = args
+            self.kwargs = kwargs
+            self.options = options
+
+    class Public( Annotation ):
+        pass
+    
+    def __init__(self, environment):
+        super(Service, self).__init__(environment)
+        self._jobs = []
+    
+    def on_start(self):
+        self.start_jobs()
+    
+    def on_stop(self):
+        self.stop_jobs()
+
+    def stop_jobs(self):
+        has_scheduler_service = self.get_worker().has_scheduler_service()
+        interval_jobs = self.get_annoted_methods(Service.IntervalJob)
+        date_jobs = self.get_annoted_methods(Service.DateJob)
+        cron_jobs = self.get_annoted_methods(Service.CronJob)
+        if not has_scheduler_service and (interval_jobs or date_jobs or cron_jobs):
+            self.logger.warning("The service contains jobs, but worker has not scheduler service!")
+            return
+        scheduler_service = self.get_worker().get_scheduler_service()
+        
+        jobs = scheduler_service.get_jobs()
+        
+        for method, annotations in interval_jobs:
+            for annotation in annotations:
+                if annotation.get_job() in jobs:
+                    scheduler_service.unschedule_job(annotation.get_job())
+                    annotation.clear_job()
+        
+        for method, annotations in cron_jobs:
+            for annotation in annotations:
+                if annotation.get_job() in jobs:
+                    scheduler_service.unschedule_job(annotation.get_job())
+                    annotation.clear_job()
+
+        for method, annotations in date_jobs:
+            for annotation in annotations:
+                if annotation.get_job() in jobs:
+                    scheduler_service.unschedule_job(annotation.get_job())
+                    annotation.clear_job()
+            
+    def start_jobs(self):
+        has_scheduler_service = self.get_worker().has_scheduler_service()
+        interval_jobs = self.get_annoted_methods(Service.IntervalJob)
+        date_jobs = self.get_annoted_methods(Service.DateJob)
+        cron_jobs = self.get_annoted_methods(Service.CronJob)
+        if not has_scheduler_service and (interval_jobs or date_jobs or cron_jobs):
+            self.logger.warning("The service contains jobs, but worker has not scheduler service!")
+            return
+        scheduler_service = self.get_worker().get_scheduler_service()
+        
+        for method, annotations in interval_jobs:
+            for annotation in annotations:
+                job = scheduler_service.add_interval_job(func=method, 
+                                                   weeks=annotation.weeks, 
+                                                   days=annotation.days, 
+                                                   hours=annotation.hours, 
+                                                   minutes=annotation.minutes, 
+                                                   seconds=annotation.seconds, 
+                                                   start_date=annotation.start_date, 
+                                                   args=annotation.args, 
+                                                   kwargs=annotation.kwargs, 
+                                                   **annotation.options)
+                annotation.set_job( job )
+                
+        for method, annotations in cron_jobs:
+            for annotation in annotations:
+                job = scheduler_service.add_cron_job(func=method, 
+                                               year=annotation.year, 
+                                               month=annotation.month, 
+                                               day=annotation.day, 
+                                               week=annotation.week, 
+                                               day_of_week=annotation.day_of_week, 
+                                               hour=annotation.hour, 
+                                               minute=annotation.minute, 
+                                               second=annotation.second, 
+                                               start_date=annotation.start_date, 
+                                               args=annotation.args, 
+                                               kwargs=annotation.kwargs, 
+                                               **annotation.options)
+                annotation.set_job( job )
+            
+        for method, annotations in date_jobs:
+            for annotation in annotations:
+                job = scheduler_service.add_date_job(func=method, 
+                                               date=annotation.date, 
+                                               args=annotation.args, 
+                                               kwargs=annotation.kwargs, 
+                                               **annotation.options)
+                annotation.set_job( job )
+
+    def on_call(self, name, args, kwargs):
+        pass
+            
+            
+    
 
 class Daemon( object ):
     
@@ -246,7 +447,9 @@ class ComplexDaemon( Daemon ):
    
     def on_stop(self):
         self.logger.info("Stopping services...")
-        for service_name in self.service_list:
+        service_list = copy.copy(self.service_list)
+        service_list.reverse()
+        for service_name in service_list:
             try:
                 self.logger.info("Stopping %s service..." % (service_name, ))
                 self.stop_service(service_name)
@@ -270,7 +473,8 @@ class ComplexDaemon( Daemon ):
         for service_name in self.service_list:
             try:
                 self.logger.info("Sync %s service..." % (service_name, ))
-                self.service_stop(service_name)
+                service = self.services[service_name]
+                service.on_sync()
                 self.logger.info("%s service synced." % (service_name, ))
             except Exception, e:
                 self.logger.exception("Syncing %s service failed: %s" % (service_name, str(e)))
@@ -281,6 +485,8 @@ class ComplexDaemon( Daemon ):
         if isinstance(service_class, str):
             service_class = get_container_class(service_class)
         self.service_list.append(service_name)
+        env.update({
+        })
         self.services[service_name] = {
             'service_name': service_name,
             'service_class': service_class,
@@ -303,6 +509,7 @@ class ComplexDaemon( Daemon ):
             raise ServiceIsRunning(service_name)
         service['running'].set()
         service['instance'] = service['service_class'](service['environment'])
+        service['instance'].set_worker(self)
         service['instance'].on_start()
 
     def stop_service(self, service_name):
@@ -319,6 +526,19 @@ class ComplexDaemon( Daemon ):
         if service_name not in self.service_list:
             raise ServiceAlreadyExists(service_name)
         return self.services[service_name]
+    
+    def has_scheduler_service(self):
+        return False
+
+    def get_scheduler_service(self):
+        return None
+    
+    def has_rpc_service(self):
+        return False
+    
+    def get_rpc_service(self):
+        return None
+    
     
 
 class BootstrapEventHandler( object ):
