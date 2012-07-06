@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from managers import PermanentSessionManager
 from django.contrib.sites.models import Site
-from xadrpy.models.fields import PickledObjectField
+from xadrpy.models.fields import ObjectField
 import datetime
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
@@ -17,7 +17,7 @@ class PermanentSession(models.Model):
     modified = models.DateTimeField(_("Modified"), auto_now=True)
     expiry_age = models.IntegerField(_("Expiry age"), blank=True, null=True)
     expiry = models.DateTimeField(_("Expiry"), blank=True, null=True)
-    data = PickledObjectField(_("Data"))
+    data = ObjectField(_("Data"))
 
     objects = PermanentSessionManager()
     

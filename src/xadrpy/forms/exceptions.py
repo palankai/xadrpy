@@ -1,14 +1,15 @@
 from django import forms
+from django.utils.translation import ugettext as _
 
 class FormException(Exception):
     
     def __init__(self, *forms_or_formsets):
-        super(FormException, self).__init__()
+        super(FormException, self).__init__(_("Data fill error"))
         self.fields = {}
         self.field_errors = {}
         self.non_field_errors = []
         for form_or_formset in forms_or_formsets:
-            if isinstance(form_or_formset, forms.Form):
+            if isinstance(form_or_formset, forms.Form) or isinstance(form_or_formset, forms.ModelForm):
                 if form_or_formset.errors:
                     self.get_single_form_errors(form_or_formset)
             else:

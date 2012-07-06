@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/vendor/extjs/resources/css/ext-all.css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/vendor/extjs/libs/extensible/css/extensible-all.css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/backoffice/css/backoffice.css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/backoffice/css/icons.css" />
+  
+  <script type="text/javascript">
+  	STATIC_URL = "{{ STATIC_URL }}";
+  	MEDIA_URL = "{{ MEDIA_URL }}";
+  	CSRF_TOKEN = "{{ csrf_token }}";
+  	CONFIG = {{ config }};
+  	ACCESS_TOKEN = "{{ access_token }}";
+  </script>
+
+  {% if debug %}
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/vendor/extjs/ext-all-debug.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/vendor/extjs/libs/extensible/extensible-all-debug.js"></script>
+  {% else%}
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/vendor/extjs/ext-all.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/vendor/extjs/libs/extensible/extensible-all.js"></script>
+  {% endif %}
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/vendor/extjs/init.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/backoffice/core.js"></script>
+  <script type="text/javascript" src="{% url xadrpy.contrib.backoffice.views.generic %}"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/backoffice/backoffice.js"></script>
+</head>
+
+<body>
+   <div id="main" role="main">
+   </div>
+  <!--[if lt IE 7 ]>
+    <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+    <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+  <![endif]-->
+</body>
+</html>

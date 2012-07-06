@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/vendor/extjs/resources/css/ext-all.css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/backoffice/css/login.css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/backoffice/css/icons.css" />
+  
+  <script type="text/javascript">
+  	STATIC_URL = "{{ STATIC_URL }}";
+  	MEDIA_URL = "{{ MEDIA_URL }}";
+  	CSRF_TOKEN = "{{ csrf_token }}";
+  	CONFIG = {{ config|default:"{}" }};
+  	ACCESS_TOKEN = "{{ access_token }}";
+  </script>
+
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/vendor/extjs/libs/json2.js"></script>
+  {% if debug %}
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/vendor/extjs/ext-all-debug.js"></script>
+  {% else%}
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/vendor/extjs/ext-all.js"></script>
+  {% endif %}
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/vendor/extjs/init.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}xadrpy/backoffice/login.js"></script>
+</head>
+
+<body>
+</body>
+</html>
