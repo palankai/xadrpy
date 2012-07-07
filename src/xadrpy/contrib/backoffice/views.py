@@ -3,14 +3,14 @@ from django.template.context import RequestContext
 from django.shortcuts import render_to_response
 from django.contrib import auth
 from django.http import HttpResponseRedirect, HttpResponse
-from xadrpy.api.models import Client,Access,Token
+from xadrpy.auth.models import Consumer,Access,Token
 from django.core.urlresolvers import reverse
 import conf
 from django.utils.safestring import mark_safe
 from xadrpy.utils.jsonlib import JSONEncoder
 from django.conf import settings
 from django.template.loader import render_to_string
-from xadrpy.contrib.backoffice.generic import store_manager
+from xadrpy.contrib.backoffice.generic import store_manager, model_manager
 
 
 def extlogin(request):
@@ -28,7 +28,7 @@ def extlogin(request):
     return render_to_response("xadrpy/backoffice/extlogin.html", ctx, RequestContext(request))
 
 def login(request):
-    backoffice_client = Client.objects.get_static_client("backoffice")
+    backoffice_client = Consumer.objects.get_static("backoffice")
     if request.user.is_authenticated():
         auth.logout(request)
     if request.method=="POST":
@@ -81,6 +81,7 @@ def backoffice(request):
 def generic(request):
     content = []
     
-    content.extend([store.render(request) for store in store_manager.get_items()])
+    content.extend([obj.render(request) for obj in model_manager.get_items()])
+    content.extend([obj.render(request) for obj in store_manager.get_items()])
     
     return HttpResponse("\n".join(content), mimetype="text/javascript")

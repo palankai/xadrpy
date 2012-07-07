@@ -1,10 +1,8 @@
 import datetime
 import decimal
-from xadrpy.utils.primitives import PrettyFloat
-try:
-    import json
-except Exception, e:
-    import simplejson as json
+from xadrpy.utils.primitives import PrettyFloat, Native
+from simplejson.encoder import encode_basestring_ascii, encode_basestring
+import simplejson as json
 
 class JSONEncoder( json.JSONEncoder ):
     

@@ -14,6 +14,13 @@ import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 
+class OwnedModel(models.Model):
+    row_owner = models.ForeignKey(User, blank=True, null=True, verbose_name=_("Owner of record"))
+    row_group = models.ForeignKey(Group, blank=True, null=True, verbose_name=_("Owner group of record"))
+    
+    class Meta:
+        abstract = True
+
 class Instance(models.Model):
     key = models.CharField(max_length=255, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)
@@ -74,6 +81,7 @@ class UserScope(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
     modified = models.DateTimeField(auto_now=True, verbose_name=_("Modified"))
     site = models.ForeignKey(Site, verbose_name=_("Site"), blank=True, null=True, related_name="+")
+    group = models.ForeignKey(Group, verbose_name=_("Main group"), blank=True, null=True, related_name="+")
     user =  models.ForeignKey(User, verbose_name=_("User"), related_name="+")
     scope = ListField(default=[], verbose_name=_("Scope"))
 
@@ -261,24 +269,23 @@ def property_expired_pre_save(sender, instance, **kwargs):
         instance.expired = None
 
 
-def property_prepared():
-    print "Poperty loaded"
-    for preference in conf.PREFERENCES:
-        instance=preference.get("instance",None) 
-        site=preference.get("site",None) 
-        consumer=preference.get("consumer",None)
-        role=preference.get("role",None) 
-        namespace=preference.get("namespace",None)
-        key=preference.get("key",None)
-        
-        value=preference.get("value", None) 
-        title=preference.get("title", None)
-        description=preference.get("description", None)
-        meta=preference.get("meta", None)
-        status=preference.get("status", 1)
-        
-        prop = Property.objects.get_by(instance=instance, site=site, consumer=consumer, role=role, namespace=namespace, key=key)
-        prop.set_initial_value(value, title=title, description=description, meta=meta, status=status)
-    property_prepared = lambda: None
-    
-property_prepared()
+#def property_prepared():
+#    for preference in conf.PREFERENCES:
+#        instance=preference.get("instance",None) 
+#        site=preference.get("site",None) 
+#        consumer=preference.get("consumer",None)
+#        role=preference.get("role",None) 
+#        namespace=preference.get("namespace",None)
+#        key=preference.get("key",None)
+#        
+#        value=preference.get("value", None) 
+#        title=preference.get("title", None)
+#        description=preference.get("description", None)
+#        meta=preference.get("meta", None)
+#        status=preference.get("status", 1)
+#        
+#        prop = Property.objects.get_by(instance=instance, site=site, consumer=consumer, role=role, namespace=namespace, key=key)
+#        prop.set_initial_value(value, title=title, description=description, meta=meta, status=status)
+#    property_prepared = lambda: None
+#    
+#property_prepared()

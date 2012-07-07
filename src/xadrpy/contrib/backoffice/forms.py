@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Group
+forms.ModelForm
 
 class LoginForm(forms.Form):
     username = forms.CharField(label=_("Username"))

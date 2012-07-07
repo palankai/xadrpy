@@ -4,6 +4,6 @@ Created on 2012.06.27.
 @author: pcsaba
 '''
 from django.core.urlresolvers import reverse
-from xadrpy import api
+from xadrpy.auth.models import Consumer
 
-api.models.Client.objects.create_static_client("backoffice", "Back Office")
+Consumer.objects.create_static("backoffice", "Back Office")

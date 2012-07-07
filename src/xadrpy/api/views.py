@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from xadrpy.auth.base import permissions
+from xadrpy.auth.base import rights
 
 from xadrpy.api.decorators import APIInterface
 
@@ -22,5 +22,4 @@ def authenticate(request):
 
 @api.response(pattern=False, permissions=False)
 def get_permissions(request):
-    permission_list = permissions.get_permissions()
-    return [{"name": name, "description": description} for name, description in permission_list] 
+    return rights.get_rights_dict()

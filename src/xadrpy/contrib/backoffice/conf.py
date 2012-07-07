@@ -6,3 +6,5 @@ NAMESPACES = {}
 CONTROLLERS = [
     'backoffice.controller.MainMenu',
 ]
+
+STORES = []

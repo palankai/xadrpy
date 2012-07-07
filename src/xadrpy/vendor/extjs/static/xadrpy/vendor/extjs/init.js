@@ -288,19 +288,17 @@ ResponseHandler = function() {
             }
             
         	var has_failure = options instanceof Ext.data.Request && options.scope.failure || options.scope.failure
-            /*if (!has_failure) {
-            	window.setTimeout(function() {
-		            msg.show({
-		                title   : opt.title || this.errorTitle,
-		                msg     : opt.message,
-		                buttons : msg.OK,//Ext.window.MessageBox.OK,
-		                icon    : msg[error.level.toUpperCase()],
-		                cls     :'msgbox-'+error.level,
-		                width   : 400,
-		                modal	: true
-		            });
-            	}, 100);
-            }*/
+            if (!has_failure) {
+	            msg.show({
+	                title   : opt.title || this.errorTitle,
+	                msg     : opt.message,
+	                buttons : msg.OK,//Ext.window.MessageBox.OK,
+	                icon    : msg[error.level.toUpperCase()],
+	                cls     :'msgbox-'+error.level,
+	                width   : 400,
+	                modal	: true
+	            });
+            }
             if(resp.errorCallback) {
               var errorCallback = new Ext.data.ScriptTagProxy({
                   timeout : 5000,
@@ -490,6 +488,28 @@ ResponseHandler = function() {
 
 }();
 
+
+
+Ext.define('Ext.data.writer.Form', {
+    extend: 'Ext.data.writer.Writer',
+    alternateClassName: 'Ext.data.FormWriter',
+    alias: 'writer.form',
+    //inherit docs
+    writeRecords: function(request, data) {
+        if (data.length != 1) {
+        	Ext.Error.raise('Form writer doesn\'t write multiple records');
+        }
+        data = data[0];
+        for (name in data) {
+        	request.params[name] = data[name]
+        }
+        return request
+    }
+});
+
+
+
+
 Ext.onReady(function() {
 	Ext.require([
 	             'Ext.ux.form.field.DateTime'
@@ -498,6 +518,7 @@ Ext.onReady(function() {
 		Ext.Ajax.on('requestcomplete', function(con, response, options) {
 		        var res = ResponseHandler.isFailure(response);
 		        if(res && res.success===false) {
+		        		console.log(response, options);
 		                ResponseHandler.handleFailure(response,options);                                                                                                                                                                                      
 		                return false;                                                                                                                                                                                                                         
 		        } else {
