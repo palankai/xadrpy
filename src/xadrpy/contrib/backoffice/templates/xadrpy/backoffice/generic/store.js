@@ -1,6 +1,6 @@
 {% load xtemplates %}
 Ext.define('{{ name }}', {
-    extend: 'Ext.data.Store',
+    extend: '{{ base }}',
     autoLoad: {{ autoload|JSON }},
     fields: {{ fields|JSON }},
 {% if model_name %} model: '{{ model_name }}', {% endif %}

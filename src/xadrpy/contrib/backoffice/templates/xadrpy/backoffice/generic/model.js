@@ -1,6 +1,6 @@
 {% load xtemplates %}
 Ext.define('{{ name }}', {
-    extend: 'Ext.data.Model',
+    extend: '{{ base }}',
     fields: {{ fields|JSON }},
 {% if proxy == "rest" %}    
     proxy: {

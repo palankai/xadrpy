@@ -179,6 +179,7 @@ class ModelBased(APIObject):
 class ModelOptions(object):
     def __init__(self, options=None):
         self.name = getattr(options, 'name', None)
+        self.base = getattr(options, 'base', "Ext.data.Model")
         self.template = getattr(options, 'template', "xadrpy/backoffice/generic/model.js")
         self.proxy = getattr(options, "proxy", "rest")
         self.form = getattr(options, 'form', None)
@@ -192,6 +193,7 @@ class BaseModel(ModelBased):
         print dir(self.base_fields)
         ctx = {
             'name': self._meta.name,
+            'base': self._meta.base,
             'url': reverse(self.main),
             'create_url': reverse(self.create),
             'update_url': reverse(self.update),
@@ -210,6 +212,7 @@ class BaseModel(ModelBased):
 class StoreOptions(object):
     def __init__(self, options=None):
         self.name = getattr(options, 'name', None)
+        self.base = getattr(options, 'base', "Ext.data.Store")
         self.template = getattr(options, 'template', "xadrpy/backoffice/generic/store.js")
         self.autoload = getattr(options, 'autoload', False)
         self.proxy = getattr(options, "proxy", "rest")
@@ -224,8 +227,9 @@ class BaseStore(ModelBased):
     def render(self, request):
         ctx = {
             'name': self._meta.name,
+            'base': self._meta.base,
             'autoload': self._meta.autoload,
-            'model_name': self._meta.model_obj._meta.name,
+            'model_name': self._meta.model_obj._meta.name if self._meta.model_obj else None,
             'url': reverse(self.main),
             'create_url': reverse(self.create),
             'update_url': reverse(self.update),
@@ -243,6 +247,6 @@ class BaseStore(ModelBased):
 
 class Model(BaseModel):
     __metaclass__ = MetaclassFactory(BaseModel, ModelOptions, Field)
-        
+      
 class Store(BaseStore):
     __metaclass__ = MetaclassFactory(BaseStore, StoreOptions, Field)

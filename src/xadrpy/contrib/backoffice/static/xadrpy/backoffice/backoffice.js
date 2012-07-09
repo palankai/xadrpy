@@ -8,13 +8,9 @@ Ext.application({
     	BackOffice = this;
 
     	Ext.QuickTips.init();    	
-
-    	var eventStore = Ext.create('Extensible.calendar.data.MemoryEventStore', {
-            // defined in ../data/Events.js
-            data: []
-        });
     	
-        var viewport = Ext.create('Ext.container.Viewport', {
+
+    	var viewport = Ext.create('Ext.container.Viewport', {
             layout: 'border',
             id: 'viewport',
             title: 'BackOffice',
@@ -40,21 +36,12 @@ Ext.application({
                 items: [{
                     title: 'Asztal',
                     xtype: 'panel',
-                },
-                {
-                        xtype: 'extensible.calendarpanel',
-                        title: 'Naptár',
-                        eventStore: eventStore,
-                        width: 700,
-                        height: 500,
-                        activeItem: 1,
-                        editModal: true
                 }]    		
             } 
             ]
         });
     },
-    controllers: CONFIG.controllers, 
+    controllers: CONFIG.controllers,
 });
 
 
