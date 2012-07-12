@@ -12,69 +12,6 @@ try:
 except:
     import simplejson as json
 
-#def urlencode(query, doseq=0):
-#    """Encode a sequence of two-element tuples or dictionary into a URL query string.
-#
-#    If any values in the query arg are sequences and doseq is true, each
-#    sequence element is converted to a separate parameter.
-#
-#    If the query arg is a sequence of two-element tuples, the order of the
-#    parameters in the output will match the order of parameters in the
-#    input.
-#    """
-#
-#    if hasattr(query,"items"):
-#        # mapping objects
-#        query = query.items()
-#    else:
-#        # it's a bother at times that strings and string-like objects are
-#        # sequences...
-#        try:
-#            # non-sequence items should not work with len()
-#            # non-empty strings will fail this
-#            if len(query) and not isinstance(query[0], tuple):
-#                raise TypeError
-#            # zero-length sequences of all types will get here and succeed,
-#            # but that's a minor nit - since the original implementation
-#            # allowed empty dicts that type of behavior probably should be
-#            # preserved for consistency
-#        except TypeError:
-#            ty,va,tb = sys.exc_info()
-#            raise TypeError, "not a valid non-string sequence or mapping object", tb
-#
-#    l = []
-#    if not doseq:
-#        # preserve old behavior
-#        for k, v in query:
-#            k = quote_plus(unicode(k))
-#            v = quote_plus(unicode(v))
-#            l.append(k + '=' + v)
-#    else:
-#        for k, v in query:
-#            k = quote_plus(str(k))
-#            if isinstance(v, str):
-#                v = quote_plus(v)
-#                l.append(k + '=' + v)
-#            elif _is_unicode(v):
-#                # is there a reasonable way to convert to ASCII?
-#                # encode generates a string, but "replace" or "ignore"
-#                # lose information and "strict" can raise UnicodeError
-#                v = quote_plus(v.encode("ASCII","replace"))
-#                l.append(k + '=' + v)
-#            else:
-#                try:
-#                    # is this a sufficient test for sequence-ness?
-#                    len(v)
-#                except TypeError:
-#                    # not a sequence
-#                    v = quote_plus(str(v))
-#                    l.append(k + '=' + v)
-#                else:
-#                    # loop over the sequence
-#                    for elt in v:
-#                        l.append(k + '=' + quote_plus(str(elt)))
-#    return u'&'.join(l)
-
 def _get_stack():
     if not settings.DEBUG: 
         return []
@@ -126,6 +63,7 @@ class APIInterface(object):
             
             if pattern != False:
                 self._append(self.prefix+(pattern or r"%s/$" % func.__name__), view_func_wrapper, kwargs)
+            view_func_wrapper.csrf_exempt = True
             return view_func_wrapper
     
         if func:
@@ -262,6 +200,7 @@ class APIObject(object):
                     view_func_wrapper._APIResponse = (func.__name__, kwargs)
                 if type(pattern) == str:
                     view_func_wrapper._APIResponse = (pattern, kwargs)
+            view_func_wrapper.csrf_exempt = True
             return view_func_wrapper
         
         if func:
@@ -310,6 +249,7 @@ class APIClass(object):
                     view_func_wrapper._APIResponse = (func, func.__name__, kwargs)
                 if type(pattern) == str:
                     view_func_wrapper._APIResponse = (func, pattern, kwargs)
+            view_func_wrapper.csrf_exempt = True
             return view_func_wrapper
         
         if func:

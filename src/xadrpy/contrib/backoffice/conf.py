@@ -1,5 +1,6 @@
-TITLE = "BackOffice"
-DESCRIPTION = "BackOffice System"
+from django.conf import settings
+TITLE = getattr(settings, "BACKOFFICE_TITLE","BackOffice")
+DESCRIPTION = getattr(settings, "BACKOFFICE_TITLE","BackOffice System")
 
 NAMESPACES = {}
 

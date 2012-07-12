@@ -13,8 +13,6 @@ Ext.application({
     	var viewport = Ext.create('Ext.container.Viewport', {
             layout: 'border',
             id: 'viewport',
-            title: 'BackOffice',
-            iconCls: 'icon-add',
     		style: {
     			backgroundColor: "white",
     		},
@@ -25,7 +23,7 @@ Ext.application({
             items: [{
             	region: 'north',
             	xtype: 'panel',
-            	title: 'BackOffice',
+            	title: CONFIG.title,
             	id: 'header',
             }, 
             {
