@@ -14,9 +14,17 @@ import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 
+class UserProxy(User):
+    class Meta:
+        proxy = True
+
+class GroupProxy(Group):
+    class Meta:
+        proxy = True
+
 class OwnedModel(models.Model):
-    row_owner = models.ForeignKey(User, blank=True, null=True, verbose_name=_("Owner of record"))
-    row_group = models.ForeignKey(Group, blank=True, null=True, verbose_name=_("Owner group of record"))
+    author = models.ForeignKey(UserProxy, blank=True, null=True, verbose_name=_("Owner of record"))
+    author_group = models.ForeignKey(GroupProxy, blank=True, null=True, verbose_name=_("Owner group of record"))
     
     class Meta:
         abstract = True

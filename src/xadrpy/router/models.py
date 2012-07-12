@@ -22,7 +22,7 @@ class Route(TreeInheritable):
     slug = NullCharField(max_length=255, verbose_name=_("URL part"))
     meta = DictField(verbose_name=_("Meta data"))
     i18n = models.BooleanField(default=False)
-    signiture = NullCharField(max_length=128)
+    signature = NullCharField(max_length=128)
     
     need_reload = True
     
@@ -66,22 +66,20 @@ class Route(TreeInheritable):
             return i18n_patterns(*args, **kwargs)
         return patterns(*args, **kwargs)
     
-    def get_url(self, kwargs={}):
-        return None
+    def get_urls(self, kwargs={}):
+        return []
     
     def append_pattern(self, url_patterns):
         root_language_code = self.get_root_language_code()
         kwargs = root_language_code and {conf.LANGUAGE_CODE_KWARG: root_language_code} or {}
-        url = self.get_url(kwargs)
-        if not url: return
-        url_patterns+=self.patterns('',
-            url,
-        )
+        urls = self.get_urls(kwargs)
+        if not urls: return
+        url_patterns+=self.patterns('', *urls)
     
     def get_root_language_code(self):
         return self.get_root().language_code
     
-    def get_signiture(self):
+    def get_signature(self):
         return u"%s:%s-%s-%s-%s" % (xadrpy.VERSION, self.site.id, not self.parent and self.language_code or None, self.slug, self.i18n)
 
 @receiver(pre_save, sender=None)
@@ -123,9 +121,9 @@ class View(Route):
         verbose_name_plural = _("Views")
         db_table = "xadrpy_router_view"
 
-    def get_url(self, kwargs={}):
+    def get_urls(self, kwargs={}):
         kwargs.update(self.kwargs or {})
-        return url(self.get_translated_regex(), self.view_name, kwargs=kwargs, name=self.name)
+        return [url(self.get_translated_regex(), self.view_name, kwargs=kwargs, name=self.name)]
 
 class Include(Route):
     include_name = models.CharField(max_length=255)
@@ -138,7 +136,7 @@ class Include(Route):
         verbose_name_plural = _("Includes")
         db_table = "xadrpy_router_include"
 
-    def get_url(self, kwargs={}):
+    def get_urls(self, kwargs={}):
         kwargs.update(self.kwargs or {})
         return url(self.get_translated_regex(postfix=""), include(self.include_name, self.namespace, self.app_name), kwargs=kwargs)
 
@@ -154,9 +152,9 @@ class Static(Route):
     def get_regex(self, postfix="$", slash="/"):
         return super(Static, self).get_regex(postfix=postfix, slash="")
 
-    def get_url(self, kwargs={}):
+    def get_urls(self, kwargs={}):
         kwargs.update({'router': self})
-        url(self.get_translated_regex(), 'xadrpy.routers.views.static', kwargs=kwargs)        
+        return [url(self.get_translated_regex(), 'xadrpy.routers.views.static', kwargs=kwargs)]        
 
 class Template(Route):
     template_name = models.CharField(max_length=255, verbose_name=_("Template name"))
@@ -171,9 +169,9 @@ class Template(Route):
     def get_regex(self, postfix="$", slash="/"):
         return super(Static, self).get_regex(postfix=postfix, slash="")
 
-    def get_url(self, kwargs={}):
+    def get_urls(self, kwargs={}):
         kwargs.update({'router': self})
-        return url(self.get_translated_regex(), 'xadrpy.routers.views.template', kwargs=kwargs)
+        return [url(self.get_translated_regex(), 'xadrpy.routers.views.template', kwargs=kwargs)]
 
 class InlineTemplate(Route):
     body = models.TextField(verbose_name=_("Template"))
@@ -188,9 +186,9 @@ class InlineTemplate(Route):
     def get_regex(self, postfix="$", slash="/"):
         return super(Static, self).get_regex(postfix=postfix, slash="")
     
-    def get_url(self, kwargs={}):
+    def get_urls(self, kwargs={}):
         kwargs.update({'router': self})
-        return url(self.get_translated_regex(), 'xadrpy.routers.views.inline_template', kwargs=kwargs)
+        return [url(self.get_translated_regex(), 'xadrpy.routers.views.inline_template', kwargs=kwargs)]
     
 class Redirect(Route):
     url = NullCharField(max_length=255, null=False, blank=False, verbose_name=_("URL"))
@@ -201,6 +199,6 @@ class Redirect(Route):
         verbose_name_plural = _("Redirects")
         db_table = "xadrpy_router_redirect"
 
-    def get_url(self, kwargs={}):
+    def get_urls(self, kwargs={}):
         kwargs.update({'router': self})
-        return url(self.get_translated_regex(), 'xadrpy.routers.views.redirect', kwargs=kwargs) 
+        return [url(self.get_translated_regex(), 'xadrpy.routers.views.redirect', kwargs=kwargs)] 
