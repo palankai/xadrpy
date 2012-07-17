@@ -20,7 +20,7 @@ class BaseStringSetField(models.Field):
         if isinstance( value, StringValue ):
             return value
         choices_values = self.get_choices_values()
-        values = [self._trans(v).strip() for v in super(StringSetField, self).to_python( value ).strip(self.delimiter).split(self.delimiter) if v.strip() and (not choices_values or v.strip() in choices_values)]
+        values = [self._trans(v).strip() for v in super(BaseStringSetField, self).to_python( value ).strip(self.delimiter).split(self.delimiter) if v.strip() and (not choices_values or v.strip() in choices_values)]
         return StringValue( self.delimiter.join(list(set(values))) )
     
     def _trans(self, value):
@@ -37,7 +37,7 @@ class BaseStringSetField(models.Field):
         value = value.strip(self.delimiter)
         if self.enclosed and value:
             value = self.delimiter+value+self.delimiter
-        return super(StringSetField, self).get_db_prep_value( value, connection, prepared )
+        return super(BaseStringSetField, self).get_db_prep_value( value, connection, prepared )
 
     def get_choices_values(self):
         if not self.choices:

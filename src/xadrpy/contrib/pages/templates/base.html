@@ -15,5 +15,10 @@
 {% block main %}
 	<div id="content">{% block content %}{% endblock %}</div>
 	<div id="left">{% block left %}Left{% endblock %}</div>
-	<div id="right">{% block right %}{% menu %}{% endblock %}</div>
+	<div id="right">{% block right %}
+		{% plugin 'x-menu' 'rightmenu' %}
+		{% plugin 'x-snippet' 'rightmenu' with-inline %}
+		hello
+		{% endplugin %}		
+	{% endblock %}</div>
 {% endblock %}

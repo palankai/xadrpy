@@ -16,6 +16,11 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.http import Http404
 from django.core.urlresolvers import reverse
+from xadrpy.models.fields.stringset_field import StringSetField
+from xadrpy.utils.signals import autodisvover_signal
+from django.dispatch.dispatcher import receiver
+from xadrpy.contrib.pages.libs import Plugin, PLUGIN_CACHE
+from inspect import isclass
 
 logger = logging.getLogger("Pages")
 
@@ -83,14 +88,51 @@ class Page(ViewRoute, OwnedModel):
         })
         return render_to_response(template, context, RequestContext(request))
 
+class PluginStore(models.Model):
+    plugin = models.CharField(max_length=255, unique=True)
+    template = NullCharField(max_length=255)
+    slots = StringSetField()
+
+    class Meta:
+        verbose_name = _("Plugin store")
+        verbose_name_plural = _("Plugin store")
+        db_table = "xadrpy_pages_plugin_store"
+
+@receiver(autodisvover_signal)
+def register_in_store(**kwargs):
+    import imp
+    from django.utils import importlib
+
+    for app in settings.INSTALLED_APPS:
+        
+        try:                                                                                                                          
+            app_path = importlib.import_module(app).__path__                                                                          
+        except AttributeError:                                                                                                        
+            continue 
+        
+        try:                                                                                                                          
+            imp.find_module('plugins', app_path)                                                                               
+        except ImportError:                                                                                                           
+            continue                                                                                                                  
+        module = importlib.import_module("%s.plugins" % app)
+        for name in dir(module):
+            cls = getattr(module,name)
+            if isclass(cls) and issubclass(cls, Plugin) and cls!=Plugin:
+                store = PluginStore.objects.get_or_create(plugin=cls.get_name())[0]
+                if store.template:
+                    cls.template = store.template
+                PLUGIN_CACHE[cls.get_name()]=cls
+                if cls.alias:
+                    PLUGIN_CACHE[cls.alias]=cls
+
 class PluginInstance(TreeInheritable, OwnedModel):
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
     modified = models.DateTimeField(auto_now=True, verbose_name=_("Modified"))
 
     plugin = models.CharField(max_length=255)
+    placeholder = NullCharField(max_length=255)
 
     page = models.ForeignKey(Page, null=True)
-    placeholder = NullCharField(max_length=255)
     position = models.IntegerField(default=1)
 
     language_code = NullCharField(max_length=5)
@@ -103,3 +145,6 @@ class PluginInstance(TreeInheritable, OwnedModel):
     
     def __unicode__(self):
         return self.key
+
+class SnippetInstance(PluginInstance):
+    body = models.TextField(blank=True, null=True)
