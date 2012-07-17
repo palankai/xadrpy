@@ -10,3 +10,14 @@ ACCOUNT_KEY_LENGTH = 32
 
 PREFERENCES = getattr(settings, "PREFERENCES", ())
 
+ROW_PERMISSIONS=(
+    ('author-read', 'Author read'),
+    ('author-update', 'Author update'),
+    ('author-delete', 'Author delete'),
+    ('group-read', 'Author read'),
+    ('group-update', 'Author update'),
+    ('group-delete', 'Author delete'),
+    ('other-read', 'Author read'),
+    ('other-update', 'Author update'),
+    ('other-delete', 'Author delete'),
+)

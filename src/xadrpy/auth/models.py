@@ -21,14 +21,18 @@ class UserProxy(User):
 class GroupProxy(Group):
     class Meta:
         proxy = True
+        
 
 class OwnedModel(models.Model):
-    author = models.ForeignKey(UserProxy, blank=True, null=True, verbose_name=_("Owner of record"))
-    author_group = models.ForeignKey(GroupProxy, blank=True, null=True, verbose_name=_("Owner group of record"))
+    user = models.ForeignKey(UserProxy, blank=True, null=True, verbose_name=_("User"))
+    group = models.ForeignKey(GroupProxy, blank=True, null=True, verbose_name=_("Group"))
     
     class Meta:
         abstract = True
-
+#        permissions = (
+#            ("view_", "Can see available tasks"),
+#        )
+        
 class Instance(models.Model):
     key = models.CharField(max_length=255, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)

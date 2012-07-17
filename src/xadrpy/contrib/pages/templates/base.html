@@ -1,0 +1,19 @@
+{% extends "html5/base.html" %}
+
+{% load pages_tags %}
+
+{% block extrastyle %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/pages/default.css" />
+{% endblock %}
+
+
+{% block header %}
+<h1>{{ page.title }}</h1>
+{% endblock %}
+
+{% block main %}
+	<div id="content">{% block content %}{% endblock %}</div>
+	<div id="left">{% block left %}Left{% endblock %}</div>
+	<div id="right">{% block right %}{% menu %}{% endblock %}</div>
+{% endblock %}

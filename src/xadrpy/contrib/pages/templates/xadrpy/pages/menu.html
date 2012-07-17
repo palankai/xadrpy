@@ -1,0 +1,19 @@
+{% load pages_tags %}
+{% if items %}
+<ul{% if not parent %} class="x-pages-menu"{% else %} class="{% if parent == selected %}x-selected-list {% elif parent.id in ancestors %}x-contains-selected-list {% endif %}"{% endif %}>
+{% for item in items %}
+<li class="{% if item == selected %}x-selected-item {% elif item.id in ancestors %}x-contains-selected-item {% endif %}{% if item.is_child_node %}x-child-item {% endif %}{% if item.is_leaf_node %}x-leaf-item {% endif %}{% if item.is_root_node %}x-root-item {% endif %}">
+{% if item.append_tree %}
+<a href="{{ item.get_absolute_url }}" class="{% if item == selected %}x-selected {% elif item.id in ancestors %}x-contains-selected {% endif %}{% if item.is_child_node %}x-child {% endif %}{% if item.is_leaf_node %}x-leaf {% endif %}{% if item.is_root_node %}x-root {% endif %}">
+{{ item.menu_title }}
+</a>
+{% else %}
+<span class="{% if item == selected %}x-selected {% elif item.id in ancestors %}x-contains-selected {% endif %}{% if item.is_child_node %}x-child {% endif %}{% if item.is_leaf_node %}x-leaf {% endif %}{% if item.is_root_node %}x-root {% endif %}">
+{{ item.menu_title }}
+</span>
+{% endif %}
+{% if item.get_children %}{% menu parent=item selected=selected ancestors=ancestors %}{% endif %}
+</li>
+{% endfor %}
+</ul>
+{% endif %}

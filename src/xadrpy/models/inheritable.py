@@ -60,6 +60,9 @@ try:
         objects = TreeInheritableManager()
         tree = TreeInheritableManager()
     
+        def get_parent(self):
+            return self.parent and self.parent.descendant or None
+    
         def save( self, *args, **kwargs ):
             if not self.pk:
                 self.descendant_type = ContentType.objects.get_for_model( self )

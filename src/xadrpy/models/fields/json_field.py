@@ -13,9 +13,9 @@ class JSONField(models.Field):
     def __init__(self, *args, **kwargs):
         kwargs['blank'] = True
         kwargs['null'] = True
-        kwargs['editable'] = False
         kwargs['unique'] = False
         kwargs['db_index'] = False
+        kwargs.setdefault('editable', False)
         super(JSONField, self).__init__(*args, **kwargs)
         
     def get_default( self ):
