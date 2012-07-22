@@ -3,10 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 from xadrpy.models.fields.nullchar_field import NullCharField
 import conf
 import datetime
-from xadrpy.router.models import Route, ViewRoute
-from xadrpy.models.fields.dict_field import DictField
-from xadrpy.models.fields.json_field import JSONField
-from xadrpy.models.inheritable import Inheritable, TreeInheritable
+from xadrpy.router.models import ViewRoute
+from xadrpy.models.inheritable import TreeInheritable
 from ckeditor.fields import RichTextField
 import logging
 from xadrpy.auth.models import OwnedModel
@@ -14,7 +12,6 @@ from django.conf import settings
 from django.conf.urls import url
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.http import Http404
 from django.core.urlresolvers import reverse
 from xadrpy.models.fields.stringset_field import StringSetField
 from xadrpy.utils.signals import autodisvover_signal
@@ -30,12 +27,19 @@ class Page(ViewRoute, OwnedModel):
     template_name = models.CharField(max_length=255, blank=True, null=True, choices=conf.TEMPLATES, verbose_name = _("Template"))
     extra_classes = models.CharField(max_length=255, blank=True, verbose_name = _("Extra classes"), default="")
     enable_comments = models.BooleanField(default=True, verbose_name = _("Enable comments"), db_index=True)
+    lock_comments = models.BooleanField(default=False, verbose_name = _("Lock comments"), db_index=True)
 
     status = models.CharField(max_length=16, choices=conf.PAGE_STATES, default='PUB')
     publication = models.DateTimeField(default=datetime.datetime.now, verbose_name = _("Publication start"), db_index=True)
     publication_end = models.DateTimeField(verbose_name = _("Publication end"), null=True, blank=True, db_index=True)
 
     content = RichTextField(blank=True, null=True, verbose_name = _("Content"))
+    
+    meta_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta title"))
+    meta_keywords = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta keywords"))
+    meta_description = models.TextField(blank=True, null=True, verbose_name=_("Meta description"))
+    meta_robots = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta robots"))
+    meta_cannonical = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta cannoncical"))
 
     class Meta:
         verbose_name = _("Page")
@@ -148,3 +152,5 @@ class PluginInstance(TreeInheritable, OwnedModel):
 
 class SnippetInstance(PluginInstance):
     body = models.TextField(blank=True, null=True)
+    
+
