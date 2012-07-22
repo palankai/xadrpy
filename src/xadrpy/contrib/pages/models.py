@@ -28,6 +28,7 @@ class Page(ViewRoute, OwnedModel):
     extra_classes = models.CharField(max_length=255, blank=True, verbose_name = _("Extra classes"), default="")
     enable_comments = models.BooleanField(default=True, verbose_name = _("Enable comments"), db_index=True)
     lock_comments = models.BooleanField(default=False, verbose_name = _("Lock comments"), db_index=True)
+    view_count = models.PositiveIntegerField(default=0, verbose_name=_("View count"))
 
     status = models.CharField(max_length=16, choices=conf.PAGE_STATES, default='PUB')
     publication = models.DateTimeField(default=datetime.datetime.now, verbose_name = _("Publication start"), db_index=True)
@@ -153,4 +154,7 @@ class PluginInstance(TreeInheritable, OwnedModel):
 class SnippetInstance(PluginInstance):
     body = models.TextField(blank=True, null=True)
     
-
+    class Meta:
+        verbose_name = _("Snippet Plugin")
+        verbose_name_plural = _("Snippet Plugins")
+        db_table = "xadrpy_pages_snippet_instance"

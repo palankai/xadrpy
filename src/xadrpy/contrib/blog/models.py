@@ -1,14 +1,10 @@
 from xadrpy.models.fields.nullchar_field import NullCharField
 from django.db import models
-from django.conf import settings
 import conf 
-from django.conf.urls import url
 from xadrpy.auth.models import OwnedModel
-from xadrpy.models.fields.json_field import JSONField
-from xadrpy.contrib.pages.models import Layout, Page
-from xadrpy.models.fields.dict_field import DictField
+from xadrpy.contrib.pages.models import Page
 import datetime
-from xadrpy.models.inheritable import Inheritable, InheritableManager
+from xadrpy.models.inheritable import TreeInheritable, TreeInheritableManager
 from ckeditor.fields import RichTextField
 from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
@@ -21,10 +17,10 @@ from django.utils import importlib
 class Column(Page):
     resolver = models.CharField(max_length=255, choices=conf.RESOLVERS, default=conf.DEFAULT_RESOLVER, verbose_name=_("Resolver"))
     
-    list_layout = models.ForeignKey(Layout, verbose_name=_("List layout"), related_name="+")
+    list_layout = models.ForeignKey(Page, verbose_name=_("Default list layout"), related_name="+")
     list_extra_classes = models.CharField(max_length=255, blank=True)
 
-    post_layout = models.ForeignKey(Layout, verbose_name=_("Post layout"), related_name="+")
+    post_layout = models.ForeignKey(Page, verbose_name=_("Default post layout"), related_name="+")
     post_extra_classes = models.CharField(max_length=255, blank=True)
     
     class Meta:
@@ -66,7 +62,7 @@ class Category(MPTTModel):
     slug = models.SlugField(max_length=255, verbose_name=_("URL part"))
     description = RichTextField(blank=True, null=True, verbose_name=_("Description"))
 
-    layout = models.ForeignKey(Layout, verbose_name=_("Layout"), related_name="+")
+    layout = models.ForeignKey(Page, verbose_name=_("Layout"), related_name="+")
     extra_classes = models.CharField(max_length=255, blank=True)
     
     tree = TreeManager()
@@ -79,22 +75,22 @@ class Category(MPTTModel):
     def __unicode__(self):
         return self.title
     
-class BasePost(Inheritable, OwnedModel):
+class BasePost(TreeInheritable, OwnedModel):
     column = models.ForeignKey(Column, verbose_name=_("Column"), related_name="posts")
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
     modified = models.DateTimeField(auto_now=True, verbose_name=_("Modified"))
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     slug = models.SlugField(max_length=255, verbose_name=_("URL part"), db_index=True)
-    head = JSONField(default={})
     view_count = models.IntegerField(default=0, verbose_name = _("View count"))
+    layout = models.ForeignKey(Page, null=True, blank=True, verbose_name=_("Layout"), related_name="+")
     extra_classes = models.CharField(max_length=255, blank=True, verbose_name = _("Extra classes"), default="")
-    layout = models.ForeignKey(Layout, null=True, blank=True, verbose_name=_("Layout"), related_name="+")
     categories = models.ManyToManyField(Category, blank=True, null=True, verbose_name=_("Categories"), db_table="xadrpy_blog_post_categories")
     publication = models.DateTimeField(default=datetime.datetime.now, verbose_name = _("Publication start"), db_index=True)
     publication_end = models.DateTimeField(verbose_name = _("Publication end"), null=True, blank=True, db_index=True)
-    status = models.CharField(max_length=16, choices=conf.POST_STATES, default='PUB')
+    status = models.CharField(max_length=16, choices=conf.POST_STATES, default='DRA')
 
     enable_comments = models.BooleanField(default=True, verbose_name = _("Enable comments"), db_index=True)
+    lock_comments = models.BooleanField(default=False, verbose_name = _("Lock comments"), db_index=True)
 
     is_featured = models.BooleanField(default=False, verbose_name = _("Is featured"))
     weight = models.IntegerField(default=1, verbose_name=_("Weight"))
@@ -102,10 +98,17 @@ class BasePost(Inheritable, OwnedModel):
     posts = models.ManyToManyField('self', blank=True, null=True, verbose_name = _("Related posts"), db_table="xadrpy_blog_post_posts")
     pages = models.ManyToManyField(Page, blank=True, null=True, verbose_name=_("Related pages"), db_table="xadrpy_blog_post_pages")
 
-    source = models.URLField(verbose_name=_("Source URL"), blank=True, null=True)
-    source_title = NullCharField(max_length=255, verbose_name=_("Source title"), blank=True, null=True)
+    source = NullCharField(max_length=255, verbose_name=_("Source title"), blank=True, null=True)
+    source_url = models.URLField(verbose_name=_("Source URL"), blank=True, null=True)
 
-    objects = InheritableManager() 
+    meta_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta title"))
+    meta_keywords = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta keywords"))
+    meta_description = models.TextField(blank=True, null=True, verbose_name=_("Meta description"))
+    meta_robots = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta robots"))
+    meta_cannonical = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta cannoncical"))
+
+
+    objects = TreeInheritableManager()
 
     class Meta:
         verbose_name = _("Base post")
@@ -158,7 +161,7 @@ class Post(BasePost):
 
 
 class Gallery(BasePost):
-    image = models.ImageField(upload_to="Gallery", blank=True, null=True, verbose_name = _("Image"))
+    image = models.ImageField(upload_to="gallery", blank=True, null=True, verbose_name = _("Image"))
     description = RichTextField(blank=True, null=True, verbose_name = _("Excerpt"))
 
     class Meta:
@@ -169,6 +172,7 @@ class Gallery(BasePost):
 class GalleryImage(models.Model):
     image = models.ImageField(upload_to="Gallery", blank=True, null=True, verbose_name = _("Image"))
     title = NullCharField(max_length=255, verbose_name=_("Title"))
+    slug = models.SlugField(max_length=255)
     description = RichTextField(blank=True, null=True, verbose_name = _("Description"))
 
     class Meta:
