@@ -127,7 +127,6 @@ class XWidgetBase(template.Node):
                 return v.resolve(context)
         args = [arg.resolve( context ) for arg in self.args]
         kwargs = dict( [( smart_str( k, 'ascii' ), resolve(v, context) ) for k, v in self.kwargs.items()] )
-        print kwargs
         
         if isinstance(self.template, FilterExpression):
             kwargs['TEMPLATE']=get_template(self.template.resolve( context ))

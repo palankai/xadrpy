@@ -259,6 +259,9 @@ class Property(models.Model):
         db_table = "xadrpy_access_property"
         unique_together = ("instance","site","account","rule","consumer","role","group","user","access","token", "custom_ct", "custom_id", "namespace", "key", "language_code")
 
+    def __unicode__(self):
+        return self.title or "%s# %s" % (self.id, self.key)
+
     def is_valid(self):
         if self.invalid: return False
         if self.timeout == 0: return True
@@ -268,8 +271,12 @@ class Property(models.Model):
     def set_value(self, value, language_code=None):
         if not language_code:
             self.value = value
+            self.source = None
             self.save()
-        else:
+        if language_code:
+            if self.source:
+                self.source = None
+                self.save()
             alternative = self.get_alternative(language_code)
             alternative.value = value
             alternative.save() 
@@ -286,13 +293,14 @@ class Property(models.Model):
             return self.value
         
     
-    def set_initial_value(self, value, title=None, description=None, meta=None, status=1, vtype=None):
+    def set_initial_value(self, value, title=None, description=None, meta=None, status=1, vtype=None, source=None):
         self.value = value
         self.title = title
         self.description = description
         self.meta = meta
         self.status = status
         self.vtype = vtype
+        self.source = source
         self.save()
     
     def set_initial_alternative(self, language_code, value, title=None, description=None, meta=None, rewrite=False):
@@ -349,6 +357,9 @@ def prefs(key=None, instance=None, site=None, consumer=None, account=None, rule=
         pref=Property.objects.get_by(**kwargs)
     return pref and pref.get_value(language_code=trans) or default
 
+def prefs_find(**kwargs):
+    return Property.objects.find_by(**kwargs)
+
 def prefs_get(value, key=None, instance=None, site=None, consumer=None, account=None, rule=None, role=None, group=None, user=None, access=None, token=None, custom=None, namespace=None, language_code=None, trans=None):
     return Property.objects.get_by(key=key, instance=instance, site=site, consumer=consumer, account=account, rule=rule, role=role, group=group, user=user, access=access, token=token, custom=custom, namespace=namespace, language_code=language_code)
 
@@ -389,7 +400,7 @@ def property_prepared(**kwargs):
         """
         return ";".join(["%s:%s" % (k,v) for k,v in d.items()])
     
-    def process_preference(preferences, preference):
+    def process_preference(preferences, preference, source):
         """
         Process a preference
         
@@ -415,7 +426,7 @@ def property_prepared(**kwargs):
         trans=preference.get("trans", {})
         
         k = {'instance': instance, 'site': site, 'consumer': consumer, 'role': role, 'namespace': namespace, 'key': key, 'language_code': language_code}
-        v = {'value': value, 'vtype': vtype, 'title': title, 'description': description, 'meta': meta, 'status': status, 'init': init, 'debug': debug, 'trans': trans}
+        v = {'value': value, 'vtype': vtype, 'title': title, 'description': description, 'meta': meta, 'status': status, 'init': init, 'debug': debug, 'trans': trans, 'source': source}
         v.update(k)
         h = hash_for_dict(k)
         
@@ -427,24 +438,25 @@ def property_prepared(**kwargs):
     preferences = dict()
 
     for app in settings.INSTALLED_APPS:
-        
-        try:                                                                                                                          
-            app_path = importlib.import_module(app).__path__                                                                          
-        except AttributeError:                                                                                                        
-            continue 
-        
-        try:                                                                                                                          
-            imp.find_module('conf', app_path)                                                                               
-        except ImportError:                                                                                                           
-            continue                                                                                                                  
-        module = importlib.import_module("%s.conf" % app)
+
+        try:
+            app_path = importlib.import_module(app).__path__
+        except AttributeError:
+            continue
+
+        try:
+            imp.find_module('conf', app_path)
+        except ImportError:
+            continue
+        conf_module_name = "%s.conf" % app
+        module = importlib.import_module(conf_module_name)
         PREFERENCES = getattr(module, "PREFERENCES", ())
 
         for preference in PREFERENCES:
-            process_preference(preferences, preference)
+            process_preference(preferences, preference, conf_module_name)
     
     for preference in conf.PREFERENCES:
-        process_preference(preferences, preference)
+        process_preference(preferences, preference, "settings")
     
     for kwargs in preferences.values():
         Property.objects.init_by(**kwargs)
