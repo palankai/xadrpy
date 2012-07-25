@@ -15,6 +15,8 @@ import hashlib
 import xadrpy
 from django.conf import settings
 from xadrpy.models.fields.json_field import JSONField
+from xadrpy.i18n.models import Translation
+from xadrpy.i18n.fields import TranslationForeignKey
 
 
 class Route(TreeInheritable):
@@ -52,12 +54,7 @@ class Route(TreeInheritable):
         return regex + postfix
 
     def get_slug(self, language_code):
-        try:
-            alternative = self.alternatives.get(site=self.site, language_code=language_code)
-            return alternative.slug
-        except: 
-            pass
-        return self.slug or ""
+        return self.translation(language_code=language_code).slug or ""
 
     def get_translated_regex(self, postfix="$", slash="/"):
         language_code = get_language()
@@ -91,6 +88,20 @@ class Route(TreeInheritable):
     def get_signature(self):
         return u"%s:%s-%s-%s-%s-%s" % (xadrpy.VERSION, self.site.id, not self.parent and self.language_code or None, self.slug, self.i18n, self.append_tree)
 
+class RouteTranslation(Translation):
+    origin = TranslationForeignKey(Route, related_name="+")
+    language_code = models.CharField(max_length=5)
+
+    title = models.CharField(max_length=255, verbose_name=_("Title"))
+    menu_title = NullCharField(max_length=255, verbose_name=_("Menu title"))
+    image = models.ImageField(upload_to="images", blank=True, null=True, verbose_name = _("Image"))
+    slug = NullCharField(max_length=255, verbose_name=_("URL part"))
+
+    class Meta:
+        db_table = "xadrpy_router_route_translation"
+
+RouteTranslation.register(Route)
+
 @receiver(pre_save, sender=None)
 def check_signature(sender, instance, **kwargs):
     if isinstance(instance, Route):
@@ -108,18 +119,6 @@ if conf.TOUCH_WSGI_FILE:
         if isinstance(instance, Route) and instance.need_reload and conf.WSGI_PATH:
             with file(conf.WSGI_PATH, 'a'):
                 os.utime(conf.WSGI_PATH, None)
-
-class RouteAlternatives(Inheritable):
-    route = models.ForeignKey(Route, verbose_name=_("Route"), related_name="alternatives")
-    site = models.ForeignKey(Site, verbose_name=_("Site"), default=conf.DEFAULT_SITE_ID)
-    language_code = NullCharField(max_length=5, verbose_name=_("Language code"))
-    slug = NullCharField(max_length=255, verbose_name=_("URL part"))
-
-    class Meta:
-        unique_together = ('route', 'site', 'language_code')
-        verbose_name = _("Route alternative")
-        verbose_name_plural = _("Route alternatives")
-        db_table = "xadrpy_router_route_alternatives"
 
 class ViewRoute(Route):
     view_name = NullCharField(max_length=255)
