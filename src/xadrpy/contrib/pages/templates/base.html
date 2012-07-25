@@ -2,7 +2,7 @@
 
 {% load pages_tags prefs %}
 
-{% block meta-title %}{% prefs key='meta_title' site=0 %}{% endblock %}
+{% block meta-title %}{% prefs key='meta_title' %}{% endblock %}
 
 {% block extrastyle %}
 	{{ block.super }}
@@ -11,7 +11,7 @@
 
 
 {% block header %}
-<div class="head"><h1>{% prefs key='page_title' site=0 %}</h1></div>
+<div class="head"><h1>{% prefs key='page_title' %}</h1></div>
 <div class="wallpaper">
 </div>
 <div class="nav">
