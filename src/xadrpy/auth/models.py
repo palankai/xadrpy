@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext as _
+from django.utils.translation import get_language
 from xadrpy.models.fields.nullchar_field import NullCharField
 from xadrpy.models.fields.list_field import ListField
 from xadrpy.models.fields.object_field import ObjectField
@@ -13,6 +14,7 @@ from django.db.models.signals import pre_save, class_prepared
 import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
+from xadrpy.utils.signals import application_started
 
 class UserProxy(User):
     class Meta:
@@ -239,6 +241,8 @@ class Property(models.Model):
     custom = GenericForeignKey(ct_field="custom_ct", fk_field="custom_id")
     namespace = NullCharField(max_length=255, db_index=True, verbose_name=_("Namespace"), editable=False)
     key = NullCharField(max_length=255, db_index=True, verbose_name=_("Key"), editable=False)
+    vtype = NullCharField(max_length=255, verbose_name=_("Format"))
+    language_code = NullCharField(max_length=5, db_index=True, verbose_name=_("Language code"), editable=False)
     title = NullCharField(max_length=255, verbose_name=_("Title"))
     description = NullCharField(max_length=255, verbose_name=_("Description"))
     meta = ObjectField(_("Meta data"))
@@ -252,7 +256,7 @@ class Property(models.Model):
         verbose_name = _("Property")
         verbose_name_plural = _("Properties")
         db_table = "xadrpy_auth_property"
-        unique_together = ("instance","site","account","rule","consumer","role","group","user","access","token", "custom_ct", "custom_id", "namespace", "key")
+        unique_together = ("instance","site","account","rule","consumer","role","group","user","access","token", "custom_ct", "custom_id", "namespace", "key", "language_code")
 
     def is_valid(self):
         if self.invalid: return False
@@ -260,17 +264,104 @@ class Property(models.Model):
         if self.expired == None: return True
         return datetime.datetime.now() >= self.expired
     
-    def set_value(self, value):
-        self.value = value
-        self.save()
+    def set_value(self, value, language_code=None):
+        if not language_code:
+            self.value = value
+            self.save()
+        else:
+            alternative = self.get_alternative(language_code)
+            alternative.value = value
+            alternative.save() 
+        
+    def get_value(self, language_code=None):
+        if not language_code:
+            return self.value
+        if language_code == True:
+            language_code = get_language()
+        try:
+            alternative = self.alternatives.get(language_code=language_code)
+            return alternative.value
+        except PropertyAlternative.DoesNotExist:
+            return self.value
+        
     
-    def set_initial_value(self, value, title=None, description=None, meta=None, status=1):
+    def set_initial_value(self, value, title=None, description=None, meta=None, status=1, vtype=None):
         self.value = value
         self.title = title
         self.description = description
         self.meta = meta
         self.status = status
+        self.vtype = vtype
         self.save()
+    
+    def set_initial_alternative(self, language_code, value, title=None, description=None, meta=None, rewrite=False):
+        alternative, created = self.get_or_create_alternative(language_code)
+        if created or rewrite:
+            alternative.title = title
+            alternative.description = description
+            alternative.meta = meta
+            alternative.value = value
+            alternative.save()
+
+    def get_alternative(self, language_code):
+        alternative, unused = self.get_or_create_alternative(language_code)
+        return alternative
+
+    def get_or_create_alternative(self, language_code):
+        return PropertyAlternative.objects.get_or_create(base=self, language_code=language_code)
+    
+
+class PropertyAlternative(models.Model):
+    base = models.ForeignKey(Property, related_name="alternatives")
+    language_code = models.CharField(max_length=5, verbose_name=_("Language code"), editable=False)
+    title = NullCharField(max_length=255, verbose_name=_("Title"))
+    description = NullCharField(max_length=255, verbose_name=_("Description"))
+    meta = ObjectField(_("Meta data"))
+    value = ObjectField(_("Value"))
+    
+    class Meta:
+        verbose_name = _("Property alternative")
+        verbose_name_plural = _("Property alternatives")
+        db_table = "xadrpy_auth_property_alternative"
+        unique_together = ("base","language_code")
+
+def prefs(key=None, instance=None, site=None, consumer=None, account=None, rule=None, role=None, group=None, user=None, access=None, token=None, custom=None, namespace=None, language_code=None, default=None, trans=None, order=[]):
+    kwargs = {
+        'key':key, 
+        'instance':instance, 
+        'site':site, 
+        'consumer':consumer, 
+        'account':account, 
+        'rule':rule, 
+        'role':role, 
+        'group':group, 
+        'user':user, 
+        'access':access, 
+        'token':token, 
+        'custom':custom, 
+        'namespace':namespace, 
+        'language_code':language_code,
+    }
+    pref=Property.objects.get_by(**kwargs)
+    while not pref and len(order):
+        kwargs.pop(order.pop())
+        pref=Property.objects.get_by(**kwargs)
+    return pref and pref.get_value(language_code=trans) or default
+
+def prefs_get(value, key=None, instance=None, site=None, consumer=None, account=None, rule=None, role=None, group=None, user=None, access=None, token=None, custom=None, namespace=None, language_code=None, trans=None):
+    return Property.objects.get_by(key=key, instance=instance, site=site, consumer=consumer, account=account, rule=rule, role=role, group=group, user=user, access=access, token=token, custom=custom, namespace=namespace, language_code=language_code)
+
+def prefs_set(value, key=None, instance=None, site=None, consumer=None, account=None, rule=None, role=None, group=None, user=None, access=None, token=None, custom=None, namespace=None, language_code=None, trans=None):
+    pref, unused = Property.objects.get_or_create_by(key=key, instance=instance, site=site, consumer=consumer, account=account, rule=rule, role=role, group=group, user=user, access=access, token=token, custom=custom, namespace=namespace, language_code=language_code)
+    pref.value = value
+    pref.save()
+
+def prefs_drop(key=None, instance=None, site=None, consumer=None, account=None, rule=None, role=None, group=None, user=None, access=None, token=None, custom=None, namespace=None, language_code=None, trans=None):
+    try:
+        pref = Property.objects.get_by(key=key, instance=instance, site=site, consumer=consumer, account=account, rule=rule, role=role, group=group, user=user, access=access, token=token, custom=custom, namespace=namespace, language_code=language_code)
+        pref.delete()
+    except Property.DoesNotExist:
+        pass
 
 @receiver(pre_save, sender=Property)
 def property_expired_pre_save(sender, instance, **kwargs):
@@ -280,24 +371,79 @@ def property_expired_pre_save(sender, instance, **kwargs):
     else:
         instance.expired = None
 
+@receiver(application_started)
+def property_prepared(**kwargs):
+    """
+    Read preferences from module's conf and from settings
+    """
+    
+    import imp
+    from django.conf import settings
+    from django.utils import importlib
+    
+    def hash_for_dict(d):
+        """
+        Generate an easy hash for a simple dict
+        :param d: a dict
+        """
+        return ";".join(["%s:%s" % (k,v) for k,v in d.items()])
+    
+    def process_preference(preferences, preference):
+        """
+        Process a preference
+        
+        :param preferences: common preferences dict
+        :param preference: simple dict
+        """
+        instance=preference.get("instance",None) 
+        site=preference.get("site",None) 
+        consumer=preference.get("consumer",None)
+        role=preference.get("role",None) 
+        namespace=preference.get("namespace",None)
+        key=preference.get("key",None)
+        language_code=preference.get("language_code",None)
+        
+        value=preference.get("value", None) 
+        vtype=preference.get("vtype", None) 
+        title=preference.get("title", None)
+        description=preference.get("description", None)
+        meta=preference.get("meta", None)
+        status=preference.get("status", 1)
+        init=preference.get("init", False)
+        debug=preference.get("debug", False)
+        trans=preference.get("trans", {})
+        
+        k = {'instance': instance, 'site': site, 'consumer': consumer, 'role': role, 'namespace': namespace, 'key': key, 'language_code': language_code}
+        v = {'value': value, 'vtype': vtype, 'title': title, 'description': description, 'meta': meta, 'status': status, 'init': init, 'debug': debug, 'trans': trans}
+        v.update(k)
+        h = hash_for_dict(k)
+        
+        if h in preferences:
+            preferences[h].update(v)
+        else:
+            preferences[h]=v
 
-#def property_prepared():
-#    for preference in conf.PREFERENCES:
-#        instance=preference.get("instance",None) 
-#        site=preference.get("site",None) 
-#        consumer=preference.get("consumer",None)
-#        role=preference.get("role",None) 
-#        namespace=preference.get("namespace",None)
-#        key=preference.get("key",None)
-#        
-#        value=preference.get("value", None) 
-#        title=preference.get("title", None)
-#        description=preference.get("description", None)
-#        meta=preference.get("meta", None)
-#        status=preference.get("status", 1)
-#        
-#        prop = Property.objects.get_by(instance=instance, site=site, consumer=consumer, role=role, namespace=namespace, key=key)
-#        prop.set_initial_value(value, title=title, description=description, meta=meta, status=status)
-#    property_prepared = lambda: None
-#    
-#property_prepared()
+    preferences = dict()
+
+    for app in settings.INSTALLED_APPS:
+        
+        try:                                                                                                                          
+            app_path = importlib.import_module(app).__path__                                                                          
+        except AttributeError:                                                                                                        
+            continue 
+        
+        try:                                                                                                                          
+            imp.find_module('conf', app_path)                                                                               
+        except ImportError:                                                                                                           
+            continue                                                                                                                  
+        module = importlib.import_module("%s.conf" % app)
+        PREFERENCES = getattr(module, "PREFERENCES", ())
+
+        for preference in PREFERENCES:
+            process_preference(preferences, preference)
+    
+    for preference in conf.PREFERENCES:
+        process_preference(preferences, preference)
+    
+    for kwargs in preferences.values():
+        Property.objects.init_by(**kwargs)

@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="{{ STATIC_URL }}html5/css/style.css" />
   <link rel="stylesheet" href="{{ STATIC_URL }}html5/css/xreset.css" />
   <link rel="stylesheet" href="{{ STATIC_URL }}libs/jquery-ui/css/ui-lightness/jquery-ui.full.css" />
+  <link rel="stylesheet" media="screen" href="{{ STATIC_URL }}libs/superfish/css/superfish.css" />
   {% endblock %}
 
   {% block extrastyle %}{% endblock %}
@@ -32,6 +33,11 @@
   <script src="{{ STATIC_URL }}libs/jquery.form.js"></script>
   <script src="{{ STATIC_URL }}libs/jquery.metadata.js"></script>
   <script src="{{ STATIC_URL }}libs/json2.js"></script>
+  <script src="{{ STATIC_URL }}libs/hoverIntent.js"></script>
+  <script src="{{ STATIC_URL }}libs/jquery.bgiframe.min.js"></script> 
+  <script src="{{ STATIC_URL }}libs/superfish/superfish.js"></script> 
+  <script src="{{ STATIC_URL }}libs/superfish/supersubs.js"></script>  
+  <script src="{{ STATIC_URL }}libs/superfish/init.js"></script>
   {% endblock %}
   
   {% block extrascript %}{% endblock %}
@@ -41,14 +47,15 @@
 <body class="{% block bodyclass %}{% endblock%}">{% block body %}
   <div id="container">
   {% block container %}
-    <header id="header">{% block header %}{% endblock %}</header>
+    <header id="header">{% block header %}{% endblock %}<div class="clear"></div></header>
+    
     <div id="main" role="main">
     {% block main %}
 	    <div id="content">{% block content %}{% endblock %}</div>
 	{% endblock %}
 	<div class="clear"></div>
     </div>
-    <footer id="footer">{% block footer %}{% endblock %}</footer>
+    <footer id="footer">{% block footer %}{% endblock %}<div class="clear"></div></footer>
   {% endblock %}
   </div> <!--! end of #container -->
   {% block endcontainer %}{% endblock %}

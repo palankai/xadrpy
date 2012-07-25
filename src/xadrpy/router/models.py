@@ -16,6 +16,7 @@ import xadrpy
 from django.conf import settings
 from xadrpy.models.fields.json_field import JSONField
 
+
 class Route(TreeInheritable):
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
     modified = models.DateTimeField(auto_now=True, verbose_name=_("Modified"))

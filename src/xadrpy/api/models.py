@@ -8,9 +8,7 @@ from django.conf.urls.defaults import url
 def api_autodiscover(**kwargs):
     import imp
     from django.conf import settings
-
     from django.utils import importlib
-
 
     for app in settings.INSTALLED_APPS:
         

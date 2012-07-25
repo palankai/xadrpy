@@ -1,0 +1,15 @@
+{% extends "xadrpy/pages/page.html" %}
+
+{% load pages_tags %}
+
+{% block content %}
+{{ block.super }}
+<hr />
+{% plugin 'x-posts' 'content-footer' posts=page.posts.all %}
+{% endblock %}
+
+{% block right %}
+{{ block.super }}
+<br />
+{% plugin 'x-archives' 'right' router=page %}
+{% endblock %}

@@ -11,3 +11,6 @@ PAGE_STATES = (
     ('PUB', _('Published')),
     ('HID', _('Hidden')),
 )
+
+PREFERENCES = (
+)

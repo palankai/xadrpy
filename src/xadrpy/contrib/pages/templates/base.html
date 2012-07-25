@@ -1,6 +1,8 @@
 {% extends "html5/base.html" %}
 
-{% load pages_tags %}
+{% load pages_tags prefs %}
+
+{% block meta-title %}{% prefs key='meta_title' site=0 %}{% endblock %}
 
 {% block extrastyle %}
 	{{ block.super }}
@@ -9,16 +11,19 @@
 
 
 {% block header %}
-<h1>{{ page.title }}</h1>
+<div class="head"><h1>{% prefs key='page_title' site=0 %}</h1></div>
+<div class="wallpaper">
+</div>
+<div class="nav">
+{% plugin 'x-hmenu' 'header' %}
+<div class="clear"></div>
+</div>
 {% endblock %}
 
 {% block main %}
 	<div id="content">{% block content %}{% endblock %}</div>
-	<div id="left">{% block left %}Left{% endblock %}</div>
+	<div id="left">{% block left %}{% endblock %}</div>
 	<div id="right">{% block right %}
 		{% plugin 'x-menu' 'rightmenu' %}
-		{% plugin 'x-snippet' 'rightmenu' with-inline %}
-		hello
-		{% endplugin %}		
 	{% endblock %}</div>
 {% endblock %}

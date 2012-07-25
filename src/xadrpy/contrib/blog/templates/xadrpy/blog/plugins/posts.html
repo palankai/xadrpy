@@ -1,0 +1,6 @@
+{% for post in posts %}
+<h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+<div>{{ post.publication }}</div>
+{{ post.get_excerpt|safe }}
+<a href="{{ post.get_absolute_url }}">Tovább...</a>
+{% endfor %}

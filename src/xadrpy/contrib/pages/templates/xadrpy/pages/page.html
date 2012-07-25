@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+
+{% block meta-title%}{{page.get_meta_title}} | {{ block.super }}{% endblock %}
+
 {% block content %}
-[main]
 <h2>{{ page.title }}</h2>
 {{ page.content|safe }}
 {% endblock %}

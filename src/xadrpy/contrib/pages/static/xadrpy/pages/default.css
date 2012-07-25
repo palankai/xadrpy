@@ -1,14 +1,30 @@
+body {
+	background-color: silver;
+}
 #container {
 	width: 960px;
-	margin: 0 auto;
+	margin: 20px auto;
+	background-color: white;
 }
 header {
-	padding: 10px 0px;
-	border-bottom: 1px solid black;
+	margin-bottom: 10px;
+	padding: 0px 0px;
+}
+header .wallpaper {
+	height: 250px;
+	background: url(assets/header.jpg) no-repeat left top;
+}
+header .head {
+	padding: 10px;
+	border-top: 2px solid gray;
+}
+header .nav {
+	background-color: #BDD2FF;
 }
 footer {
-	border-top: 1px solid black;
 	margin-top: 5px;
+	text-align: center;
+	padding: 1px;
 }
 #left {
 	width: 200px;
@@ -52,4 +68,18 @@ ul ul {
 
 .x-pages-menu a.x-contains-selected {
 	font-style: italic;
+}
+
+.x-pages-hmenu a.x-selected {
+	font-weight: bold;
+}
+
+.x-pages-hmenu a.x-contains-selected {
+	font-style: italic;
+}
+.x-pages-hmenu {
+	margin-bottom: 0px;
+}
+.x-pages-hmenu a {
+	border-left: 0;
 }

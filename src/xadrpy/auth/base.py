@@ -2,6 +2,7 @@ import logging
 from django.utils.datastructures import SortedDict
 logger = logging.getLogger("Auth")
 
+
 class Right(object):
     def __init__(self, manager, key, title, description="", category=None, level=None):
         self.manager = manager

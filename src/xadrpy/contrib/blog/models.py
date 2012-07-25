@@ -17,11 +17,14 @@ from django.utils import importlib
 class Column(Page):
     resolver = models.CharField(max_length=255, choices=conf.RESOLVERS, default=conf.DEFAULT_RESOLVER, verbose_name=_("Resolver"))
     
-    list_layout = models.ForeignKey(Page, verbose_name=_("Default list layout"), related_name="+")
+    list_layout = models.ForeignKey(Page, verbose_name=_("Default list layout"), related_name="+", blank=True, null=True)
     list_extra_classes = models.CharField(max_length=255, blank=True)
 
-    post_layout = models.ForeignKey(Page, verbose_name=_("Default post layout"), related_name="+")
+    post_layout = models.ForeignKey(Page, verbose_name=_("Default post layout"), related_name="+", blank=True, null=True)
     post_extra_classes = models.CharField(max_length=255, blank=True)
+    
+    default_view = "xadrpy.contrib.blog.views.column"
+    default_template = "xadrpy/blog/column.html"
     
     class Meta:
         verbose_name = _("Column")
@@ -145,6 +148,9 @@ class BasePost(TreeInheritable, OwnedModel):
             'layout': layout
         })
         return render_to_response(template, context, RequestContext(request))
+    
+    def get_excerpt(self):
+        return ""
         
     def get_absolute_url(self):
         return self.column.get_resolver().get_absolute_url(self)
@@ -158,6 +164,9 @@ class Post(BasePost):
         verbose_name = _("Post")
         verbose_name_plural = _("Posts")
         db_table = "xadrpy_blog_post"
+
+    def get_excerpt(self):
+        return self.excerpt or self.content
 
 
 class Gallery(BasePost):

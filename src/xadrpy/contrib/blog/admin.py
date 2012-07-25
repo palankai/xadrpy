@@ -6,10 +6,16 @@ class PostAdmin(ModelAdmin):
     date_hierarchy = 'created'
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'categories', 'column')
+            'fields': ('column','title', 'slug', 'categories')
+        }),
+        (None, {
+            'fields': ('content','excerpt', 'excerpt_image')
+        }),
+        (_("SEO"), {
+            'fields': ('meta_title', 'meta_description', 'meta_keywords','meta_robots','meta_cannonical')
         }),
         (_('Publication'), {
-            'fields': ('author', 'author_group', 'status','publication', 'publication_end', 'source', 'source_title')
+            'fields': ('user', 'group', 'status','publication', 'publication_end', 'source', 'source_url')
         }),
         (_('Relations'), {
             'fields': ('posts', 'pages')
@@ -17,15 +23,22 @@ class PostAdmin(ModelAdmin):
         (_('Extra'), {
             'fields': ('weight', 'is_featured', 'layout', 'extra_classes', 'view_count', 'enable_comments')
         }),
-        (None, {
-            'fields': ('excerpt_image', 'excerpt', 'content',)
-        }),
     )
-    list_display = ('column', 'title', 'created', 'author', 'status',)
+    list_display = ('column', 'title', 'created', 'user', 'status',)
     list_display_links = ('title', )
-    list_filter = ('column', 'author')
+    list_filter = ('column', 'user')
     prepopulated_fields = {"slug": ("title",)}
     search_fields = ('title',)
+    actions = ['make_published']
+    
+    def make_published(self, request, queryset):
+        rows_updated = queryset.update(status='PUB')
+        if rows_updated == 1:
+            message_bit = "1 story was"
+        else:
+            message_bit = "%s stories were" % rows_updated
+        self.message_user(request, "%s successfully marked as published." % message_bit)
+    make_published.short_description = "Mark selected stories as published"            
 
 site.register(Column)
 site.register(Category)

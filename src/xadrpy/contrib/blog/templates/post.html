@@ -1,5 +1,10 @@
 {% extends "base.html" %}
+
+{% load pages_tags %}
+
+
 {% block content %}
 <h2>{{ post.title }}</h2>
 {{ post.content|safe }}
+{% plugin 'x-comments' 'content-footer' entry=post %}
 {% endblock %}

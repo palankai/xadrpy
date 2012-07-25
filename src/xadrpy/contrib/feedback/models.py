@@ -1,35 +1,22 @@
 from django.db import models
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
-from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
-import datetime
+from django.contrib.comments.models import Comment
+import mptt.models
+import mptt.managers
+import mptt.fields
 
-class Linkback(models.Model):
-    content_type = models.ForeignKey(ContentType, verbose_name=_("Content type"), related_name="+")
-    content_id = models.PositiveIntegerField(verbose_name=_("Content id"))
-    content = generic.GenericForeignKey('content_type', 'content_id')
-    
-    url = models.URLField(verbose_name=_("URL"))
+class Feedback(mptt.models.MPTTModel, Comment):
+    parent = mptt.fields.TreeForeignKey('self', null=True, blank=True, related_name='answers')
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
-    name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name"))
-    excerpt = models.TextField(blank=True, null=True, verbose_name=_("Excerpt"))
-    
-    remote_ip = models.IPAddressField(verbose_name=_("Remote IP"))
-    site = models.ForeignKey(Site, verbose_name=_("Site"))
-    is_public = models.BooleanField(default=False, verbose_name=_("Is public"))
-    submit_date = models.DateTimeField(default=None, verbose_name=_("Submit date"))
-    
-    class Meta:
-        unique_together = ('content_type','content_id','url')
-        verbose_name = _("Linkback")
-        verbose_name_plural = _("Linkbacks")
-        db_table = "xadrpy_linkback_linkback"
-    
-    def __unicode__(self):
-        return u"Linkback from %s" % self.url
+    site_name = models.CharField(max_length=255, blank=True, null=True)
+    language_code = models.CharField(max_length=5, blank=True, null=True, verbose_name=_("Language code"))
+    is_remote = models.BooleanField(default=False, verbose_name=_("Is remote"))
 
-    def save(self, *args, **kwargs):
-        if self.submit_date is None:
-            self.submit_date = datetime.datetime.now()
-        super(Linkback, self).save(*args, **kwargs)
+    tree = mptt.managers.TreeManager()
+
+    class Meta:
+        verbose_name = _("Feedback")
+        verbose_name_plural = _("Feedback")
+        db_table = "xadrpy_feedback_feedback"
+        ordering = ('tree_id', 'lft')
+    

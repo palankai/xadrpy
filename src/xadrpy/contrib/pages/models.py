@@ -12,12 +12,15 @@ from django.conf import settings
 from django.conf.urls import url
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, get_resolver, NoReverseMatch,\
+    Resolver404
 from xadrpy.models.fields.stringset_field import StringSetField
 from xadrpy.utils.signals import autodisvover_signal
 from django.dispatch.dispatcher import receiver
 from xadrpy.contrib.pages.libs import Plugin, PLUGIN_CACHE
+from xadrpy.vendor import trackback
 from inspect import isclass
+from django.contrib.sites.models import Site
 
 logger = logging.getLogger("Pages")
 
@@ -42,13 +45,16 @@ class Page(ViewRoute, OwnedModel):
     meta_robots = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta robots"))
     meta_cannonical = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta cannoncical"))
 
+    default_view = None
+    default_template = None
+
     class Meta:
         verbose_name = _("Page")
         verbose_name_plural = _("Pages")
         db_table = "xadrpy_pages_page"
 
     def get_view_name(self):
-        return self.view_name or conf.DEFAULT_VIEW
+        return self.view_name or self.default_view or conf.DEFAULT_VIEW
 
     def get_urls(self, kwargs={}):
         kwargs.update({'route': self})
@@ -68,8 +74,8 @@ class Page(ViewRoute, OwnedModel):
     def get_template(self):
         layout = self.get_layout()
         if layout:
-            return layout.template_name or conf.DEFAULT_TEMPLATE 
-        return conf.DEFAULT_TEMPLATE
+            return layout.template_name or layout.default_template or conf.DEFAULT_TEMPLATE 
+        return self.default_template or conf.DEFAULT_TEMPLATE
 
     def get_absolute_url(self):
         return reverse(self.get_view_name(), kwargs={'route': self})
@@ -92,6 +98,17 @@ class Page(ViewRoute, OwnedModel):
             'layout': layout
         })
         return render_to_response(template, context, RequestContext(request))
+    
+    def resolve(self, args, kwargs):
+        return self
+
+    def get_meta_title(self):
+        parent_title = ""
+        self_title = self.meta_title or self.title 
+        if self.get_parent() and self.get_parent().get_meta_title():
+            self_title = self_title + " | " + self.get_parent().get_meta_title()
+        return self_title
+
 
 class PluginStore(models.Model):
     plugin = models.CharField(max_length=255, unique=True)
@@ -158,3 +175,16 @@ class SnippetInstance(PluginInstance):
         verbose_name = _("Snippet Plugin")
         verbose_name_plural = _("Snippet Plugins")
         db_table = "xadrpy_pages_snippet_instance"
+
+def resolver(target_url):
+    try:
+        urlresolver = get_resolver(None)
+        site = Site.objects.get_current()
+        func, args, kwargs = urlresolver.resolve(target_url.replace("http://%s"%site.domain, ''))
+        route = kwargs.pop("route", None)
+        if route:
+            return route.resolve(args, kwargs)
+    except (NoReverseMatch, Resolver404), e:
+        return None        
+            
+trackback.registry.add(resolver)
