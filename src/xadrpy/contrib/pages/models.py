@@ -21,6 +21,7 @@ from xadrpy.contrib.pages.libs import Plugin, PLUGIN_CACHE
 from xadrpy.vendor import trackback
 from inspect import isclass
 from django.contrib.sites.models import Site
+from xadrpy.i18n.models import Translation, TranslationForeignKey
 
 logger = logging.getLogger("Pages")
 
@@ -109,6 +110,18 @@ class Page(ViewRoute, OwnedModel):
             self_title = self_title + " | " + self.get_parent().get_meta_title()
         return self_title
 
+class PageTranslation(Translation):
+    origin = TranslationForeignKey(Page, related_name="+")
+    language_code = models.CharField(max_length=5)
+
+    content = RichTextField(blank=True, null=True, verbose_name = _("Content"))
+    meta_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta title"))
+    meta_keywords = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta keywords"))
+    meta_description = models.TextField(blank=True, null=True, verbose_name=_("Meta description"))
+    
+    class Meta:
+        unique_together = ('base', 'language_code')
+        db_table = "xadrpy_pages_page_translation"
 
 class PluginStore(models.Model):
     plugin = models.CharField(max_length=255, unique=True)
