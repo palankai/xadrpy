@@ -1,7 +1,7 @@
 from xadrpy.models.fields.nullchar_field import NullCharField
 from django.db import models
 import conf 
-from xadrpy.auth.models import OwnedModel
+from xadrpy.access.models import OwnedModel
 from xadrpy.contrib.pages.models import Page
 import datetime
 from xadrpy.models.inheritable import TreeInheritable, TreeInheritableManager

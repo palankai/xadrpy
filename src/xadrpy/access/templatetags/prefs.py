@@ -1,6 +1,5 @@
 from xadrpy.templates.lib import XWidgetBase, WidgetLibrary
-from xadrpy.auth.models import Property
-from xadrpy.auth import prefs
+from xadrpy.access import prefs
 
 
 register = WidgetLibrary()

@@ -8,7 +8,7 @@ from xadrpy.models.fields.list_field import ListField
 from xadrpy.models.fields.object_field import ObjectField
 import conf
 import libs
-from xadrpy.auth.managers import PropertyManager, ConsumerManager
+from managers import PropertyManager, ConsumerManager
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import pre_save, class_prepared
 import datetime
@@ -44,21 +44,21 @@ class Instance(models.Model):
     class Meta:
         verbose_name = _("Instance")
         verbose_name_plural = _("Instance")
-        db_table = "xadrpy_auth_instance"
+        db_table = "xadrpy_access_instance"
 
 class Role(models.Model):
     site = models.ForeignKey(Site, verbose_name=_("Site"), blank=True, null=True, related_name="+")
     key = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    permissions = models.ManyToManyField(Permission, verbose_name=_('Permissions'), blank=True, db_table="xadrpy_auth_role_permissions")
-    groups = models.ManyToManyField(Group, verbose_name=_('Groups'), blank=True, db_table="xadrpy_auth_role_groups")
+    permissions = models.ManyToManyField(Permission, verbose_name=_('Permissions'), blank=True, db_table="xadrpy_access_role_permissions")
+    groups = models.ManyToManyField(Group, verbose_name=_('Groups'), blank=True, db_table="xadrpy_access_role_groups")
     status = models.IntegerField(default=1, db_index=True)
     scope = ListField(default=[], verbose_name=_("Scope"))
 
     class Meta:
         verbose_name = _("Role")
         verbose_name_plural = _("Roles")
-        db_table = "xadrpy_auth_role"
+        db_table = "xadrpy_access_role"
         unique_together = (("site", "key"),("site", "name"),)
 
 class Account(models.Model):
@@ -73,7 +73,7 @@ class Account(models.Model):
     class Meta:
         verbose_name = _("Account")
         verbose_name_plural = _("Accounts")
-        db_table = "xadrpy_auth_account"
+        db_table = "xadrpy_access_account"
 
 @receiver(pre_save, sender=Account)
 def account_generate_key(sender, instance, **kwargs):
@@ -83,13 +83,13 @@ def account_generate_key(sender, instance, **kwargs):
 class Rule(models.Model):
     account = models.ForeignKey(Account, related_name="+")
     user = models.ForeignKey(User, related_name="+")
-    roles = models.ManyToManyField(Role, verbose_name=_('Roles'), blank=True, db_table="xadrpy_auth_rule_roles")
+    roles = models.ManyToManyField(Role, verbose_name=_('Roles'), blank=True, db_table="xadrpy_access_rule_roles")
     scope = ListField(default=[], verbose_name=_("Scope"))
 
     class Meta:
         verbose_name = _("Rule")
         verbose_name_plural = _("Rule")
-        db_table = "xadrpy_auth_rule"
+        db_table = "xadrpy_access_rule"
 
 class UserScope(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
@@ -102,7 +102,7 @@ class UserScope(models.Model):
     class Meta:
         verbose_name = _("User scope")
         verbose_name_plural = _("Users scope")
-        db_table = "xadrpy_auth_user_scope"
+        db_table = "xadrpy_access_user_scope"
         unique_together = ("site", "user")
 
 class GroupScope(models.Model):
@@ -115,7 +115,7 @@ class GroupScope(models.Model):
     class Meta:
         verbose_name = _("User scope")
         verbose_name_plural = _("Users scope")
-        db_table = "xadrpy_auth_group_scope"
+        db_table = "xadrpy_access_group_scope"
         unique_together = ("site", "group")
 
 class Consumer(models.Model):
@@ -138,7 +138,7 @@ class Consumer(models.Model):
     class Meta:
         verbose_name = _("Consumer")
         verbose_name_plural = _("Consumer")
-        db_table = "xadrpy_auth_consumer"
+        db_table = "xadrpy_access_consumer"
         unique_together = ("site", "static_key")
 
     def __unicode__(self):
@@ -168,7 +168,7 @@ class Access(models.Model):
     class Meta:
         verbose_name = _("Access")
         verbose_name_plural = _("Access")
-        db_table = "xadrpy_auth_access"
+        db_table = "xadrpy_access_access"
         unique_together = ("site","consumer","user")
 
     def __unicode__(self):
@@ -195,7 +195,7 @@ class Token(models.Model):
     class Meta:
         verbose_name = _("Token")
         verbose_name_plural = _("Tokens")
-        db_table = "xadrpy_auth_token"
+        db_table = "xadrpy_access_token"
 
     def __unicode__(self):
         return u"%s - %s (%s)" % (self.user, self.consumer, self.site)
@@ -249,13 +249,14 @@ class Property(models.Model):
     value = ObjectField(_("Value"))
     invalid = models.BooleanField(default=False, verbose_name=_("Invalid"))
     status = models.IntegerField(default=1)
+    source = NullCharField(max_length=255, verbose_name=_("Source"))
     
     objects = PropertyManager(consumer_cls=Consumer, instance_cls=Instance, role_cls=Role)
     
     class Meta:
         verbose_name = _("Property")
         verbose_name_plural = _("Properties")
-        db_table = "xadrpy_auth_property"
+        db_table = "xadrpy_access_property"
         unique_together = ("instance","site","account","rule","consumer","role","group","user","access","token", "custom_ct", "custom_id", "namespace", "key", "language_code")
 
     def is_valid(self):
@@ -322,7 +323,7 @@ class PropertyAlternative(models.Model):
     class Meta:
         verbose_name = _("Property alternative")
         verbose_name_plural = _("Property alternatives")
-        db_table = "xadrpy_auth_property_alternative"
+        db_table = "xadrpy_access_property_alternative"
         unique_together = ("base","language_code")
 
 def prefs(key=None, instance=None, site=None, consumer=None, account=None, rule=None, role=None, group=None, user=None, access=None, token=None, custom=None, namespace=None, language_code=None, default=None, trans=None, order=[]):

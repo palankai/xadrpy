@@ -7,7 +7,7 @@ from xadrpy.router.models import ViewRoute
 from xadrpy.models.inheritable import TreeInheritable
 from ckeditor.fields import RichTextField
 import logging
-from xadrpy.auth.models import OwnedModel
+from xadrpy.access.models import OwnedModel
 from django.conf import settings
 from django.conf.urls import url
 from django.shortcuts import render_to_response
