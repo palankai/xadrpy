@@ -1,5 +1,4 @@
-from libs import Plugin
-from xadrpy.contrib.pages.models import SnippetInstance
+from xadrpy.templates.libs import Plugin
 import re
 from django.core.urlresolvers import resolve
 from xadrpy.router.models import Route
@@ -8,13 +7,6 @@ from django.template.context import Context
 
 unnecessary_p = re.compile("<p>\s*&nbsp;\s*</p>$")
 
-class SnippetPlugin(Plugin):
-    alias = "x-snippet"
-    model = SnippetInstance
-        
-    def render(self, context):
-        obj = self.get_plugin_instance()
-        return self.get_template().render({})
 
 class MenuPlugin(Plugin):
     alias = "x-menu"
@@ -70,3 +62,20 @@ class CommentsPlugin(Plugin):
         })
         ctx.update(context)
         return self.get_template().render(ctx)
+    
+class FacebookActivityPlugin(Plugin):
+    alias = "x-facebook_activity"
+    template = "xadrpy/pages/plugins/facebook_activity.html"
+    
+    def render(self, context, width=200, height=300, router=None):
+        context.update({"width": width, "height": height})
+        return self.get_template().render(context)
+            
+class FacebookCommentsPlugin(Plugin):
+    alias = "x-facebook_comments"
+    template = "xadrpy/pages/plugins/facebook_comments.html"
+    
+    def render(self, context, width="650", num_posts=5, router=None):
+        context.update({"width": width, "num_posts": num_posts})
+        return self.get_template().render(context)
+            

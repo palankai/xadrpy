@@ -4,8 +4,9 @@
 
 {% block content %}
 {{ block.super }}
-<hr />
+<div class="posts">
 {% plugin 'x-posts' 'content-footer' posts=page.posts.all %}
+</div>
 {% endblock %}
 
 {% block right %}

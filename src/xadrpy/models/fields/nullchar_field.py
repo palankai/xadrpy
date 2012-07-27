@@ -8,7 +8,7 @@ class NullCharField(models.CharField):
         super( NullCharField, self ).__init__( *args, **kwargs )
     
     def get_prep_value(self, value):
-        if not value:
+        if not value and self.null:
             return None
         return self.to_python(value)
 

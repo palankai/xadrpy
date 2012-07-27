@@ -1,0 +1,8 @@
+{% for script in theme.get_scripts %}
+<script src="{{ STATIC_URL }}{{ script }}"></script>
+{% endfor %}
+{% for library in theme.get_libraries %}
+{% for script in library.get_scripts %}
+<script src="{{ STATIC_URL }}{{ script }}"></script>
+{% endfor %}
+{% endfor %}

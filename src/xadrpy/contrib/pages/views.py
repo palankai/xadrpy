@@ -3,9 +3,6 @@ Created on 2012.07.09.
 
 @author: pcsaba
 '''
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
-import datetime
 from django.http import Http404
 
 def page(request, route=None):

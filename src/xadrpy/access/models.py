@@ -26,8 +26,8 @@ class GroupProxy(Group):
         
 
 class OwnedModel(models.Model):
-    user = models.ForeignKey(UserProxy, blank=True, null=True, verbose_name=_("User"))
-    group = models.ForeignKey(GroupProxy, blank=True, null=True, verbose_name=_("Group"))
+    user = models.ForeignKey(User, blank=True, null=True, verbose_name=_("User"))
+    group = models.ForeignKey(Group, blank=True, null=True, verbose_name=_("Group"))
     
     class Meta:
         abstract = True
@@ -334,7 +334,7 @@ class PropertyAlternative(models.Model):
         db_table = "xadrpy_access_property_alternative"
         unique_together = ("base","language_code")
 
-def prefs(key=None, instance=None, site=None, consumer=None, account=None, rule=None, role=None, group=None, user=None, access=None, token=None, custom=None, namespace=None, language_code=None, default=None, trans=None, order=[]):
+def prefs(key=None, default=None, instance=None, site=None, consumer=None, account=None, rule=None, role=None, group=None, user=None, access=None, token=None, custom=None, namespace=None, language_code=None, trans=None, order=[]):
     kwargs = {
         'key':key, 
         'instance':instance, 

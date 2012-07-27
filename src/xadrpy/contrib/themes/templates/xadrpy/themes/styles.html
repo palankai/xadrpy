@@ -1,0 +1,8 @@
+{% for style in theme.get_styles %}
+<link rel="stylesheet" href="{{ STATIC_URL }}{{ style }}" />
+{% endfor %}
+{% for library in theme.get_libraries %}
+{% for style in library.get_styles %}
+<link rel="stylesheet" href="{{ STATIC_URL }}{{ style }}" />
+{% endfor %}
+{% endfor %}

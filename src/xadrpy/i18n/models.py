@@ -13,16 +13,22 @@ class Translation(Inheritable):
                 language_code = get_language()
             try:
                 kwargs = {field.name: self, field.language_code_field:language_code}
-                print cls
-                print kwargs
                 if get_or_create:
-                    obj = cls.objects.get_or_create(**kwargs)[0]
+                    try:
+                        obj = cls.objects.get(**kwargs)
+                    except:
+                        obj = cls(**kwargs)
+                        obj.set_defaults(getattr(obj, field.name))
+                        obj.save()
                 else:
                     obj = cls.objects.get(**kwargs)
                 return getattr(obj, 'descendant', obj) 
             except cls.DoesNotExist:
                 return self
         setattr(origin_cls, field.translator_name, trans)
+    
+    def set_defaults(self, origin):
+        pass
     
     class Meta:
         abstract = True

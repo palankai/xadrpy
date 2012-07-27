@@ -1,0 +1,18 @@
+{
+	"name": "regeneracy",
+	"type": "xadrpy",
+	"doctype": ["XHTML", "XHTML-Strict"],
+	"thumbnail": "regeneracy.gif",
+	"layouts": [
+		{ "name": "index.html" }
+	],
+	"skins": [
+		{ "name": "style.css" }
+	],
+	"styles": ["style.css"],
+	"templates" : [
+		{"name":"post", "source": "post.html"},
+		{"name":"post_excerpt", "source": "post_excerpt.html"},
+		{"name":"sidebar_box", "source": "sidebar_box.html"}
+	]
+}

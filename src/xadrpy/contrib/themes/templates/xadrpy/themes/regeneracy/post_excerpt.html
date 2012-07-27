@@ -1,0 +1,10 @@
+{% load i18n %}
+<div class="post">
+	<h2 class="title"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+	<p class="meta"><span class="date">{{ post.publication.date }}</span><span class="posted">Posted by <a href="#">{{ post.user }}</a></span></p>
+	<div style="clear: both;">&nbsp;</div>
+	<div class="entry">
+		{{ post.get_excerpt|safe }}
+		<p class="links"><a href="{{ post.get_absolute_url }}">{% trans "Read More" %}</a>{% if post.has_comments_enabled %}&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ post.get_absolute_url }}#comments" title="{% trans "Comments" %}">{% trans "Comments" %}</a>{% endif %}</p>
+	</div>
+</div>

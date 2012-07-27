@@ -1,10 +1,10 @@
-from xadrpy.utils.signals import autodisvover_signal
+from xadrpy.utils.signals import autodiscover_signal
 from django.dispatch.dispatcher import receiver
 import conf
 from urls import urlpatterns
 from django.conf.urls.defaults import url
 
-@receiver(autodisvover_signal)
+@receiver(autodiscover_signal)
 def api_autodiscover(**kwargs):
     import imp
     from django.conf import settings

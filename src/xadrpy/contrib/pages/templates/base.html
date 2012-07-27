@@ -1,14 +1,14 @@
-{% extends "html5/base.html" %}
+{% extends request.theme.get_base_html %}
 
 {% load pages_tags prefs %}
 
 {% block meta-title %}{% prefs key='meta_title' %}{% endblock %}
 
-{% block extrastyle %}
-	{{ block.super }}
-	<link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/pages/default.css" />
-{% endblock %}
+{% block h1 %}<a href="/">{% prefs key='page_title' %}</a>{% endblock %}
+{% block mainmenu %}{% plugin 'x-hmenu' 'header' %}{% endblock %}
 
+{% block sidebar %}
+{% endblock %}
 
 {% block header %}
 <div class="head"><h1>{% prefs key='page_title' %}</h1></div>

@@ -1,0 +1,9 @@
+.relative { position: relative; }
+.clear { clear: both; }
+.clear-left { clear: left; }
+.clear-right { clear: right; }
+.nowrap { white-space: nowrap; }
+.center { text-align: center; }
+
+h1, h2, h3, h4, h5, h6 { margin: 0px; }
+p { margin-top: 5px; margin-bottom: 0px; }

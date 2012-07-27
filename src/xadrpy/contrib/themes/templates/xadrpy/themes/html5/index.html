@@ -1,0 +1,76 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  {% load themes_tags %}
+  <meta charset="utf-8" />
+  
+
+  <title>{% block meta-title %}{% endblock %}</title>
+  <meta name="description" content="{% block meta-description %}{% endblock %}" />
+  <meta name="keywords" content="{% block meta-keywords %}{% endblock %}" />
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  {% block extrahead %}{% endblock %}
+
+  <!-- CSS concatenated and minified via ant build script-->
+  {% block basecss %}
+  {% theme_styles with-inline %}
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/themes/html5/style.css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/themes/html5/xreset.css" />
+  <link rel="stylesheet" href="{{ STATIC_URL }}xadrpy/libs/jquery-ui/css/ui-lightness/jquery-ui.full.css" />
+  <link rel="stylesheet" media="screen" href="{{ STATIC_URL }}xadrpy/libs/superfish/css/superfish.css" />
+  {% endtheme_styles %}
+  {% endblock %}
+
+  {% block extrastyle %}{% endblock %}
+  <!-- end CSS-->
+
+  {% block basescript %}
+  {% theme_scripts with-inline %}
+  <script src="{{ STATIC_URL }}xadrpy/libs/modernizr-2.0.6.min.js"></script>
+  <script src="{{ STATIC_URL }}xadrpy/libs/jquery.min.js"></script>
+  <script src="{{ STATIC_URL }}xadrpy/libs/jquery-ui/jquery-ui.full.min.js"></script>
+  <script src="{{ STATIC_URL }}xadrpy/libs/plugins.js"></script>
+  <script src="{{ STATIC_URL }}xadrpy/libs/jquery.cookie.js"></script>
+  <script src="{{ STATIC_URL }}xadrpy/libs/jquery.form.js"></script>
+  <script src="{{ STATIC_URL }}xadrpy/libs/jquery.metadata.js"></script>
+  <script src="{{ STATIC_URL }}xadrpy/libs/json2.js"></script>
+  <script src="{{ STATIC_URL }}xadrpy/libs/hoverIntent.js"></script>
+  <script src="{{ STATIC_URL }}xadrpy/libs/jquery.bgiframe.min.js"></script> 
+  <script src="{{ STATIC_URL }}xadrpy/libs/superfish/superfish.js"></script> 
+  <script src="{{ STATIC_URL }}xadrpy/libs/superfish/supersubs.js"></script>  
+  <script src="{{ STATIC_URL }}xadrpy/libs/superfish/init.js"></script>
+  {% endtheme_scripts %}
+  {% endblock %}
+  
+  {% block extrascript %}{% endblock %}
+  {% block endhead %}{% endblock %}
+</head>
+
+<body class="{% block bodyclass %}{% endblock%}">{% block body %}
+  <div id="container">
+  {% block container %}
+    <header id="header">{% block header %}{% endblock %}<div class="clear"></div></header>
+    
+    <div id="main" role="main">
+    {% block main %}
+	    <div id="content">{% block content %}{% endblock %}</div>
+	{% endblock %}
+	<div class="clear"></div>
+    </div>
+    <footer id="footer">{% block footer %}{% endblock %}<div class="clear"></div></footer>
+  {% endblock %}
+  </div> <!--! end of #container -->
+  {% block endcontainer %}{% endblock %}
+  {% endblock %}
+  
+  <!--[if lt IE 7 ]>
+    <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+    <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+  <![endif]-->
+  {% block endbody %}{% endblock %}
+</body>
+</html>

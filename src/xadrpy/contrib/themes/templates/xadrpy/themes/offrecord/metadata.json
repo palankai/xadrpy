@@ -1,0 +1,6 @@
+{
+	"name": "offrecord",
+	"thumbnail": "offrecord.gif",
+	"layouts": ["index.html"],
+	"skins": ["style.css"]
+}

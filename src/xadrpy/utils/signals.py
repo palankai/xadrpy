@@ -1,4 +1,4 @@
 from django.dispatch.dispatcher import Signal
 
-autodisvover_signal = Signal()
+autodiscover_signal = Signal()
 application_started = Signal()

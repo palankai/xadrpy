@@ -1,9 +1,8 @@
 from django.db import models
 from django.contrib.sites.models import Site
 from xadrpy.models.fields.nullchar_field import NullCharField
-from xadrpy.models.inheritable import TreeInheritable, Inheritable
+from xadrpy.models.inheritable import TreeInheritable
 import conf
-from xadrpy.models.fields.dict_field import DictField
 from django.utils.translation import ugettext_lazy as _, get_language
 from django.conf.urls import patterns, include, url
 from django.utils.functional import lazy
@@ -14,24 +13,33 @@ import os
 import hashlib
 import xadrpy
 from django.conf import settings
-from xadrpy.models.fields.json_field import JSONField
 from xadrpy.i18n.models import Translation
 from xadrpy.i18n.fields import TranslationForeignKey
+from xadrpy.utils.signals import autodiscover_signal
+from xadrpy.utils.imports import get_installed_apps_module, get_class
+from xadrpy.models.fields.dict_field import DictField
+from xadrpy.models.fields.language_code_field import LanguageCodeField
 
 
 class Route(TreeInheritable):
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
     modified = models.DateTimeField(auto_now=True, verbose_name=_("Modified"))
+    master = models.ForeignKey('self', blank=True, null=True, verbose_name=_("Master"), related_name="+")
     site = models.ForeignKey(Site, verbose_name=_("Site"), default=conf.DEFAULT_SITE_ID)
-    language_code = NullCharField(max_length=5, verbose_name=_("Language code"))
+    language_code = LanguageCodeField(verbose_name=_("Language code"), blank=True, null=True, default=None)
     title = models.CharField(max_length=255, verbose_name=_("Title"))
-    menu_title = NullCharField(max_length=255, verbose_name=_("Menu title"))
     image = models.ImageField(upload_to="images", blank=True, null=True, verbose_name = _("Image"))
     slug = NullCharField(max_length=255, verbose_name=_("URL part"))
     i18n = models.BooleanField(default=False)
-    key = NullCharField(max_length=128)
-    append_tree = models.BooleanField(default=True)
-    signature = NullCharField(max_length=128)
+    enabled = models.BooleanField(default=True, verbose_name=_("Is enabled"))
+    visible = models.BooleanField(default=True, verbose_name=_("Is visible"))
+    signature = NullCharField(max_length=128, editable=False, default="")
+    meta = DictField()
+    
+    meta_title = models.CharField(max_length=255, blank=True, verbose_name=_("Meta title"), default="")
+    overwrite_meta_title = models.BooleanField(default=False, verbose_name=_("Overwrite meta title"))
+    meta_keywords = models.CharField(max_length=255, blank=True, verbose_name=_("Meta keywords"), default="")
+    meta_description = models.TextField(blank=True, verbose_name=_("Meta description"), default="")
     
     need_reload = True
     
@@ -54,7 +62,7 @@ class Route(TreeInheritable):
         return regex + postfix
 
     def get_slug(self, language_code):
-        return self.translation(language_code=language_code).slug or ""
+        return self.translation(language_code=language_code).slug or self.slug or ""
 
     def get_translated_regex(self, postfix="$", slash="/"):
         language_code = get_language()
@@ -74,7 +82,7 @@ class Route(TreeInheritable):
         return []
     
     def append_pattern(self, url_patterns):
-        if not self.append_tree: 
+        if not self.enabled: 
             return
         root_language_code = self.get_root_language_code()
         kwargs = root_language_code and {conf.LANGUAGE_CODE_KWARG: root_language_code} or {}
@@ -85,17 +93,55 @@ class Route(TreeInheritable):
     def get_root_language_code(self):
         return self.get_root().language_code
     
+    def get_master(self):
+        self._master = getattr(self, "_master", False)
+        if self._master==False:
+            self._master=None
+            if self.master:
+                self._master = self.master.descendant
+            elif isinstance(self.get_parent(), Route):
+                master = self.get_parent().get_master()
+                if master:
+                    self._master = master.descendant
+        return self._master
+    
+    def get_meta(self):
+        return conf.META_HANDLER_CLS(self)
+    
     def get_signature(self):
-        return u"%s:%s-%s-%s-%s-%s" % (xadrpy.VERSION, self.site.id, not self.parent and self.language_code or None, self.slug, self.i18n, self.append_tree)
+        return u"%s:%s-%s-%s-%s-%s" % (xadrpy.VERSION, self.site.id, not self.parent and self.language_code or None, self.slug, not self.parent and self.i18n, self.enabled)
+
+    def get_meta_title(self):
+        if self.overwrite_meta_title and self.meta_title:
+            return self.meta_title
+        self_title = self.meta_title or self.title 
+        if self.get_parent() and self.get_parent().get_meta_title():
+            self_title = self_title + " | " + self.get_parent().get_meta_title()
+        return self_title
+
+    def get_meta_keywords(self):
+        if self.meta_keywords:
+            return self.meta_keywords
+        return self.get_parent().get_meta_keywords()
+
+    def get_meta_description(self):
+        if self.meta_description:
+            return self.meta_description
+        return self.get_parent().get_meta_description()
+    
 
 class RouteTranslation(Translation):
     origin = TranslationForeignKey(Route, related_name="+")
-    language_code = models.CharField(max_length=5)
+    language_code = LanguageCodeField()
 
     title = models.CharField(max_length=255, verbose_name=_("Title"))
-    menu_title = NullCharField(max_length=255, verbose_name=_("Menu title"))
     image = models.ImageField(upload_to="images", blank=True, null=True, verbose_name = _("Image"))
     slug = NullCharField(max_length=255, verbose_name=_("URL part"))
+    meta = DictField(default={})
+
+    meta_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta title"))
+    meta_keywords = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Meta keywords"))
+    meta_description = models.TextField(blank=True, null=True, verbose_name=_("Meta description"))
 
     class Meta:
         db_table = "xadrpy_router_route_translation"
@@ -123,6 +169,9 @@ if conf.TOUCH_WSGI_FILE:
 class ViewRoute(Route):
     view_name = NullCharField(max_length=255)
     name = NullCharField(max_length=255, unique=True)
+    
+    default_view_name = None
+
     
     class Meta:
         verbose_name = _("View")
@@ -197,21 +246,9 @@ class RedirectRoute(Route):
         kwargs.update({'router': self})
         return [url(self.get_translated_regex(), 'xadrpy.routers.views.redirect', kwargs=kwargs)] 
 
-#class Menu(TreeInheritable):
-#    title = models.CharField(max_length=255, verbose_name=_("Title"))
-#    image = models.ImageField(upload_to="menu", blank=True, null=True, verbose_name=_("Image"))
-#    cls = NullCharField(max_length=255, verbose_name=_("CSS Class"))
-#    target = models.CharField(max_length=64, default="link")
-#    action = NullCharField(max_length=255)
-#    url = NullCharField(max_length=255)
-#    route = models.ForeignKey(Route, verbose_name=_("Route"), blank=True, null=True)
-#    route_depth = models.IntegerField(default=-1, verbose_name=_("Route depth"))
-#    enabled = models.BooleanField(default=True)
-#
-#    class Meta:
-#        verbose_name = _("Menu")
-#        verbose_name_plural = _("Menus")
-#        db_table = "xadrpy_router_menu"
-#    
-#    def __unicode__(self):
-#        return self.title
+@receiver(autodiscover_signal)
+def init_meta_handler(**kwargs):
+    for conf_module in get_installed_apps_module("conf"):
+        conf.META_HANDLER = getattr(conf_module, "META_HANDLER", conf.META_HANDLER)
+    conf.META_HANDLER = getattr(settings, "META_HANDLER", conf.META_HANDLER)
+    conf.META_HANDLER_CLS = get_class(conf.META_HANDLER)

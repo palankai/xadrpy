@@ -1,0 +1,8 @@
+<div class="post">
+	<h2 class="title">{{ post.title }}</h2>
+	<p class="meta"><span class="date">{{ post.publication }}</span><span class="posted">Posted by <a href="#">{{ post.user }}</a></span></p>
+	<div style="clear: both;">&nbsp;</div>
+	<div class="entry">
+		{{ post.get_content|safe }}
+	</div>
+</div>

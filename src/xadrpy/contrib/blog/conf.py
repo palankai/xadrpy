@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+import re
 
 TEMPLATES = getattr(settings, 'PAGES_TEMPLATES', (("page.html", _("Base template")),))
 DEFAULT_VIEW = getattr(settings, 'BLOG_DEFAULT_VIEW', 'xadrpy.contrib.blog.views.column')
@@ -39,3 +40,12 @@ RESOLVERS = (
 )
 DEFAULT_RESOLVER = "xadrpy.contrib.blog.resolvers.MonthBasedResolver"
 RESOLVERS_CACHE = {}
+
+PREFERENCES = (
+    {"key":"comments_enabled", "namespace":"x-blog", "value": True, "vtype": "bool"},
+    {"key":"comments_locked", "namespace":"x-blog", "value": False, "vtype": "bool"}
+)
+if hasattr(settings, "PAGE_BREAK_RE"):
+    PAGE_BREAK_RE = settings.PAGE_BREAK_RE
+else:
+    PAGE_BREAK_RE = re.compile("""<div style="page-break-after: always;">\s+<span style="display: none;">&nbsp;</span></div>""")
