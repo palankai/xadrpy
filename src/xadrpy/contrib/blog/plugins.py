@@ -1,6 +1,8 @@
 from xadrpy.templates.libs import Plugin
 from django.template.context import Context
-from xadrpy.contrib.blog.models import Post
+from xadrpy.contrib.blog.models import Entry, Category
+import logging
+logger = logging.getLogger("x-blog")
 
 class PostsPlugin(Plugin):
     alias = "x-posts"
@@ -23,15 +25,33 @@ class ArchivesPlugin(Plugin):
         })
         return self.get_template().render(ctx)
 
-class LastEntriesPlugin(Plugin):
-    alias = "x-last_entries"
-    template = "xadrpy/blog/plugins/last_entries.html"
+class LatestEntriesPlugin(Plugin):
+    alias = "x-blog-latest_entries"
+    template = "xadrpy/blog/plugins/latest_entries.html"
     
     def render(self, context, router=None):
-        posts = Post.objects.all()
+        entries = Entry.objects.all()
         context.update({
             'router': router,
-            'posts': posts
+            'entries': entries
         })
         return self.get_template().render(context)
-        
+
+class CategoriesPlugin(Plugin):
+    alias = "x-blog-categories"
+    template = "xadrpy/blog/plugins/categories.html"
+
+    def get_title(self):
+        return "Categories"
+    
+    def has_title(self):
+        return True
+
+    def render(self, context, router=None):
+        categories = Category.objects.all()
+        categories[0].get_absolute_url()
+        context.update({
+            'categories': categories,
+        })
+        return self.get_template().render(context)
+    

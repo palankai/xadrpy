@@ -51,7 +51,9 @@ class MetaHandler(object):
         Alapértékek beállítása, figyelembe veszi, hogy a fordított adatokat is vissza kellhet adni
         """
         self.meta.setdefault("menu_title", "")
+        
         self.translated.setdefault("menu_title", self.meta['menu_title'])
     
     def get_menu_title(self):
         return self.translated['menu_title'] or self.get_route().title
+

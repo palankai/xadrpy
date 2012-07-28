@@ -1,0 +1,10 @@
+{% extends request.theme.template.base %}
+
+{% block content %}
+{% if show_content %}
+<div class="post">
+<h2 class="title">{{ content_title }}</h2>
+<div class="entry">{{ content|safe }}</div>
+</div>
+{% endif %}
+{% endblock %}

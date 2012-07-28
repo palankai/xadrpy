@@ -20,7 +20,7 @@ class PageAdmin(ModelAdmin):
     form = PageAdminForm
     fieldsets = (
         (None, {
-            'fields': ('title','slug', 'content')
+            'fields': ('title','slug', 'content',)
         }),
         (_("SEO"), {
             'fields': ('overwrite_meta_title', 'meta_title', 'meta_description', 'meta_keywords')

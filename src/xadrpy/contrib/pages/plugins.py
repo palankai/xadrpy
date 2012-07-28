@@ -42,10 +42,11 @@ class HMenuPlugin(Plugin):
             selected_key = context.get('route_key', getattr(request, 'route_key', None))
             if selected_key:
                 selected = Route.objects.get(key=selected_key)
+        ancestors=[]
         if selected:
             ancestors = [ancestor.id for ancestor in selected.get_ancestors(include_self=False)]
         ctx = {
-            'items': Route.objects.filter(parent=parent, menu_title__isnull=False),
+            'items': Route.objects.filter(parent=parent, visible=True, enabled=True),
             'selected': selected,
             'ancestors': ancestors,
             'parent': parent,
@@ -63,19 +64,3 @@ class CommentsPlugin(Plugin):
         ctx.update(context)
         return self.get_template().render(ctx)
     
-class FacebookActivityPlugin(Plugin):
-    alias = "x-facebook_activity"
-    template = "xadrpy/pages/plugins/facebook_activity.html"
-    
-    def render(self, context, width=200, height=300, router=None):
-        context.update({"width": width, "height": height})
-        return self.get_template().render(context)
-            
-class FacebookCommentsPlugin(Plugin):
-    alias = "x-facebook_comments"
-    template = "xadrpy/pages/plugins/facebook_comments.html"
-    
-    def render(self, context, width="650", num_posts=5, router=None):
-        context.update({"width": width, "num_posts": num_posts})
-        return self.get_template().render(context)
-            

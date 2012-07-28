@@ -1,0 +1,5 @@
+<ul>
+{% for category in categories %}
+	<li><a href="{{ category.get_absolute_url }}">{{ category.get_title }} ({{ category.get_entry_count }})</a></li>
+{% endfor %}
+</ul>

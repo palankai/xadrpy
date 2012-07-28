@@ -1,4 +1,4 @@
-from xadrpy.templates.lib import WidgetLibrary, XWidgetBase
+from xadrpy.templates.libs import WidgetLibrary, XWidgetBase
 from django.template.loader import render_to_string
 register = WidgetLibrary()
 

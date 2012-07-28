@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% load themes_tags staticfiles %}
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Sparkling   
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20100529
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://ogp.me/ns/fb#">
+<head>
+<title>{% block meta-title %}{{ request.route.get_meta_title }}{% endblock %}</title>
+<meta name="keywords" content="{% block meta-keywords %}{{ request.route.get_meta_keywords }}{% endblock %}" />
+<meta name="description" content="{% block meta-description %}{{ request.route.get_meta_description }}{% endblock %}" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+{% if request.theme.media.favicon.file %}
+<link rel="shortcut icon" href="{% static request.theme.media.favicon.file %}" type="image/x-icon" />
+{% endif %}
+{% if request.theme.media.apple_touch_icon.file %}
+<link rel="apple-touch-icon" href="{% static request.theme.media.apple_touch_icon.file %}" />
+{% endif %}
+{% block extrahead %}{% endblock %}
+{% block basecss %}{% theme_styles with-inline %}<link href="{{ STATIC_URL }}xadrpy/themes/regeneracy/style.css" rel="stylesheet" type="text/css" media="screen" />{% endtheme_styles %}{% endblock %}
+{% block extrastyle %}{% endblock %}
+{% block basescript %}{% theme_scripts %}{% endblock %}
+{% block extrascript %}{% endblock %}
+{% block endhead %}{% endblock %}
+</head>
+<body class="{% block bodyclass %}{% endblock %}">{% block bodybegin %}{% endblock %}{% block body %}
+<div id="wrapper">
+	<div id="header-wrapper">
+		<div id="header" class="xt-header">{% block header %}
+			<div id="logo" class="xt-head">{% block head %}{% include request.theme.template.head %}{% endblock%}</div>
+			<div id="menu" class="xt-mainmenu">{% block mainmenu %}{% include request.theme.template.mainmenu %}{% endblock %}</div>
+		{% endblock %}</div>
+	</div>
+	<!-- end #header -->
+	<div id="page" class="xt-container">
+		{% block container %}
+		<div id="page-bgtop">
+			<div id="page-bgbtm" class="xt-main">
+				{% block main %}
+				<div id="content" class="xt-content">{% block content %}{% endblock %}
+					<div style="clear: both;">&nbsp;</div>
+				</div>
+				<div id="sidebar" class="xt-sidebar">
+				{% block sidebar %}{% include request.theme.template.sidebar %}{% endblock %}
+				</div>
+				{% endblock %}
+				<div style="clear: both;">&nbsp;</div>
+			</div>
+		</div>
+		{% endblock %}
+	</div>
+	<!-- end #page -->
+</div>
+<div id="footer" class="xt-footer">{% block footer %}{% include request.theme.template.footer %}{% endblock %}</div>
+<!-- end #footer -->
+{% endblock %}</body>
+</html>

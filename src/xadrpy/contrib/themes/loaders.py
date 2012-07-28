@@ -64,6 +64,7 @@ class StaticThemeLoader(ThemeLoader):
         if created or settings.DEBUG:
             theme_obj.meta = meta
             theme_obj.save()
+        self.collect_files(theme_obj)
 
     def load_library(self, library):
         if 'scripts' in library or 'styles' in library:
@@ -81,4 +82,7 @@ class StaticThemeLoader(ThemeLoader):
             library_obj.meta = meta
             library_obj.autoload = meta['autoload']
             library_obj.save()
-
+    
+    def collect_files(self, theme):
+        theme.collect_files()
+        pass

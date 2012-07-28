@@ -1,20 +1,23 @@
-from django.utils.translation import ugettext_lazy as _
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.http import Http404
-from xadrpy.contrib.pages.views import add_page_comments
+import logging
+from django.utils.safestring import mark_safe
+from xadrpy.contrib.blog.models import Category
+logger = logging.getLogger("blog")
 
 def column(request, route, **kwargs):
-    if not route.can_render():
-        raise Http404()
+    ctx = route.get_context(request)
+    route.increment_view_count()
+    return render_to_response(request.theme.template().column, ctx, RequestContext(request))
 
-    if request.method == "POST" and route.enable_comments:
-        add_page_comments(request, route)
-
-    return route.render_to_response(request)
-
-def category(request, route, **kwargs):
-    pass
+def categories(request, slug, route=None, **kwargs):
+    category = get_object_or_404(Category, slug=slug)
+    ctx = {
+        'category': category,
+        'entries': category.get_entries(),
+    }
+    return render_to_response("xadrpy/blog/categories.html", ctx, RequestContext(request))
 
 def tag(request, route, **kwargs):
     pass
@@ -28,13 +31,12 @@ def posts(request, route, title, **kwargs):
     }
     return render_to_response("post_list.html", ctx, RequestContext(request))
 
-def post(request, route=None, **kwargs):
-    try:
-        post = route.posts.filter(**kwargs)[0]
-    except:
-        raise Http404()
-    if not post.can_render():
-        raise Http404()
-    return post.render_to_response(request)
+def entry(request, route, **kwargs):
+    entry = route.get_entry(**kwargs)
+    entry.permit(request)
+    ctx = dict(route.get_context(request),
+               **entry.get_context(request))
+    entry.increment_view_count()
+    return render_to_response("xadrpy/blog/entry.html", ctx, RequestContext(request))
 
     

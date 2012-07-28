@@ -57,7 +57,7 @@ a:hover {
 /* Header */
 
 #header-wrapper {
-	height: 100px;
+	height: 120px;
 	background: #F2F3F0;
 }
 
@@ -70,8 +70,8 @@ a:hover {
 /* Logo */
 
 #logo {
-	float: left;
-	width: 350px;
+	position: absolute;
+	width: 450px;
 	margin: 0;
 	padding: 0;
 	color: #000000;
@@ -83,7 +83,7 @@ a:hover {
 
 #logo h1 {
 	margin-left: 70px;
-	padding: 40p 0px 0px 80px;
+	padding: 0px 0px 0px 80px;
 	letter-spacing: -1px;
 	text-transform: lowercase;
 	font-size: 3.8em;
@@ -157,15 +157,16 @@ a:hover {
 
 #menu {
 	float: right;
-	width: 450px;
-	height: 100px;
+	width: 980px;
+	height: 120px;
 	margin: 0 auto;
 	padding: 0;
 }
 
 #menu ul {
+	float: right;
 	margin: 0;
-	padding: 60px 0px 0px 0px;
+	padding: 80px 0px 0px 0px;
 	list-style: none;
 	line-height: normal;
 }
@@ -188,12 +189,12 @@ a:hover {
 	border: none;
 }
 
-#menu a:hover, #menu .current_page_item a {
+#menu a:hover, #menu .x-selected-item a {
 	background: #F34600;
 	text-decoration: none;
 }
 
-#menu .current_page_item a {
+#menu .x-selected-item a {
 }
 
 /* Page */

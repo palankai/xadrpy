@@ -1,0 +1,21 @@
+{% extends request.theme.template.page %}
+
+{% load i18n %}
+
+{% block content %}
+
+{% block entry-list-header %}
+{% endblock %}
+
+{% block entry-list %}
+{% for entry in entries %}
+{% include request.theme.template.entry_excerpt %}
+{% empty %}
+<p>{% blocktrans %}We have no entries.{% endblocktrans %}</p>
+{% endfor %}
+{% endblock %}
+
+{% block entry-list-footer %}
+{% endblock %}
+
+{% endblock %}

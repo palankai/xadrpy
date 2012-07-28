@@ -8,12 +8,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.files.storage import FileSystemStorage
 from django.core.files.images import ImageFile
 from django.forms.fields import FilePathField
+from filebrowser.fields import FileBrowseFormField, FileBrowseWidget,\
+    FileBrowseField
+from filebrowser.sites import site
 
 class PageAdminForm(forms.ModelForm):
-    meta_title = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
-    meta_keywords = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
-    menu_description = forms.CharField(max_length=255, required=False, widget=forms.Textarea(attrs={'class': 'vLargeTextField'}))
-    overwrite_meta_title = forms.BooleanField(required=False)
 
     menu_title = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
     layout_name = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
@@ -21,7 +20,7 @@ class PageAdminForm(forms.ModelForm):
     
     extra_classes = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
         
-    _meta_fields = ['menu_title', 'skin_name', 'layout_name', 'meta_title', 'meta_keywords','meta_description', 'overwrite_meta_title', 'extra_classes']
+    _meta_fields = ['menu_title', 'skin_name', 'layout_name', 'extra_classes']
 
     class Meta:
         model = Page

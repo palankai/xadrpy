@@ -1,0 +1,24 @@
+{% extends request.theme.template.page %}
+
+{% load i18n xtemplates %}
+
+{% block meta-title %}{{ entry.get_meta_title }}{% endblock %}
+{% block meta-keywords %}{{ entry.get_meta_keywords }}{% endblock %}
+{% block meta-description %}{{ entry.get_meta_description }}{% endblock %}
+
+{% block content %}
+<div class="post">
+	<h2 class="title"><a href="{{ entry.get_absolute_url }}">{{ entry.get_title }}</a></h2>
+	<p class="meta"><span class="date">{{ entry.get_pub_date }}</span><span class="posted">{% blocktrans with username=entry.user userurl="#" %}Posted by <a href="{{ userurl }}">{{ username }}</a>{% endblocktrans %}</span></p>
+	<div style="clear: both;">&nbsp;</div>
+	<div class="entry">
+		<strong>{{ entry.get_content_head|safe }}</strong>
+		{{ entry.get_content_tail|safe }}
+	</div>
+</div>
+<a id="comments" name="comments"></a>
+<h3>{% blocktrans %}Comments{% endblocktrans %}</h3>
+{% if entry.comments_enabled %}
+{% plugin 'x-facebook-comments' 'after-entry' %}
+{% endif %}
+{% endblock %}

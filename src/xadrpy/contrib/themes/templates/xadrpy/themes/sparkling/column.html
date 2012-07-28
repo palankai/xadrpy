@@ -1,0 +1,7 @@
+{% extends request.theme.template.page %}
+{% block content %}
+{{ block.super }}
+{% for entry in entries %}
+{% include request.theme.template.entry_excerpt %}
+{% endfor %}
+{% endblock %}

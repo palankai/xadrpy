@@ -1,10 +1,8 @@
 from django.template.loader import render_to_string
 from xadrpy.router.models import Route
 from django.core.urlresolvers import resolve
-from xadrpy.templates.lib import WidgetLibrary, XWidgetBase
 from django.utils import importlib
-from xadrpy.contrib.pages.models import PluginStore
-from xadrpy.contrib.pages.libs import PLUGIN_CACHE
+from xadrpy.templates.libs import WidgetLibrary
  
 register = WidgetLibrary()
 
@@ -29,20 +27,4 @@ def menu(context, parent=None, template="xadrpy/pages/menu.html", selected=None,
     return render_to_string(template, ctx, context)
 
 
-class PluginNode(XWidgetBase):
 
-    def value(self, context, name, placeholder, *args, **kwargs):
-        if name in PLUGIN_CACHE:
-            plugin = PLUGIN_CACHE[name]
-        else:
-            module_name, widget_name = name.rsplit(".",1)
-            module = importlib.import_module(module_name)
-            plugin = getattr(module, widget_name)
-        try:
-            plugin_instance = plugin(placeholder)
-            plugin_instance.init_template(kwargs.pop('TEMPLATE', None))
-            return plugin_instance.render(context, *args, **kwargs)
-        except Exception, e:
-            return "Exception: %s" % e
-
-register.widget('plugin')(PluginNode)

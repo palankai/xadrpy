@@ -69,17 +69,20 @@ class Page(ViewRoute, OwnedModel):
             return False
         return True    
     
-    def render_to_response(self, request, context={}):
-        if not self.can_render():
-            raise Http404()
-        template = self.get_template()
-        context.update({
-            'page': self,
-        })
-        return render_to_response(template, context, RequestContext(request))
-    
     def resolve(self, args, kwargs):
         return self
+    
+    def get_context(self, request, args=(), kwargs={}):
+        return dict(super(Page, self).get_context(request, args, kwargs), **{
+            'content': self.get_content(),
+            'content_title': self.get_title(),
+            'show_content': self.show_content,
+        })
+    
+    def increment_view_count(self):
+        self.view_count = models.F("view_count")+1
+        self.save() 
+        
 
 
 class PageTranslation(RouteTranslation):

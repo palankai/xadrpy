@@ -1,7 +1,7 @@
 from django.contrib.admin import site, ModelAdmin
-from models import Column, Category, Post
+from models import Column, Category, Entry
 from django.utils.translation import ugettext_lazy as _ 
-from xadrpy.contrib.blog.forms import PostAdminForm, ColumnAdminForm
+from xadrpy.contrib.blog.forms import EntryAdminForm, ColumnAdminForm
 from django.contrib.admin.options import StackedInline
 from xadrpy.contrib.blog.models import CategoryTranslation, Image
 from xadrpy.contrib.pages.admin import PageTranslationInlineAdmin
@@ -56,8 +56,8 @@ class ImageInlineAdmin(StackedInline):
     extra=0
 
 
-class PostAdmin(ModelAdmin):
-    form = PostAdminForm
+class EntryAdmin(ModelAdmin):
+    form = EntryAdminForm
     date_hierarchy = 'pub_date'
     fieldsets = (
         (None, {
@@ -76,10 +76,10 @@ class PostAdmin(ModelAdmin):
             'fields': ('view_count', 'comments_enabled', 'comments_unlocked','language_code')
         }),
         (_('Relations'), {
-            'fields': ('categories','posts', 'pages')
+            'fields': ('categories','entries', 'pages')
         }),
     )
-    filter_horizontal = ("categories", "posts", "pages")
+    filter_horizontal = ("categories", "entries", "pages")
     list_display = ('column', 'title', 'pub_date', 'user', 'featured', 'published','view_count')
     list_display_links = ('title', )
     list_filter = ('column', 'user', 'featured', 'published')
@@ -95,11 +95,17 @@ class PostAdmin(ModelAdmin):
             obj.save()
             rows_updated+=1
         if rows_updated == 1:
-            message_bit = "1 posr was"
+            message_bit = "1 entry was"
         else:
-            message_bit = "%s posts were" % rows_updated
+            message_bit = "%s entry were" % rows_updated
         self.message_user(request, "%s successfully marked as published." % message_bit)
-    make_published.short_description = "Mark selected posts as published"            
+    make_published.short_description = "Mark selected entries as published"            
+
+    def save_model(self, request, obj, form, change):
+        if not obj.user:
+            obj.user = request.user
+        obj.save()    
+
 
 class CategoryTranslationInlineAdmin(StackedInline):
     model = CategoryTranslation
@@ -125,4 +131,4 @@ class CategoryAdmin(ModelAdmin):
 site.register(Column, ColumnAdmin)
 site.register(Category, CategoryAdmin)
 
-site.register(Post, PostAdmin)
+site.register(Entry, EntryAdmin)
