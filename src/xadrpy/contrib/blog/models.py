@@ -21,6 +21,7 @@ from django.http import Http404
 from django.dispatch.dispatcher import receiver
 from xadrpy.router.signals import prepend_route_urls
 from django.db.models import permalink
+from xadrpy.contrib.blog.managers import EntryManager
 
 class Column(Page):
     post_comments_enabled = models.BooleanField(default=True, verbose_name = _("Comments enabled"), db_index=True)
@@ -69,10 +70,10 @@ class Column(Page):
 
     
     def get_entries(self, **kwargs):
-        return Entry.objects.filter(column=self, **kwargs)
+        return Entry.objects.get_entries_for_column(self, **kwargs)
     
     def get_entry(self, **kwargs):
-        return Entry.objects.get(column=self, **kwargs)
+        return self.get_entries(**kwargs).get()
 
 
 class Category(MPTTModel):
@@ -96,11 +97,11 @@ class Category(MPTTModel):
     def get_title(self):
         return self.translation().title
     
-    def get_entry_count(self):
-        return Entry.objects.filter(categories__in=[self]).count()
+    def get_entry_count(self, **kwargs):
+        return self.get_entries(**kwargs).count()
 
     def get_entries(self, **kwargs):
-        return Entry.objects.filter(categories__in=[self], **kwargs)
+        return Entry.objects.get_entries_for_category(self, **kwargs)
     
     @permalink
     def get_absolute_url(self):
@@ -163,7 +164,7 @@ class Entry(TreeInheritable, OwnedModel):
     meta_keywords = models.CharField(max_length=255, blank=True, verbose_name=_("Meta keywords"), default="")
     meta_description = models.TextField(blank=True, verbose_name=_("Meta description"), default="")
 
-    objects = TreeInheritableManager()
+    objects = EntryManager()
 
     class Meta:
         verbose_name = _("Entry")

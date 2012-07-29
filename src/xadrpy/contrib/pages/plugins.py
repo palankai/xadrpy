@@ -37,7 +37,12 @@ class HMenuPlugin(Plugin):
         parent = None
         request = context.get('request')
         func, args, kwargs = resolve(request.path)
-        selected = kwargs.get('route', context.get('route', getattr(request,'route', None)))
+        selected=None
+        if hasattr(request,'route'):
+            selected = request.route
+        if 'route' in context:
+            selected = context['route']
+        #selected = kwargs.get('route', context.get('route', hasattr(request,'route') and request.route.id))
         if not selected:
             selected_key = context.get('route_key', getattr(request, 'route_key', None))
             if selected_key:

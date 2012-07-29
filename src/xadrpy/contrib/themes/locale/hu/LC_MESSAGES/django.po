@@ -1,0 +1,56 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-07-29 11:58+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: models.py:65
+msgid "Theme"
+msgstr "Téma"
+
+#: models.py:66
+msgid "Themes"
+msgstr "Témák"
+
+#: models.py:213
+msgid "Library"
+msgstr ""
+
+#: models.py:214
+msgid "Libraries"
+msgstr ""
+
+#: templates/xadrpy/themes/regeneracy/post_excerpt.html:8
+#: templates/xadrpy/themes/sparkling/includes/entry_excerpt.html:8
+msgid "Read More"
+msgstr "Olvass tovább"
+
+#: templates/xadrpy/themes/regeneracy/post_excerpt.html:8
+#: templates/xadrpy/themes/sparkling/entry.html:20
+#: templates/xadrpy/themes/sparkling/includes/entry_excerpt.html:9
+msgid "Comments"
+msgstr "Hozzászólások"
+
+#: templates/xadrpy/themes/sparkling/entry.html:12
+#: templates/xadrpy/themes/sparkling/includes/entry_excerpt.html:4
+#, python-format
+msgid "Posted by <a href=\"%(userurl)s\">%(username)s</a>"
+msgstr "<a href=\"%(userurl)s\">%(username)s</a>"
+
+#: templates/xadrpy/themes/sparkling/entry_list.html:14
+msgid "We have no entries."
+msgstr "Nem található bejegyzés."

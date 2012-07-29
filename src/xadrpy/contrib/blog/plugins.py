@@ -30,7 +30,7 @@ class LatestEntriesPlugin(Plugin):
     template = "xadrpy/blog/plugins/latest_entries.html"
     
     def render(self, context, router=None):
-        entries = Entry.objects.all()
+        entries = Entry.objects.get_entries()
         context.update({
             'router': router,
             'entries': entries

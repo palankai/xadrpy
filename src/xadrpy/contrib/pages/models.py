@@ -38,7 +38,7 @@ class Page(ViewRoute, OwnedModel):
         return self.view_name or self.default_view_name or conf.DEFAULT_VIEW
 
     def get_urls(self, kwargs={}):
-        kwargs.update({'route': self})
+        kwargs.update({'route': self.id})
         slash = ""
         if settings.APPEND_SLASH:
             slash = "/"
@@ -60,7 +60,7 @@ class Page(ViewRoute, OwnedModel):
         return conf.DEFAULT_TEMPLATE
 
     def get_absolute_url(self):
-        return reverse(self.get_view_name(), kwargs={'route': self})
+        return reverse(self.get_view_name(), kwargs={'route': self.id})
     
     def can_render(self):
         if not self.enabled or not self.published:
@@ -81,7 +81,7 @@ class Page(ViewRoute, OwnedModel):
     
     def increment_view_count(self):
         self.view_count = models.F("view_count")+1
-        self.save() 
+        self.save()
         
 
 
