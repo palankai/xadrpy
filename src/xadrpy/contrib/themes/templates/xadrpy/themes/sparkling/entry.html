@@ -15,7 +15,9 @@
 		<strong>{{ entry.get_content_head|safe }}</strong>
 		{{ entry.get_content_tail|safe }}
 	</div>
+	{% block entry-end %}{% endblock %}
 </div>
+
 <a id="comments" name="comments"></a>
 <h3>{% blocktrans %}Comments{% endblocktrans %}</h3>
 {% if entry.comments_enabled %}

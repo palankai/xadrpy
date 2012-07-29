@@ -8,7 +8,7 @@ logger = logging.getLogger("blog")
 
 def column(request, route, **kwargs):
     ctx = route.get_context(request)
-    route.increment_view_count()
+    route.increment_view_count(request)
     return render_to_response(request.theme.template().column, ctx, RequestContext(request))
 
 def categories(request, slug, route=None, **kwargs):
@@ -36,7 +36,7 @@ def entry(request, route, **kwargs):
     entry.permit(request)
     ctx = dict(route.get_context(request),
                **entry.get_context(request))
-    entry.increment_view_count()
+    entry.increment_view_count(request)
     return render_to_response("xadrpy/blog/entry.html", ctx, RequestContext(request))
 
     

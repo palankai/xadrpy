@@ -79,7 +79,8 @@ class Page(ViewRoute, OwnedModel):
             'show_content': self.show_content,
         })
     
-    def increment_view_count(self):
+    def increment_view_count(self, request):
+        if request.user.is_staff or self.user == request.user: return
         self.view_count = models.F("view_count")+1
         self.save()
         
