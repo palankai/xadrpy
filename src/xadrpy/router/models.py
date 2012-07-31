@@ -20,6 +20,7 @@ from xadrpy.utils.imports import get_installed_apps_module, get_class
 from xadrpy.models.fields.dict_field import DictField
 from xadrpy.models.fields.language_code_field import LanguageCodeField
 import logging
+import libs
 logger = logging.getLogger("x-router")
 
 class Route(TreeInheritable):
@@ -35,8 +36,8 @@ class Route(TreeInheritable):
     enabled = models.BooleanField(default=True, verbose_name=_("Is enabled"))
     visible = models.BooleanField(default=True, verbose_name=_("Is visible"))
     signature = NullCharField(max_length=128, editable=False, default="")
+    application_name = NullCharField(max_length=128, verbose_name=_("Application name"))
     meta = DictField()
-    
     meta_title = models.CharField(max_length=255, blank=True, verbose_name=_("Meta title"), default="")
     overwrite_meta_title = models.BooleanField(default=False, verbose_name=_("Overwrite meta title"))
     meta_keywords = models.CharField(max_length=255, blank=True, verbose_name=_("Meta keywords"), default="")
@@ -83,6 +84,8 @@ class Route(TreeInheritable):
         return patterns(*args, **kwargs)
     
     def get_urls(self, kwargs={}):
+        if self.app:
+            return self.app.get_urls(kwargs)
         return []
     
     def append_pattern(self, url_patterns):
@@ -109,11 +112,25 @@ class Route(TreeInheritable):
                     self._master = master.descendant
         return self._master
     
+    def get_application(self):
+        if hasattr(self, "_app"):
+            return self._app
+        if not self.application_name:
+            self._app = None
+            return None
+        try:
+            self._app = get_class(self.application_name,libs.Application)(self)
+        except:
+            self._app = None 
+        return self._app
+    
+    app = property(get_application)
+    
     def get_meta(self):
         return conf.META_HANDLER_CLS(self)
     
     def get_signature(self):
-        return u"%s:%s-%s-%s-%s-%s" % (xadrpy.VERSION, self.site.id, not self.parent and self.language_code or None, self.slug, not self.parent and self.i18n, self.enabled)
+        return u"%s:%s-%s-%s-%s-%s-%s" % (conf.VERSION, self.site.id, not self.parent and self.language_code or None, self.slug, not self.parent and self.i18n, self.enabled, self.application_name)
 
     def get_meta_title(self):
         if self.overwrite_meta_title and self.meta_title:

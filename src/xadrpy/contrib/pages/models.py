@@ -38,6 +38,8 @@ class Page(ViewRoute, OwnedModel):
         return self.view_name or self.default_view_name or conf.DEFAULT_VIEW
 
     def get_urls(self, kwargs={}):
+        if self.app:
+            return self.app.get_urls(kwargs)
         kwargs.update({'route': self.id})
         slash = ""
         if settings.APPEND_SLASH:
@@ -60,6 +62,8 @@ class Page(ViewRoute, OwnedModel):
         return conf.DEFAULT_TEMPLATE
 
     def get_absolute_url(self):
+        if self.app:
+            return self.app.get_absolute_url()
         return reverse(self.get_view_name(), kwargs={'route': self.id})
     
     def can_render(self):

@@ -1,4 +1,5 @@
 from django.conf import settings
+from copy import deepcopy
 
 BASE_CONFIG = {
     "name": None,
@@ -38,7 +39,7 @@ BASE_LAYOUT = {
 
 BASE_SKIN = {
     "name": None,
-    "source": None,
+    "source": [],
     "title": None,
     "description": None,
     "thumbnail": None,
@@ -119,7 +120,7 @@ THEMES = (
         "doctype": ["xhtml", "xhtml-strict"],
         "supported": ["pages", "blogs"],
         "layouts": ["index.html"], 
-        "skins": ["style.css"], 
+        "skins": ["style"], 
         "styles": ["style.css"], 
         "libs": ["x-all"],
         "templates": {
@@ -168,7 +169,13 @@ LIBRARIES = (
                  "json2.js", "hoverIntent.js", "jquery.bgiframe.min.js", "superfish/superfish.js",
                  "superfish/supersubs.js", "superfish/init.js"], 
      "styles": ["jquery-ui/css/ui-lightness/jquery-ui.full.css", "superfish/css/superfish.css"],
-     "autoload": False},
+     "autoload": False
+     },
+    {"name": "x-html5", 
+     "type": "xadrpy", 
+     "styles": ["html5/style.css", "html5/xreset.css"],
+     "autoload": False
+     },
 )
 
 META_HANDLER = "xadrpy.contrib.themes.libs.ThemeMetaHandler"

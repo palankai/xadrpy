@@ -2,7 +2,10 @@
 import conf
 from xadrpy import router
 import logging
-logger = logging.getLogger("themes")
+from django.utils import simplejson 
+from copy import copy, deepcopy
+from xadrpy.contrib.themes.conf import BASE_FILE_DEFAULTS
+logger = logging.getLogger("xadrpy.contrib.themes.libs")
 
 def get_theme_config_over_default(theme):
     return dict(conf.BASE_CONFIG, **_fallback(theme))
@@ -17,19 +20,19 @@ def get_theme_meta_over_default(obj):
     skins = []
     templates = {}
     media = {}
-    
     for item in obj['layouts']:
         layouts.append(_get_theme_layout_over_default(_fallback(item)))
     
     for item in obj['skins']:
-        skins.append(_get_theme_skin_over_default(_fallback(item)))
+        skins.append(_get_theme_skin_over_default(_fallback_skin(item)))
 
+    BASE_FILE_DEFAULTS = conf.BASE_FILE_DEFAULTS
+    logger.debug("%s", simplejson.dumps(conf.BASE_FILES, indent=4))
     obj['files']=dict(conf.BASE_FILES, **obj['files'])
-    files = dict(conf.BASE_FILES)
+    files = deepcopy(conf.BASE_FILES)
     for k,v in files.items():
         for f in obj['files'][k]:
-            v.append(dict(conf.BASE_FILE_DEFAULTS[k], **f))
-    logger.debug(files)
+            v.append(dict(BASE_FILE_DEFAULTS[k], **f))
     
     for name, item in obj['templates'].items():
         templates[name] = _get_theme_template_over_default(_fallback(item,"source"))
@@ -68,6 +71,8 @@ def _get_theme_layout_over_default(obj):
 def _get_theme_skin_over_default(obj):
     obj = dict(conf.BASE_SKIN, **obj)
     obj['translated'] = _get_translation_over_default(obj['translated'])
+    if isinstance(obj['source'],basestring):
+        obj['source']=[obj['source']]
     return obj
 
 def _get_theme_template_over_default(obj):
@@ -83,6 +88,9 @@ def _get_theme_media_over_default(obj):
 
 def _get_translation_over_default(obj):
     return dict(conf.BASE_THEME_TRANSLATION, **obj)
+
+def _fallback_skin(obj):
+    return isinstance(obj, basestring) and {"name": obj, "source":[obj]} or obj
 
 def _fallback(obj, name="name"):
     return isinstance(obj, basestring) and {name: obj} or obj

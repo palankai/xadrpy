@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from xadrpy.auth.base import rights
+from xadrpy.access.base import rights
 
 from xadrpy.api.decorators import APIInterface
 

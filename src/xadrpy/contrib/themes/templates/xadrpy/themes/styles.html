@@ -1,5 +1,5 @@
 {% load staticfiles %}
-{% for style in theme.get_styles %}<link rel="stylesheet" href="{% static style %}" />
-{% endfor %}
 {% for library in theme.get_libraries %}{% for style in library.get_styles %}<link rel="stylesheet" href="{% static style %}" />
 {% endfor %}{% endfor %}
+{% for style in theme.get_styles %}<link rel="stylesheet" href="{% static style %}" />
+{% endfor %}

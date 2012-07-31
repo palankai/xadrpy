@@ -8,6 +8,6 @@ def page(request, route=None):
     logger.debug(route.content)
     ctx = route.get_context(request)
     logger.debug(route.content)
-    route.increment_view_count()
+    route.increment_view_count(request)
     logger.debug(route.content)
     return render_to_response(request.theme.template().page, ctx, RequestContext(request))

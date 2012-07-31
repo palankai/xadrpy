@@ -19,7 +19,7 @@ def menu(context, parent=None, template="xadrpy/pages/menu.html", selected=None,
         if selected:
             ancestors = [ancestor.id for ancestor in selected.get_ancestors(include_self=False)]
     ctx = {
-        'items': Route.objects.filter(parent=parent, menu_title__isnull=False),
+        'items': Route.objects.filter(parent=parent, visible=True, enabled=True),
         'selected': selected,
         'ancestors': ancestors,
         'parent': parent,

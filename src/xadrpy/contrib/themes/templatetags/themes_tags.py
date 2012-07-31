@@ -28,3 +28,4 @@ class ScriptsNode(XWidgetBase):
 
 register.widget('theme_styles')(StylesNode)
 register.widget('theme_scripts')(ScriptsNode)
+

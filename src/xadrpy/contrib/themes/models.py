@@ -13,8 +13,7 @@ from django.template import loader
 from django.template.base import TemplateDoesNotExist
 from django.contrib.staticfiles import finders
 from xadrpy.models.fields.dict_field import DictField
-
-logger = logging.getLogger("themes")
+logger = logging.getLogger("xadrpy.contrib.themes.models")
 
 class ThemeAdjuster(models.Model):
     
@@ -46,20 +45,13 @@ class AttrCaller(object):
     def __getattr__(self, name):
         return DefaultDict(self.method(name)).set_default(self.default)
 
-#    def __call__(self):
-#        return self.__unicode__()
-#    
-#    def __str__(self):
-#        return self.__unicode__()
-#    
-#    def __unicode__(self):
-#        return self.method(self.default)
-
 class Theme(Inheritable):
     name = models.CharField(max_length=255, unique=True)
     meta = JSONField()
     utime = models.DateTimeField(blank=True, null=True)
     files = DictField()
+    
+    logger = logging.getLogger("xadrpy.contrib.themes.models.Theme")
     
     class Meta:
         verbose_name=_("Theme")
@@ -94,7 +86,10 @@ class Theme(Inheritable):
         
     def get_libraries(self):
         libs = self.meta['libs']+conf.DEFAULT_LIBRARIES
-        return Library.objects.filter(Q(autoload=True)|Q(name__in=libs))
+        dlib = {}
+        for lib in Library.objects.filter(Q(autoload=True)|Q(name__in=libs)):
+            dlib[lib.name]=lib
+        return [dlib[lib] for lib in libs] 
 
     def template(self, name=None):
         if not name: return AttrCaller(self.template, "file")
@@ -119,24 +114,22 @@ class Theme(Inheritable):
     def collect_files(self):
         logger.info("Collecting files of %s theme.", self.name)
         try:
-            self._files = {}
             base_files = self.meta['files']
-            self._collect_files(base_files)
-            self.files = self._files
+            self.files = self._collect_files(base_files)
             self.save() 
         except Exception, e:
-            logger.exception(unicode(e))
+            logger.error(unicode(e))
             raise e
-        logger.debug("Collected files of %s theme:\n%s", self.name, self._files)
     
     def _collect_files(self, base_files):
+        _files = {}
         for file_type in self._get_file_types():
-            self._files[file_type] = self._collect_type(file_type, base_files[file_type])
+            _files[file_type] = self._collect_type(file_type, base_files[file_type])
+        return _files
     
     def _collect_type(self, file_type, base_files):
-        files = []
+        _files = []
         for base_file in base_files:
-            logger.debug(base_file)
             if file_type in self._get_static_file_types():
                 files_tripple = self._collect_static_file(file_type, base_file) 
 
@@ -146,14 +139,14 @@ class Theme(Inheritable):
             file_list = [file_name for file_name in files_tripple if file_name]
             if base_file['required']:
                 assert file_list, "File '%s' not found for %s theme" % (base_file['file_name'], self.name)
-            files.append((base_file['name'], dict(base_file, 
+            _files.append((base_file['name'], dict(base_file, 
                                                   files_tripple=files_tripple, 
                                                   files=file_list,
                                                   base_file=file_list and file_list[0] or None,
                                                   top_file=file_list and file_list[-1] or None,
                                                   file=file_list and file_list[-1] or None,
                                                   middle_file=file_list and file_list[:2][-1] or None)))
-        return dict(files)
+        return dict(_files)
     
     def _collect_static_file(self, file_type, base_file):
         a,b,c = self._get_prefix_triple()
@@ -231,11 +224,15 @@ class Library(Inheritable):
         return self._base_path
 
 
-@receiver(autodiscover_signal)
+@receiver(autodiscover_signal, dispatch_uid="init_theme_loaders")
 def init_theme_loaders(**kwargs):
-    import loaders
-    find_template("xadrpy/themes/base.html") #Hack: init template loaders
-    for loader_name in conf.THEME_LOADERS:
-        theme_loader_cls = get_class(loader_name, loaders.ThemeLoader)
-        theme_loader = theme_loader_cls()
-        theme_loader.load()
+    import loaders, time
+    try:
+        find_template("xadrpy/themes/base.html") #Hack: init template loaders
+        for loader_name in conf.THEME_LOADERS:
+            theme_loader_cls = get_class(loader_name, loaders.ThemeLoader)
+            theme_loader = theme_loader_cls()
+            theme_loader.load()
+    except Exception, e:
+        return
+        logger.exception("Theme loading failed: %s", e)

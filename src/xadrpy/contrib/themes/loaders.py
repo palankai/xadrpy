@@ -11,6 +11,8 @@ import models
 from django.template.loader import render_to_string
 from django.utils import simplejson
 from xadrpy.access import prefs
+import logging
+logger = logging.getLogger("xadrpy.contrib.themes.loaders")
 
 def get_default_theme(user=None):
     theme_name = prefs(key="default_theme", 
@@ -27,8 +29,7 @@ class ThemeLoader(object):
         pass
 
     def init_theme_meta(self, meta):
-        meta = libs.get_theme_meta_over_default(meta)
-        return meta
+        return libs.get_theme_meta_over_default(meta)
 
     def init_library_meta(self, meta):
         meta = libs.get_library_meta_over_default(meta)
@@ -39,18 +40,21 @@ class StaticThemeLoader(ThemeLoader):
     def load(self):
         for theme in getattr(settings, "THEMES", ()):
             self.load_theme(libs.get_theme_config_over_default(theme))
-            
+
         for library in getattr(settings, "LIBRARIES", ()):
             self.load_library(libs.get_library_config_over_default(library))
 
         for conf_module in get_installed_apps_module("conf"):
+
             for theme in getattr(conf_module, "THEMES", ()):
                 self.load_theme(libs.get_theme_config_over_default(theme))
 
             for library in getattr(conf_module, "LIBRARIES", ()):
                 self.load_library(libs.get_library_config_over_default(library))
+
     
     def load_theme(self, theme):
+        
         if 'layouts' in theme:
             meta = self.init_theme_meta(theme)
         else:
@@ -61,6 +65,7 @@ class StaticThemeLoader(ThemeLoader):
             meta_obj = simplejson.loads(meta_str)
             meta = self.init_theme_meta(meta_obj)
         theme_obj, created = models.Theme.objects.get_or_create(name=theme['name'])
+        
         if created or settings.DEBUG:
             theme_obj.meta = meta
             theme_obj.save()

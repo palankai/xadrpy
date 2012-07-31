@@ -31,4 +31,8 @@ class PageAdminForm(forms.ModelForm):
             for k in self._meta_fields:
                 kwargs['initial'][k] = kwargs['instance'].meta.get(k,"")
         super(PageAdminForm, self).__init__(*args, **kwargs)
-            
+
+class PageCreateAdminForm(forms.ModelForm):
+    class Meta:
+        model = Page
+    

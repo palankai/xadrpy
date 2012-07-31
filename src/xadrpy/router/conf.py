@@ -9,6 +9,8 @@ TOUCH_WSGI_FILE = True
 
 WSGI_PATH = getattr(settings, u'WSGI_PATH', os.environ.get('WSGI_PATH', None))
 
-META_HANDLER = "xadrpy.route.libs.MetaHandler"
+META_HANDLER = "xadrpy.router.libs.MetaHandler"
 
 META_HANDLER_CLS = None
+
+VERSION = 1

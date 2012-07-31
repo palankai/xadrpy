@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__all__ = ["MetaHandler"]
+__all__ = ["MetaHandler","Application"]
 """
 Router támoagató könyvtár
 """
@@ -57,3 +57,14 @@ class MetaHandler(object):
     def get_menu_title(self):
         return self.translated['menu_title'] or self.get_route().title
 
+class Application(object):
+    def __init__(self, route):
+        self._route = route
+    
+    def get_route(self):
+        return self._route
+    
+    def get_urls(self, kwargs):
+        return []
+    
+    route = property(get_route)
