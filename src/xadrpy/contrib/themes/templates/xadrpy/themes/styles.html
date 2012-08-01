@@ -1,5 +1,2 @@
-{% load staticfiles %}
-{% for library in theme.get_libraries %}{% for style in library.get_styles %}<link rel="stylesheet" href="{% static style %}" />
-{% endfor %}{% endfor %}
-{% for style in theme.get_styles %}<link rel="stylesheet" href="{% static style %}" />
-{% endfor %}
+{% load staticfiles %}{% for style in styles %}
+<link rel="{{ style.rel }}" type="{{ style.type }}" href="{% static style.href %}" {% if style.media %}media="{{ style.media }}" {% endif %}/>{% endfor %}

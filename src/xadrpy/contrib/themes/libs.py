@@ -3,50 +3,53 @@ import conf
 from xadrpy import router
 import logging
 from django.utils import simplejson 
-from copy import copy, deepcopy
-from xadrpy.contrib.themes.conf import BASE_FILE_DEFAULTS
+from copy import deepcopy
+import defaults
 logger = logging.getLogger("xadrpy.contrib.themes.libs")
 
-def get_theme_config_over_default(theme):
-    return dict(conf.BASE_CONFIG, **_fallback(theme))
-
 def get_library_config_over_default(library):
-    return dict(conf.BASE_CONFIG, **_fallback(library))
+    return defaults.config(defaults.fallback(library, "name"))
+ 
+def get_library_meta_over_default(obj):
+    return defaults.library(obj)
+
+def get_theme_config_over_default(theme):
+    return defaults.config(defaults.fallback(theme, "name")) 
     
 def get_theme_meta_over_default(obj):
-    obj = dict(conf.BASE_THEME, **obj)
-    obj['translated'] = _get_translation_over_default(obj['translated'])
+    obj = defaults.theme(obj, translated=defaults.translation)
+
     layouts = []
     skins = []
     templates = {}
     media = {}
+    files = defaults.files()
+
     for item in obj['layouts']:
-        layouts.append(_get_theme_layout_over_default(_fallback(item)))
+        layouts.append(defaults.layout(defaults.fallback(item, "name")))
     
     for item in obj['skins']:
-        skins.append(_get_theme_skin_over_default(_fallback_skin(item)))
+        skins.append(_get_theme_skin_over_default(defaults.fallback(item,"name",source=[item])))
 
-    BASE_FILE_DEFAULTS = conf.BASE_FILE_DEFAULTS
-    logger.debug("%s", simplejson.dumps(conf.BASE_FILES, indent=4))
-    obj['files']=dict(conf.BASE_FILES, **obj['files'])
-    files = deepcopy(conf.BASE_FILES)
-    for k,v in files.items():
-        for f in obj['files'][k]:
-            v.append(dict(BASE_FILE_DEFAULTS[k], **f))
-    
     for name, item in obj['templates'].items():
-        templates[name] = _get_theme_template_over_default(_fallback(item,"source"))
+        templates[name] = defaults.template(defaults.fallback(item,"source"))
+
+    for name, item in obj['media'].items():
+        media[name] = defaults.media(defaults.fallback(item,"source"))
+
+    obj['files']=defaults.files(obj['files'])
+    for file_type,file_list in files.items():
+        for file_def in obj['files'][file_type]:
+            file_list.append(defaults.file_defaults(file_def, file_type))
 
     for f in files['html']:
         if f['name'] not in templates:
-            templates[f['name']] = _get_theme_template_over_default({'source': f['name']})
+            templates[f['name']] = defaults.template({'source': f['name']})
 
-    for name, item in obj['media'].items():
-        media[name] = _get_theme_media_over_default(_fallback(item,"source"))
 
     for f in files['media']:
         if f['name'] not in media:
-            media[f['name']] = _get_theme_media_over_default({'source': f['name']})
+            media[f['name']] = defaults.media({'source': f['name']})
 
     
     obj['files'] = files
@@ -57,43 +60,12 @@ def get_theme_meta_over_default(obj):
         
     return obj
 
-def get_library_meta_over_default(obj):
-    obj = dict(conf.BASE_LIBRARY, **obj)
-    obj['translated'] = _get_translation_over_default(obj['translated'])
-    return obj
-
-def _get_theme_layout_over_default(obj):
-    obj = dict(conf.BASE_LAYOUT, **obj)
-    obj['translated'] = _get_translation_over_default(obj['translated'])
-    return obj
-
 
 def _get_theme_skin_over_default(obj):
-    obj = dict(conf.BASE_SKIN, **obj)
-    obj['translated'] = _get_translation_over_default(obj['translated'])
+    obj = defaults.skin(obj) 
     if isinstance(obj['source'],basestring):
         obj['source']=[obj['source']]
     return obj
-
-def _get_theme_template_over_default(obj):
-    obj = dict(conf.BASE_TEMPLATE, **obj)
-    obj['translated'] = _get_translation_over_default(obj['translated'])
-    return obj
-
-def _get_theme_media_over_default(obj):
-    obj = dict(conf.BASE_MEDIA, **obj)
-    obj['translated'] = _get_translation_over_default(obj['translated'])
-    return obj
-
-
-def _get_translation_over_default(obj):
-    return dict(conf.BASE_THEME_TRANSLATION, **obj)
-
-def _fallback_skin(obj):
-    return isinstance(obj, basestring) and {"name": obj, "source":[obj]} or obj
-
-def _fallback(obj, name="name"):
-    return isinstance(obj, basestring) and {name: obj} or obj
 
 class ThemeMetaHandler(router.MetaHandler):
         

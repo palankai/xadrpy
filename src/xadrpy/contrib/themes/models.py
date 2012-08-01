@@ -72,7 +72,6 @@ class Theme(Inheritable):
     def get_top_path(self):
         return "x-theme/themes/%s/" % self.name
 
-
     def get_base_html(self):
         return self.get_base_path() + self.meta['layouts'][0]['name']
     
@@ -90,6 +89,12 @@ class Theme(Inheritable):
         for lib in Library.objects.filter(Q(autoload=True)|Q(name__in=libs)):
             dlib[lib.name]=lib
         return [dlib[lib] for lib in libs] 
+    
+    def get_skins(self):
+        return dict((skin['name'], skin) for skin in self.meta['skins'])
+    
+    def get_default_skin(self):
+        return self.meta['default_skin'] and self.get_skins()[self.meta['default_skin']]
 
     def template(self, name=None):
         if not name: return AttrCaller(self.template, "file")
@@ -97,7 +102,7 @@ class Theme(Inheritable):
 
     def style(self, name=None):
         if not name: return AttrCaller(self.style, "file")
-        return self.get_files("html", self.meta['templates'][name]['source'])
+        return self.get_files("style", name)
 
     def media(self, name=None):
         if not name: return AttrCaller(self.media, "file")
@@ -105,7 +110,7 @@ class Theme(Inheritable):
 
     def script(self, name=None):
         if not name: return AttrCaller(self.script, "file")
-        return self.get_files("html", self.meta['templates'][name]['source'])
+        return self.get_files("script", self.meta['script'][name]['source'])
 
     
     def get_files(self, file_type, name):
@@ -234,5 +239,5 @@ def init_theme_loaders(**kwargs):
             theme_loader = theme_loader_cls()
             theme_loader.load()
     except Exception, e:
-        return
         logger.exception("Theme loading failed: %s", e)
+        return
