@@ -35,10 +35,10 @@ Teaser
 * models - extra fields - extends django (DictField, JSONField, Crypted field, ...)
 * contrib.backoffice - extjs interface with django backend
 * contrib.emails - Email handling (with templates, attachements, translation...)
-* themes - Theme (layout, skin) handling
-* pages - easy cms engine
-* blogs - easy blog engine (extends pages)
-* shop - easy shop and catalogue engine (extends pages)
+* contrib.themes - Theme (layout, skin) handling
+* contrib.pages - easy cms engine
+* contrib.blogs - easy blog engine (extends pages)
+* contrib.shop - easy shop and catalogue engine (extends pages)
 
 ...
 
