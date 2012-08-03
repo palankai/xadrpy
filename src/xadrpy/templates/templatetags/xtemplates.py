@@ -32,8 +32,8 @@ class PluginNode(XWidgetBase):
                 module_name, widget_name = name.rsplit(".",1)
                 module = importlib.import_module(module_name)
                 plugin = getattr(module, widget_name)
-            except:
-                raise Exception("Plugin error - maybe undefinded plugin or holder module not in INSTALLED_APPS")
+            except Exception, e:
+                raise Exception("Plugin error - maybe undefinded plugin or holder module not in INSTALLED_APPS [%s] (%s)" % (name,e))
         try:
             plugin_instance = plugin(placeholder)
             plugin_instance.init_template(kwargs.pop('TEMPLATE', None))
