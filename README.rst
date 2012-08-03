@@ -16,3 +16,8 @@ Install the package with [pip][] or [git][]:
 
 [pip]: http://pip.openplans.org/
 [git]: http://git-scm.com/
+
+Dokumentáció
+------------
+
+:doc:`Részletes dokumentáció </docs/source/index>`

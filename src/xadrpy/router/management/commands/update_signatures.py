@@ -6,6 +6,7 @@ Created on 2012.07.31.
 from django.core.management.base import NoArgsCommand, CommandError
 from xadrpy.router.base import update_signatures
 
+
 class Command(NoArgsCommand):
     
     def handle_noargs(self, **options):
