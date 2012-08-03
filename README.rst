@@ -5,7 +5,7 @@ xadrpy
 
 I M P O R T A N T
 -----------------
-This is a development version of `xadrpy`. It may contains bugs...
+*This is a development version of `xadrpy`. It may contains bugs. This is not a product ready solution.*
 
 Setup
 -----
