@@ -51,11 +51,41 @@ class MetaHandler(object):
         Alapértékek beállítása, figyelembe veszi, hogy a fordított adatokat is vissza kellhet adni
         """
         self.meta.setdefault("menu_title", "")
+        self.meta.setdefault("overwrite_meta_title", False)
+        self.meta.setdefault("meta_title", "")
+        self.meta.setdefault("meta_keywords", "")
+        self.meta.setdefault("meta_description", "")
         
         self.translated.setdefault("menu_title", self.meta['menu_title'])
+        self.translated.setdefault("meta_title", self.meta['meta_title'])
+        self.translated.setdefault("meta_keywords", self.meta['meta_keywords'])
+        self.translated.setdefault("meta_description", self.meta['meta_description'])
+    
+    def get_title(self):
+        return self.get_route().get_title()
     
     def get_menu_title(self):
-        return self.translated['menu_title'] or self.get_route().title
+        return self.translated['menu_title'] or self.get_title()
+    
+    def get_meta_title(self):
+        if self.meta.get("overwrite_meta_title") and self.meta.get("meta_title"):
+            return self.translated.get("meta_title")
+        
+        self_title = self.translated.get("meta_title") or self.get_title() 
+        if self.get_parent() and self.get_parent().get_meta_title():
+            self_title = self_title + " | " + self.get_parent().get_meta_title()
+        return self_title
+
+    def get_meta_keywords(self):
+        if self.meta.get('meta_keywords'):
+            return self.meta.get("meta_keywords")
+        return self.get_parent() and self.get_parent().get_meta_keywords() or "" 
+
+    def get_meta_description(self):
+        if self.meta.get("meta_description"):
+            return self.meta.get("meta_description")
+        return self.get_parent() and self.get_parent().get_meta_description() or "" 
+    
 
 class Application(object):
     def __init__(self, route):

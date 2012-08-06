@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 import conf
 import datetime
-from xadrpy.router.models import ViewRoute, RouteTranslation
+from xadrpy.router.models import RouteTranslation, Route
 from ckeditor.fields import RichTextField
 import logging
 from xadrpy.access.models import OwnedModel
@@ -18,7 +18,7 @@ from django.http import Http404
 
 logger = logging.getLogger("Pages")
 
-class Page(ViewRoute, OwnedModel):
+class Page(Route, OwnedModel):
     comments_enabled = models.BooleanField(default=False, verbose_name = _("Comments enabled"), db_index=True)
     comments_unlocked = models.BooleanField(default=False, verbose_name = _("Comments locked"), db_index=True)
     view_count = models.PositiveIntegerField(default=0, verbose_name=_("View count"))
@@ -35,7 +35,7 @@ class Page(ViewRoute, OwnedModel):
         db_table = "xadrpy_pages_page"
 
     def get_view_name(self):
-        return self.view_name or self.default_view_name or conf.DEFAULT_VIEW
+        return conf.DEFAULT_VIEW
 
     def get_urls(self, kwargs={}):
         if self.app:

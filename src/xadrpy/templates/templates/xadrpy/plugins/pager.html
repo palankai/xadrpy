@@ -1,0 +1,49 @@
+{% load i18n %}{% spaceless %}
+<div class="x-pager">
+	{% if paginated.has_previous %}
+		<a class="x-pager-first" href="{{ paginated.get_first_page_url }}" title="{% trans "First" %}">{% trans "First" %}</a>
+		<span class="x-pager-delimiter"> | </span>
+		<a class="x-pager-prev" href="{{ paginated.get_previous_page_url }}" title="{% trans "Prev" %}">{% trans "Prev" %}</a>
+	{% else %}
+		<span class="x-pager-first">{% trans "First" %}</span>
+		<span class="x-pager-delimiter"> | </span>
+		<span class="x-pager-prev">{% trans "Prev" %}</span>
+	{% endif %}
+	<span class="x-pager-pages"> 
+		<span class="x-pager-delimiter"> | </span>
+		{% for index, url in paginated.get_pages %}
+		{% if index == paginated.index %}
+			<span class="x-pager-pageindex">{{ index }}</span> 
+		{% else %}
+			<a  class="x-pager-pageindex" href="{{ url }}" title="{{ index }}">{{ index }}</a>
+		{% endif %}
+		{% if not forloop.last %}
+		<span class="x-pager-pagedelimiter"> | </span>
+		{% endif %}
+		{% endfor %}
+		<span class="x-pager-delimiter"> | </span>
+	</span>
+	{% if paginated.has_next %}
+		<a  class="x-pager-next" href="{{ paginated.get_next_page_url }}" title="{% trans "Next" %}">{% trans "Next" %}</a>
+		<span class="x-pager-delimiter"> | </span>
+		<a  class="x-pager-last" href="{{ paginated.get_last_page_url }}" title="{% trans "Last" %}{% if paginated.show_last_page_index %} ({{ paginated.num_pages }}){% endif %}">{% trans "Last" %}{% if paginated.show_last_page_index %} ({{ paginated.num_pages }}){% endif %}</a>
+	{% else %}
+		<span class="x-pager-next">{% trans "Next" %}</a>
+		<span class="x-pager-delimiter"> | </span>
+		<span class="x-pager-last">{% trans "Last" %}</a>
+	{% endif %}
+	{% if paginated.sizes %}
+	<div class="x-pager-sizes">
+	{% if paginated.sizes_title %}
+	<span class="x-pager-sizestitle">{{ paginated.sizes_title }}: </span>
+	{% endif %}
+	{% for title, url in paginated.get_sizes %}
+	<a  class="x-pager-size" href="{{ url }}">{{ title }}</a>
+		{% if not forloop.last %}
+		<span class="x-pager-pagedelimiter"> | </span>
+		{% endif %}
+	{% endfor %}
+	</div>
+	{% endif %}
+</div>
+{% endspaceless %}

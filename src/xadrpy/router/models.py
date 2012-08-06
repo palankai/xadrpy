@@ -21,6 +21,7 @@ from xadrpy.models.fields.dict_field import DictField
 from xadrpy.models.fields.language_code_field import LanguageCodeField
 import logging
 import libs
+from xadrpy.models.fields.class_field import ClassField
 logger = logging.getLogger("x-router")
 
 class Route(TreeInheritable):
@@ -36,12 +37,13 @@ class Route(TreeInheritable):
     enabled = models.BooleanField(default=True, verbose_name=_("Is enabled"))
     visible = models.BooleanField(default=True, verbose_name=_("Is visible"))
     signature = NullCharField(max_length=128, editable=False, default="")
+    name = NullCharField(max_length=255, unique=True)
     application_name = NullCharField(max_length=128, verbose_name=_("Application name"))
     meta = DictField()
-    meta_title = models.CharField(max_length=255, blank=True, verbose_name=_("Meta title"), default="")
-    overwrite_meta_title = models.BooleanField(default=False, verbose_name=_("Overwrite meta title"))
-    meta_keywords = models.CharField(max_length=255, blank=True, verbose_name=_("Meta keywords"), default="")
-    meta_description = models.TextField(blank=True, verbose_name=_("Meta description"), default="")
+#    meta_title = models.CharField(max_length=255, blank=True, verbose_name=_("Meta title"), default="")
+#    overwrite_meta_title = models.BooleanField(default=False, verbose_name=_("Overwrite meta title"))
+#    meta_keywords = models.CharField(max_length=255, blank=True, verbose_name=_("Meta keywords"), default="")
+#    meta_description = models.TextField(blank=True, verbose_name=_("Meta description"), default="")
     
     need_reload = True
     
@@ -132,24 +134,9 @@ class Route(TreeInheritable):
     def get_signature(self):
         return u"%s:%s-%s-%s-%s-%s-%s" % (conf.VERSION, self.site.id, not self.parent and self.language_code or None, self.slug, not self.parent and self.i18n, self.enabled, self.application_name)
 
-    def get_meta_title(self):
-        if self.overwrite_meta_title and self.meta_title:
-            return self.translation().meta_title
-        
-        self_title = self.translation().meta_title or self.translation().title 
-        if self.get_parent() and self.get_parent().get_meta_title():
-            self_title = self_title + " | " + self.get_parent().get_meta_title()
-        return self_title
+    def get_context(self, request, args=(), kwargs={}):
+        return {}
 
-    def get_meta_keywords(self):
-        if self.meta_keywords:
-            return self.meta_keywords
-        return self.get_parent() and self.get_parent().get_meta_keywords() or "" 
-
-    def get_meta_description(self):
-        if self.meta_description:
-            return self.meta_description
-        return self.get_parent() and self.get_parent().get_meta_description() or "" 
     
     def permit(self, request, view, args, kwargs):
         pass
@@ -190,35 +177,35 @@ if conf.TOUCH_WSGI_FILE:
             with file(conf.WSGI_PATH, 'a'):
                 os.utime(conf.WSGI_PATH, None)
 
-class ViewRoute(Route):
-    view_name = NullCharField(max_length=255)
-    name = NullCharField(max_length=255, unique=True)
-    
-    default_view_name = None
-    
-    class Meta:
-        verbose_name = _("View")
-        verbose_name_plural = _("Views")
-        db_table = "xadrpy_router_view"
-
-    def get_urls(self, kwargs={}):
-        kwargs.update({'router': self.id})
-        if not self.view_name:
-            return []
-        
-        slash = ""
-        if settings.APPEND_SLASH:
-            slash = "/"
-
-        return [url(self.get_translated_regex(slash=slash), self.view_name, kwargs=kwargs, name=self.name)]
-    
-    def get_context(self, request, args=(), kwargs={}):
-        return {}
+#class ViewRoute(Route):
+#    view_name = NullCharField(max_length=255)
+#    name = NullCharField(max_length=255, unique=True)
+#    
+#    default_view_name = None
+#    
+#    class Meta:
+#        verbose_name = _("View")
+#        verbose_name_plural = _("Views")
+#        db_table = "xadrpy_router_view"
+#
+#    def get_urls(self, kwargs={}):
+#        kwargs.update({'router': self.id})
+#        if not self.view_name:
+#            return []
+#        
+#        slash = ""
+#        if settings.APPEND_SLASH:
+#            slash = "/"
+#
+#        return [url(self.get_translated_regex(slash=slash), self.view_name, kwargs=kwargs, name=self.name)]
+#    
+#    def get_context(self, request, args=(), kwargs={}):
+#        return {}
 
 class IncludeRoute(Route):
     include_name = models.CharField(max_length=255)
     namespace = NullCharField(max_length=255)
-    app_name = NullCharField(max_length=255)
+#    app_name = NullCharField(max_length=255)
 
     class Meta:
         verbose_name = _("Include")
@@ -227,7 +214,7 @@ class IncludeRoute(Route):
 
     def get_urls(self, kwargs={}):
         kwargs.update({'router': self.id})
-        return url(self.get_translated_regex(postfix=""), include(self.include_name, self.namespace, self.app_name), kwargs=kwargs)
+        return url(self.get_translated_regex(postfix=""), include(self.include_name, self.namespace, self.name), kwargs=kwargs)
 
 class StaticRoute(Route):
     path = models.FilePathField(max_length=255, verbose_name=_("Path"))

@@ -1,13 +1,24 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from django.http import Http404
 import logging
-from django.utils.safestring import mark_safe
 from xadrpy.contrib.blog.models import Category
-logger = logging.getLogger("blog")
+from xadrpy.utils.paginator import Paginated
+from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
+logger = logging.getLogger("xadrpy.contrib.blog.views")
 
 def column(request, route, **kwargs):
+    entries = route.get_entries()
+    paginated = Paginated(entries, 5, orphans=1, page_url=u"?"+_("page")+"=%(index)s")
+    paginated.set_first_page(reverse("xadrpy.contrib.blog.views.column", kwargs={"route": route.id}))
+    paginated.set_page(request.GET.get(_("page"),1))
+
+    #paginated.set_page_url(lambda i,s: reverse("xadrpy.contrib.blog.views.column", kwargs={'route': route.id})+"?page=%s&size=%s" % (i,s)) 
+
     ctx = route.get_context(request)
+    ctx.update({
+        'entries': paginated,
+    })
     route.increment_view_count(request)
     return render_to_response(request.theme.template().column, ctx, RequestContext(request))
 

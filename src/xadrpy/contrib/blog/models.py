@@ -21,15 +21,13 @@ from django.http import Http404
 from django.dispatch.dispatcher import receiver
 from xadrpy.router.signals import prepend_route_urls
 from django.db.models import permalink
-from xadrpy.contrib.blog.managers import EntryManager
+from xadrpy.contrib.blog.managers import EntryManager, CategoryManager
 
 class Column(Page):
     post_comments_enabled = models.BooleanField(default=True, verbose_name = _("Comments enabled"), db_index=True)
     post_comments_unlocked = models.BooleanField(default=True, verbose_name = _("Comments unlocked"), db_index=True)
 
     resolver = models.CharField(max_length=255, choices=conf.RESOLVERS, default=conf.DEFAULT_RESOLVER, verbose_name=_("Resolver"))
-    
-    default_view_name = "xadrpy.contrib.blog.views.column"
     
     class Meta:
         verbose_name = _("Column")
@@ -38,6 +36,9 @@ class Column(Page):
 
     def __unicode__(self):
         return self.title
+
+    def get_view_name(self):
+        return "xadrpy.contrib.blog.views.column"
 
     def get_template(self):
         return "xadrpy/blog/column.html"
@@ -74,6 +75,9 @@ class Column(Page):
     
     def get_entry(self, **kwargs):
         return self.get_entries(**kwargs).get()
+    
+    def to_dict(self):
+        return self.__dict__
 
 
 class Category(MPTTModel):
@@ -85,6 +89,7 @@ class Category(MPTTModel):
     description = RichTextField(blank=True, null=True, verbose_name=_("Description"))
     
     tree = TreeManager()
+    objects = CategoryManager()
 
     class Meta:
         verbose_name = _("Category")
@@ -140,7 +145,7 @@ class Entry(TreeInheritable, OwnedModel):
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     slug = models.SlugField(max_length=255, verbose_name=_("URL part"), db_index=True)
     view_count = models.IntegerField(default=0, verbose_name = _("View count"))
-    categories = models.ManyToManyField(Category, blank=True, null=True, verbose_name=_("Categories"), db_table="xadrpy_blog_entry_categories", related_name="+")
+    categories = models.ManyToManyField(Category, blank=True, null=True, verbose_name=_("Categories"), db_table="xadrpy_blog_entry_categories", related_name="entries")
     pub_date = models.DateTimeField(default=datetime.datetime.now, verbose_name = _("Publication start"), db_index=True)
     published = models.BooleanField(default=False, verbose_name=_("Is published"))
 

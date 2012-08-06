@@ -34,7 +34,7 @@ class PageAdmin(ModelAdmin):
             'fields': ('user', 'group', 'pub_date', 'published', 'enabled', 'visible', 'show_content', 'comments_enabled', 'comments_unlocked', 'i18n')
         }),
         (_('Design'), {
-            'fields': ('menu_title', 'layout_name', 'skin_name', 'extra_classes', 'view_name','site', 'master', 'language_code', 'image', 'name',)
+            'fields': ('menu_title', 'layout_name', 'skin_name', 'extra_classes', 'site', 'master', 'language_code', 'image', 'name',)
         }),
         (_('Extra'), {
             'fields': ('created','modified', 'view_count', )
@@ -49,7 +49,7 @@ class PageAdmin(ModelAdmin):
     list_display_links = ('depth_title', 'slug')
     list_filter = ('user', 'group', 'enabled','published','visible','show_content','comments_enabled','i18n','site','master','language_code')
     prepopulated_fields = {"slug": ("title",)}
-    search_fields = ('title','slug','meta_title','name')
+    search_fields = ('title','slug','name')
     readonly_fields = ('created', 'modified',)
     inlines = (PageTranslationInlineAdmin,)
 
@@ -88,6 +88,9 @@ class PageAdmin(ModelAdmin):
     
     def menu_title(self, obj):
         return obj.get_meta().meta['menu_title']
+
+    def meta_title(self, obj):
+        return obj.get_meta().meta['meta_title']
     
     def depth_title(self, obj):
         depth = "".join([" ----- " for i in range(obj.level)])

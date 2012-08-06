@@ -48,8 +48,9 @@ class CategoriesPlugin(Plugin):
         return True
 
     def render(self, context, router=None):
-        categories = Category.objects.all()
-        categories[0].get_absolute_url()
+        categories = Category.objects.get_active_categories()
+        if not categories:
+            return ""
         context.update({
             'categories': categories,
         })

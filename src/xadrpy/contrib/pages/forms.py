@@ -18,9 +18,14 @@ class PageAdminForm(forms.ModelForm):
     layout_name = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
     skin_name = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
     
+    meta_title = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
+    meta_keywords = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
+    meta_description = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
+    overwrite_meta_title = forms.BooleanField(required=False)
+    
     extra_classes = forms.CharField(max_length=255, required=False, widget=forms.TextInput(attrs={'class': 'vTextField'}))
         
-    _meta_fields = ['menu_title', 'skin_name', 'layout_name', 'extra_classes']
+    _meta_fields = ['menu_title', 'skin_name', 'layout_name', 'extra_classes', 'meta_title', 'meta_keywords', 'meta_description', 'overwrite_meta_title']
 
     class Meta:
         model = Page
