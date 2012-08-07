@@ -58,36 +58,36 @@ class Command(BaseCommand):
         general = GeneralCommands(self)
         general.register()
 
-        if is_application_installed("xadrpy.access"):
-            from xadrpy.access.libs import PrefsCommands
+        if is_application_installed("xadrpy.core.preferences"):
+            from xadrpy.core.preferences.libs import PrefsCommands
             commands = PrefsCommands(self)
             commands.register()
-            general.add_commands(commands)
+            general.add_commands(commands, "preferences")
 
         if is_application_installed("xadrpy.router"):
             from xadrpy.router.libs import RouterCommands
             commands = RouterCommands(self)
             commands.register()
-            general.add_commands(commands)
+            general.add_commands(commands, "router")
 
         if is_application_installed("xadrpy.templates"):
             from xadrpy.templates.libs import TemplatesCommands
             commands = TemplatesCommands(self)
             commands.register()
-            general.add_commands(commands)
+            general.add_commands(commands, "templates")
         
         if is_application_installed("xadrpy.contrib.themes"):
             from xadrpy.contrib.themes.libs import ThemesCommands
             commands = ThemesCommands(self)
             commands.register()
-            general.add_commands(commands)
+            general.add_commands(commands, "themes")
             
 
         if is_application_installed("xadrpy.contrib.blog"):
             from xadrpy.contrib.blog import BlogCommands
             commands = BlogCommands(self)
             commands.register()
-            general.add_commands(commands)
+            general.add_commands(commands, "blog")
 
     
     def print_header(self):

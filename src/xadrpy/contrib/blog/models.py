@@ -1,7 +1,7 @@
 from xadrpy.models.fields.nullchar_field import NullCharField
 from django.db import models
 import conf 
-from xadrpy.access.models import OwnedModel, prefs
+from xadrpy.access.models import OwnedModel
 from xadrpy.contrib.pages.models import Page
 import datetime
 from xadrpy.models.inheritable import TreeInheritable, TreeInheritableManager
@@ -22,6 +22,7 @@ from django.dispatch.dispatcher import receiver
 from xadrpy.router.signals import prepend_route_urls
 from django.db.models import permalink
 from xadrpy.contrib.blog.managers import EntryManager, CategoryManager
+from xadrpy.core.preferences.libs import prefs
 
 class Column(Page):
     post_comments_enabled = models.BooleanField(default=True, verbose_name = _("Comments enabled"), db_index=True)
@@ -247,15 +248,15 @@ class Entry(TreeInheritable, OwnedModel):
             return self.meta_title
         self_title = self.meta_title or self.title 
         if self.get_parent() and self.get_parent().get_meta_title():
-            self_title = self_title + " | " + self.get_parent().get_meta_title() + " | " + self.column.get_meta_title()
+            self_title = self_title + " | " + self.get_parent().get_meta_title() + " | " + self.column.get_meta().get_meta_title()
         else:
-            self_title = self_title + " | " + self.column.get_meta_title()
+            self_title = self_title + " | " + self.column.get_meta().get_meta_title()
         return self_title
 
     def get_meta_keywords(self):
         if self.meta_keywords:
             return self.meta_keywords
-        return self.get_column().get_meta_keywords()
+        return self.get_column().get_meta().get_meta_keywords()
 
     def get_meta_description(self):
         if self.meta_description:

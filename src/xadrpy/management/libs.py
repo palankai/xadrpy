@@ -44,13 +44,15 @@ class GeneralCommands(SubCommand):
         _init = self.command.add_subcommand(self.init, "general.init", help="General init - run all inits")
         _reset = self.command.add_subcommand(self.reset, "general.reset", help="General reset - run all resets")
     
-    def add_commands(self, commands):
-        self.commands.append(commands)
+    def add_commands(self, commands, title):
+        self.commands.append((commands, title))
     
     def init(self, **kwargs):
-        for commands in self.commands:
+        for commands, title in self.commands:
+            self.stdout.write("init %s...\n" % title)
             commands.init(**kwargs)
     
     def reset(self, **kwargs):
-        for commands in self.commands:
+        for commands, title in self.commands:
+            self.stdout.write("reset %s...\n" % title)
             commands.reset(**kwargs)

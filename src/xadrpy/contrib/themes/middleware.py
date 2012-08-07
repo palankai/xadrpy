@@ -1,4 +1,3 @@
-from xadrpy.access import prefs
 from xadrpy.contrib.themes.loaders import get_default_theme
 from xadrpy.contrib.themes.models import ThemeAdjuster
 from xadrpy.contrib.themes.libs import ThemeMetaHandler

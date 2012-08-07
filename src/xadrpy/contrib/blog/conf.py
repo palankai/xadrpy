@@ -42,8 +42,8 @@ DEFAULT_RESOLVER = "xadrpy.contrib.blog.resolvers.MonthBasedResolver"
 RESOLVERS_CACHE = {}
 
 PREFERENCES = (
-    {"key":"comments_enabled", "namespace":"x-blog", "value": True, "vtype": "bool"},
-    {"key":"comments_locked", "namespace":"x-blog", "value": False, "vtype": "bool"}
+    {"key":"comments_enabled", "namespace":"x-blog", "value": True},
+    {"key":"comments_locked", "namespace":"x-blog", "value": False}
 )
 if hasattr(settings, "PAGE_BREAK_RE"):
     PAGE_BREAK_RE = settings.PAGE_BREAK_RE

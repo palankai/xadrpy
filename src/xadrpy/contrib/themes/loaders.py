@@ -10,8 +10,8 @@ import conf
 import models
 from django.template.loader import render_to_string
 from django.utils import simplejson
-from xadrpy.access import prefs
 import logging
+from xadrpy.core.preferences.libs import prefs
 logger = logging.getLogger("xadrpy.contrib.themes.loaders")
 
 def get_default_theme(user=None):

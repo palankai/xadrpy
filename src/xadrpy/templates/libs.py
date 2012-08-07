@@ -133,6 +133,11 @@ class TemplatesCommands(SubCommand):
     def register(self):
         _init = self.command.add_subcommand(self.init, "templates.init", help="Init templates, plugins, ...")
 
+    def reset(self, **kwargs):
+        from xadrpy.templates.models import PluginStore
+        PluginStore.objects.all().delete()
+        self.init(**kwargs)
+
     def init(self, **kwargs):
         import imp
         from django.utils import importlib
