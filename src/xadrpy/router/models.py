@@ -213,7 +213,7 @@ class IncludeRoute(Route):
         db_table = "xadrpy_router_include"
 
     def get_urls(self, kwargs={}):
-        kwargs.update({'router': self.id})
+        kwargs.update({'route_id': self.id})
         return url(self.get_translated_regex(postfix=""), include(self.include_name, self.namespace, self.name), kwargs=kwargs)
 
 class StaticRoute(Route):
@@ -229,7 +229,7 @@ class StaticRoute(Route):
         return super(StaticRoute, self).get_regex(postfix=postfix, slash="")
 
     def get_urls(self, kwargs={}):
-        kwargs.update({'router': self.id})
+        kwargs.update({'route_id': self.id})
         return [url(self.get_translated_regex(), 'xadrpy.routers.views.static', kwargs=kwargs)]        
 
 class TemplateRoute(Route):
@@ -245,7 +245,7 @@ class TemplateRoute(Route):
         return super(TemplateRoute, self).get_regex(postfix=postfix, slash="")
 
     def get_urls(self, kwargs={}):
-        kwargs.update({'router': self.id})
+        kwargs.update({'route_id': self.id})
         return [url(self.get_translated_regex(), 'xadrpy.routers.views.template', kwargs=kwargs)]
     
 class RedirectRoute(Route):
@@ -258,6 +258,6 @@ class RedirectRoute(Route):
         db_table = "xadrpy_router_redirect"
 
     def get_urls(self, kwargs={}):
-        kwargs.update({'router': self.id})
+        kwargs.update({'route_id': self.id})
         return [url(self.get_translated_regex(), 'xadrpy.routers.views.redirect', kwargs=kwargs)] 
 

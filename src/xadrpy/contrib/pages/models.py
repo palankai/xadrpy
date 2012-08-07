@@ -40,7 +40,7 @@ class Page(Route, OwnedModel):
     def get_urls(self, kwargs={}):
         if self.app:
             return self.app.get_urls(kwargs)
-        kwargs.update({'route': self.id})
+        kwargs.update({'route_id': self.id})
         slash = ""
         if settings.APPEND_SLASH:
             slash = "/"
@@ -64,7 +64,7 @@ class Page(Route, OwnedModel):
     def get_absolute_url(self):
         if self.app:
             return self.app.get_absolute_url()
-        return reverse(self.get_view_name(), kwargs={'route': self.id})
+        return reverse(self.get_view_name(), kwargs={'route_id': self.id})
     
     def can_render(self):
         if not self.enabled or not self.published:

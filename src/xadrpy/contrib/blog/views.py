@@ -7,22 +7,20 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 logger = logging.getLogger("xadrpy.contrib.blog.views")
 
-def column(request, route, **kwargs):
-    entries = route.get_entries()
+def column(request):
+    entries = request.route.get_entries()
     paginated = Paginated(entries, 5, orphans=1, page_url=u"?"+_("page")+"=%(index)s")
-    paginated.set_first_page(reverse("xadrpy.contrib.blog.views.column", kwargs={"route": route.id}))
+    paginated.set_first_page(reverse("xadrpy.contrib.blog.views.column", kwargs={"route_id": request.route.id}))
     paginated.set_page(request.GET.get(_("page"),1))
 
-    #paginated.set_page_url(lambda i,s: reverse("xadrpy.contrib.blog.views.column", kwargs={'route': route.id})+"?page=%s&size=%s" % (i,s)) 
-
-    ctx = route.get_context(request)
+    ctx = request.route.get_context(request)
     ctx.update({
         'entries': paginated,
     })
-    route.increment_view_count(request)
+    request.route.increment_view_count(request)
     return render_to_response(request.theme.template().column, ctx, RequestContext(request))
 
-def categories(request, slug, route=None, **kwargs):
+def categories(request, slug=None, **kwargs):
     category = get_object_or_404(Category, slug=slug)
     ctx = {
         'category': category,
@@ -33,19 +31,19 @@ def categories(request, slug, route=None, **kwargs):
 def tag(request, route, **kwargs):
     pass
 
-def posts(request, route, title, **kwargs):        
-    posts = route.posts.filter(**kwargs)
+def posts(request, title, **kwargs):        
+    posts = request.route.posts.filter(**kwargs)
     ctx = {
-        'column': route,
+        'column': request.route,
         'title': title % kwargs,
         'posts': posts,
     }
     return render_to_response("post_list.html", ctx, RequestContext(request))
 
-def entry(request, route, **kwargs):
-    entry = route.get_entry(**kwargs)
+def entry(request, **kwargs):
+    entry = request.route.get_entry(**kwargs)
     entry.permit(request)
-    ctx = dict(route.get_context(request),
+    ctx = dict(request.route.get_context(request),
                **entry.get_context(request))
     entry.increment_view_count(request)
     return render_to_response("xadrpy/blog/entry.html", ctx, RequestContext(request))
