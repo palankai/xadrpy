@@ -7,14 +7,13 @@ from xadrpy.models.fields.nullchar_field import NullCharField
 from xadrpy.models.fields.list_field import ListField
 from xadrpy.models.fields.object_field import ObjectField
 import conf
-import libs
+import base
 from managers import PropertyManager, ConsumerManager
 from django.dispatch.dispatcher import receiver
-from django.db.models.signals import pre_save, class_prepared
+from django.db.models.signals import pre_save
 import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
-from xadrpy.utils.signals import application_started
 
 class UserProxy(User):
     class Meta:
@@ -78,7 +77,7 @@ class Account(models.Model):
 @receiver(pre_save, sender=Account)
 def account_generate_key(sender, instance, **kwargs):
     if instance.key == None:
-        instance.key = libs.KeyGenerator(conf.ACCOUNT_KEY_LENGTH)()
+        instance.key = base.KeyGenerator(conf.ACCOUNT_KEY_LENGTH)()
     
 class Rule(models.Model):
     account = models.ForeignKey(Account, related_name="+")
@@ -150,9 +149,9 @@ class Consumer(models.Model):
 @receiver(pre_save, sender=Consumer)
 def consumer_generate_key   (sender, instance, **kwargs):
     if instance.consumer_id == None:
-        instance.consumer_id = libs.KeyGenerator(conf.CONSUMER_ID_LENGTH)()
+        instance.consumer_id = base.KeyGenerator(conf.CONSUMER_ID_LENGTH)()
     if instance.consumer_secret == None:
-        instance.consumer_secret = libs.KeyGenerator(conf.CONSUMER_SECRET_LENGTH)()
+        instance.consumer_secret = base.KeyGenerator(conf.CONSUMER_SECRET_LENGTH)()
 
 class Access(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -177,7 +176,7 @@ class Access(models.Model):
 @receiver(pre_save, sender=Access)
 def access_generate_key(sender, instance, **kwargs):
     if instance.key == None:
-        instance.key = libs.KeyGenerator(conf.ACCOUNT_KEY_LENGTH)
+        instance.key = base.KeyGenerator(conf.ACCOUNT_KEY_LENGTH)
 
 class Token(models.Model):
     token = models.CharField(max_length=255, unique=True, editable=False, verbose_name=_("Token"))
@@ -214,7 +213,7 @@ class Token(models.Model):
 def token_expired_pre_save(sender, instance, **kwargs):
     if instance.invalid: return
     if instance.token == None:
-        instance.token = libs.KeyGenerator(conf.TOKEN_KEY_LENGTH)
+        instance.token = base.KeyGenerator(conf.TOKEN_KEY_LENGTH)
     if instance.timeout > 0:
         instance.expired = datetime.datetime.now()+datetime.timedelta(seconds=instance.timeout)
     else:
@@ -383,80 +382,3 @@ def property_expired_pre_save(sender, instance, **kwargs):
     else:
         instance.expired = None
 
-@receiver(application_started)
-def property_prepared(**kwargs):
-    """
-    Read preferences from module's conf and from settings
-    """
-    
-    import imp
-    from django.conf import settings
-    from django.utils import importlib
-    
-    def hash_for_dict(d):
-        """
-        Generate an easy hash for a simple dict
-        :param d: a dict
-        """
-        return ";".join(["%s:%s" % (k,v) for k,v in d.items()])
-    
-    def process_preference(preferences, preference, source):
-        """
-        Process a preference
-        
-        :param preferences: common preferences dict
-        :param preference: simple dict
-        """
-        instance=preference.get("instance",None) 
-        site=preference.get("site",None) 
-        consumer=preference.get("consumer",None)
-        role=preference.get("role",None) 
-        namespace=preference.get("namespace",None)
-        key=preference.get("key",None)
-        language_code=preference.get("language_code",None)
-        
-        value=preference.get("value", None) 
-        vtype=preference.get("vtype", None) 
-        title=preference.get("title", None)
-        description=preference.get("description", None)
-        meta=preference.get("meta", None)
-        status=preference.get("status", 1)
-        init=preference.get("init", False)
-        debug=preference.get("debug", False)
-        trans=preference.get("trans", {})
-        
-        k = {'instance': instance, 'site': site, 'consumer': consumer, 'role': role, 'namespace': namespace, 'key': key, 'language_code': language_code}
-        v = {'value': value, 'vtype': vtype, 'title': title, 'description': description, 'meta': meta, 'status': status, 'init': init, 'debug': debug, 'trans': trans, 'source': source}
-        v.update(k)
-        h = hash_for_dict(k)
-        
-        if h in preferences:
-            preferences[h].update(v)
-        else:
-            preferences[h]=v
-
-    preferences = dict()
-
-    for app in settings.INSTALLED_APPS:
-
-        try:
-            app_path = importlib.import_module(app).__path__
-        except AttributeError:
-            continue
-
-        try:
-            imp.find_module('conf', app_path)
-        except ImportError:
-            continue
-        conf_module_name = "%s.conf" % app
-        module = importlib.import_module(conf_module_name)
-        PREFERENCES = getattr(module, "PREFERENCES", ())
-
-        for preference in PREFERENCES:
-            process_preference(preferences, preference, conf_module_name)
-    
-    for preference in conf.PREFERENCES:
-        process_preference(preferences, preference, "settings")
-    
-    for kwargs in preferences.values():
-        Property.objects.init_by(**kwargs)

@@ -3,6 +3,7 @@ from django.utils.encoding import smart_str
 import re
 from django.template.base import FilterExpression, NodeList
 from django.template.loader import get_template
+from xadrpy.management.libs import SubCommand
 
 kwarg_re = re.compile( r"(?:(\w+)=)?(.+)" )
 class WidgetLibrary(template.Library):
@@ -127,3 +128,31 @@ class Plugin(object):
     def render(self, config, *args, **kwargs):
         pass
 
+class TemplatesCommands(SubCommand):
+
+    def register(self):
+        _init = self.command.add_subcommand(self.init, "templates.init", help="Init templates, plugins, ...")
+
+    def init(self, **kwargs):
+        import imp
+        from django.utils import importlib
+        from django.conf import settings
+        from inspect import isclass
+        from models import PluginStore
+        
+        for app in settings.INSTALLED_APPS:
+            
+            try:                                                                                                                          
+                app_path = importlib.import_module(app).__path__                                                                          
+            except AttributeError:                                                                                                        
+                continue 
+            
+            try:                                                                                                                          
+                imp.find_module('plugins', app_path)                                                                               
+            except ImportError:                                                                                                           
+                continue                                                                                                                  
+            module = importlib.import_module("%s.plugins" % app)
+            for name in dir(module):
+                cls = getattr(module,name)
+                if isclass(cls) and issubclass(cls, Plugin) and cls!=Plugin:
+                    store = PluginStore.objects.get_or_create(plugin=cls.get_name())[0]

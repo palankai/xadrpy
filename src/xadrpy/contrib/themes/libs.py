@@ -1,71 +1,12 @@
 # -*- coding: utf-8 -*-
 import conf
-from xadrpy import router
 import logging
-from django.utils import simplejson 
-from copy import deepcopy
-import defaults
+from xadrpy.management.libs import SubCommand
+from django.template.loader import find_template
+from xadrpy import router
+from xadrpy.utils.imports import get_class
+from xadrpy.contrib.themes.models import Theme, Library
 logger = logging.getLogger("xadrpy.contrib.themes.libs")
-
-def get_library_config_over_default(library):
-    return defaults.config(defaults.fallback(library, "name"))
- 
-def get_library_meta_over_default(obj):
-    return defaults.library(obj)
-
-def get_theme_config_over_default(theme):
-    return defaults.config(defaults.fallback(theme, "name")) 
-    
-def get_theme_meta_over_default(obj):
-    obj = defaults.theme(obj, translated=defaults.translation)
-
-    layouts = []
-    skins = []
-    templates = {}
-    media = {}
-    files = defaults.files()
-
-    for item in obj['layouts']:
-        layouts.append(defaults.layout(defaults.fallback(item, "name")))
-    
-    for item in obj['skins']:
-        skins.append(_get_theme_skin_over_default(defaults.fallback(item,"name",source=[item])))
-
-    for name, item in obj['templates'].items():
-        templates[name] = defaults.template(defaults.fallback(item,"source"))
-
-    for name, item in obj['media'].items():
-        media[name] = defaults.media(defaults.fallback(item,"source"))
-
-    obj['files']=defaults.files(obj['files'])
-    for file_type,file_list in files.items():
-        for file_def in obj['files'][file_type]:
-            file_list.append(defaults.file_defaults(file_def, file_type))
-
-    for f in files['html']:
-        if f['name'] not in templates:
-            templates[f['name']] = defaults.template({'source': f['name']})
-
-
-    for f in files['media']:
-        if f['name'] not in media:
-            media[f['name']] = defaults.media({'source': f['name']})
-
-    
-    obj['files'] = files
-    obj['layouts'] = layouts
-    obj['skins'] = skins
-    obj['templates'] = templates
-    obj['media'] = media
-        
-    return obj
-
-
-def _get_theme_skin_over_default(obj):
-    obj = defaults.skin(obj) 
-    if isinstance(obj['source'],basestring):
-        obj['source']=[obj['source']]
-    return obj
 
 class ThemeMetaHandler(router.MetaHandler):
         
@@ -101,3 +42,27 @@ class ThemeMetaHandler(router.MetaHandler):
         self.meta['skin_name']=skin_name
         
         return skin_name
+
+class ThemesCommands(SubCommand):
+    
+    def register(self):
+        _collect = self.command.add_subcommand(self.init, "themes.init", help="Collects themes")
+    
+    def reset(self, **kwargs):
+        Theme.objects.all().delete()
+        Library.objects.all().delete()
+        self.init(**kwargs)
+    
+    def init(self, **kwargs):
+        self.stdout.write("Collecting themes...\n")
+        import loaders, time
+        try:
+            find_template("xadrpy/themes/base.html") #Hack: init template loaders
+            for loader_name in conf.THEME_LOADERS:
+                theme_loader_cls = get_class(loader_name, loaders.ThemeLoader)
+                theme_loader = theme_loader_cls()
+                theme_loader.load()
+        except Exception, e:
+            logger.exception("Theme loading failed: %s", e)
+            return
+        

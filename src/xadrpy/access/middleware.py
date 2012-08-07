@@ -1,5 +1,3 @@
-from xadrpy.access import prefs
-from xadrpy.contrib.themes.loaders import get_default_theme
 from django.contrib.sites.models import Site
 
 class AccessMiddleware(object):

@@ -261,9 +261,3 @@ class RedirectRoute(Route):
         kwargs.update({'router': self.id})
         return [url(self.get_translated_regex(), 'xadrpy.routers.views.redirect', kwargs=kwargs)] 
 
-@receiver(autodiscover_signal)
-def init_meta_handler(**kwargs):
-    for conf_module in get_installed_apps_module("conf"):
-        conf.META_HANDLER = getattr(conf_module, "META_HANDLER", conf.META_HANDLER)
-    conf.META_HANDLER = getattr(settings, "META_HANDLER", conf.META_HANDLER)
-    conf.META_HANDLER_CLS = get_class(conf.META_HANDLER)

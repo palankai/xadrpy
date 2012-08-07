@@ -2,13 +2,9 @@ from django.db import models
 from xadrpy.models.inheritable import Inheritable
 from xadrpy.models.fields.json_field import JSONField
 from django.utils.translation import ugettext_lazy as _
-from xadrpy.utils.signals import autodiscover_signal
-from django.dispatch.dispatcher import receiver
 import conf
-from xadrpy.utils.imports import get_class
 from django.db.models import Q
 import logging
-from django.template.loader import find_template
 from django.template import loader
 from django.template.base import TemplateDoesNotExist
 from django.contrib.staticfiles import finders
@@ -229,15 +225,15 @@ class Library(Inheritable):
         return self._base_path
 
 
-@receiver(autodiscover_signal, dispatch_uid="init_theme_loaders")
-def init_theme_loaders(**kwargs):
-    import loaders, time
-    try:
-        find_template("xadrpy/themes/base.html") #Hack: init template loaders
-        for loader_name in conf.THEME_LOADERS:
-            theme_loader_cls = get_class(loader_name, loaders.ThemeLoader)
-            theme_loader = theme_loader_cls()
-            theme_loader.load()
-    except Exception, e:
-        logger.exception("Theme loading failed: %s", e)
-        return
+#@receiver(autodiscover_signal, dispatch_uid="init_theme_loaders")
+#def init_theme_loaders(**kwargs):
+#    import loaders, time
+#    try:
+#        find_template("xadrpy/themes/base.html") #Hack: init template loaders
+#        for loader_name in conf.THEME_LOADERS:
+#            theme_loader_cls = get_class(loader_name, loaders.ThemeLoader)
+#            theme_loader = theme_loader_cls()
+#            theme_loader.load()
+#    except Exception, e:
+#        logger.exception("Theme loading failed: %s", e)
+#        return

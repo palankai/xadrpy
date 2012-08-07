@@ -1,8 +1,18 @@
 # -*- coding: utf-8 -*-
-__all__ = ["MetaHandler","Application"]
 """
 Router támoagató könyvtár
 """
+from xadrpy.management.libs import SubCommand
+from xadrpy.router.models import Route
+import hashlib
+
+__all__ = ["MetaHandler","Application"]
+
+
+def update_signatures():
+    for route in Route.objects.all():
+        route.signature = hashlib.md5(route.get_signature()).hexdigest()
+        route.save()
 
 class MetaHandler(object):
     """
@@ -98,3 +108,11 @@ class Application(object):
         return []
     
     route = property(get_route)
+
+class RouterCommands(SubCommand):
+
+    def register(self):
+        _init = self.command.add_subcommand(self.init, "router.init", help="Update signatures")
+
+    def init(self, **kwargs):
+        update_signatures()

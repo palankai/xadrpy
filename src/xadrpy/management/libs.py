@@ -24,10 +24,33 @@ class SubCommand(object):
         return self.command.stderr
     stderr = property(get_stderr)
         
-    def print_header(self):
-        self.command.print_header()
-        self.stdout.write("\n")
-        
     def register(self):
         pass
+
+    def reset(self, **kwargs):
+        pass
+
+    def init(self, **kwargs):
+        pass
     
+    
+class GeneralCommands(SubCommand):
+    
+    def __init__(self, command):
+        super(GeneralCommands, self).__init__(command)
+        self.commands = []
+    
+    def register(self):
+        _init = self.command.add_subcommand(self.init, "general.init", help="General init - run all inits")
+        _reset = self.command.add_subcommand(self.reset, "general.reset", help="General reset - run all resets")
+    
+    def add_commands(self, commands):
+        self.commands.append(commands)
+    
+    def init(self, **kwargs):
+        for commands in self.commands:
+            commands.init(**kwargs)
+    
+    def reset(self, **kwargs):
+        for commands in self.commands:
+            commands.reset(**kwargs)

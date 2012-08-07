@@ -5,8 +5,8 @@ Created on 2012.07.26.
 '''
 from xadrpy.utils.imports import get_installed_apps_module
 from django.conf import settings
-import libs
-import conf
+import base
+import conf 
 import models
 from django.template.loader import render_to_string
 from django.utils import simplejson
@@ -29,28 +29,28 @@ class ThemeLoader(object):
         pass
 
     def init_theme_meta(self, meta):
-        return libs.get_theme_meta_over_default(meta)
+        return base.get_theme_meta_over_default(meta)
 
     def init_library_meta(self, meta):
-        meta = libs.get_library_meta_over_default(meta)
+        meta = base.get_library_meta_over_default(meta)
         return meta
 
 class StaticThemeLoader(ThemeLoader):
     
     def load(self):
         for theme in getattr(settings, "THEMES", ()):
-            self.load_theme(libs.get_theme_config_over_default(theme))
+            self.load_theme(base.get_theme_config_over_default(theme))
 
         for library in getattr(settings, "LIBRARIES", ()):
-            self.load_library(libs.get_library_config_over_default(library))
+            self.load_library(base.get_library_config_over_default(library))
 
         for conf_module in get_installed_apps_module("conf"):
 
             for theme in getattr(conf_module, "THEMES", ()):
-                self.load_theme(libs.get_theme_config_over_default(theme))
+                self.load_theme(base.get_theme_config_over_default(theme))
 
             for library in getattr(conf_module, "LIBRARIES", ()):
-                self.load_library(libs.get_library_config_over_default(library))
+                self.load_library(base.get_library_config_over_default(library))
 
     
     def load_theme(self, theme):
