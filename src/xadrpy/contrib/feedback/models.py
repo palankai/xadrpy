@@ -19,4 +19,4 @@ class Feedback(mptt.models.MPTTModel, Comment):
         verbose_name_plural = _("Feedback")
         db_table = "xadrpy_feedback_feedback"
         ordering = ('tree_id', 'lft')
-    
+

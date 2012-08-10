@@ -18,7 +18,7 @@ def column(request):
         'entries': paginated,
     })
     request.route.increment_view_count(request)
-    return render_to_response(request.theme.template().column, ctx, RequestContext(request))
+    return render_to_response("xadrpy/blog/column.html", ctx, RequestContext(request))
 
 def categories(request, slug=None, **kwargs):
     category = get_object_or_404(Category, slug=slug)

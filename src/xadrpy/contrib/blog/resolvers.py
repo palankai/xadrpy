@@ -10,7 +10,7 @@ class BaseResolver(object):
         self.column = column
     
     def get_urls(self, kwargs={}):
-        kwargs.update({'route_id': self.column.id})
+        #kwargs.update({'route_id': self.column.id})
         slash = ""
         if settings.APPEND_SLASH:
             slash = "/"
@@ -28,7 +28,7 @@ class BaseResolver(object):
 class MonthBasedResolver(BaseResolver):
 
     def get_urls(self, kwargs={}):
-        kwargs.update({'route_id': self.column.id})
+        #kwargs.update({'route_id': self.column.id})
         slash = ""
         if settings.APPEND_SLASH:
             slash = "/"

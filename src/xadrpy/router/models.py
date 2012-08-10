@@ -21,6 +21,8 @@ from xadrpy.models.fields.dict_field import DictField
 from xadrpy.models.fields.language_code_field import LanguageCodeField
 import logging
 import libs
+import base
+import xtensions
 from xadrpy.models.fields.class_field import ClassField
 logger = logging.getLogger("x-router")
 
@@ -40,6 +42,8 @@ class Route(TreeInheritable):
     name = NullCharField(max_length=255, unique=True)
     application_name = NullCharField(max_length=128, verbose_name=_("Application name"))
     meta = DictField()
+    app = ClassField(field="application_name", default=lambda obj: obj.get_application_class())
+
 #    meta_title = models.CharField(max_length=255, blank=True, verbose_name=_("Meta title"), default="")
 #    overwrite_meta_title = models.BooleanField(default=False, verbose_name=_("Overwrite meta title"))
 #    meta_keywords = models.CharField(max_length=255, blank=True, verbose_name=_("Meta keywords"), default="")
@@ -56,17 +60,9 @@ class Route(TreeInheritable):
     def __unicode__(self):
         return self.title
     
-    def get_regex(self, postfix="$", slash="/", language_code=None):
-        root_language_code = self.get_root_language_code()
-        if not self.parent:
-            regex = root_language_code and "^%s/" % root_language_code or "^"
-        else:
-            regex = self.parent.get_regex(postfix="", slash="/", language_code=language_code)
-        slug = self.get_slug(language_code)
-        if slug:
-            slug = slug+slash
-        regex += slug 
-        return regex + postfix
+    def get_application_class(self):
+        return base.Application 
+    
 
     def get_slug(self, language_code):
         return self.translation(language_code=language_code).slug or self.slug or ""
@@ -79,23 +75,31 @@ class Route(TreeInheritable):
         return self.get_regex(postfix=postfix, slash=slash, language_code=language_code)
     
     get_translated_regex = lazy(get_translated_regex, unicode)
-    
+
+    def get_regex(self, postfix="$", slash="/", language_code=None):
+        root_language_code = self.get_root_language_code()
+        if not self.parent:
+            regex = root_language_code and "^%s/" % root_language_code or "^"
+        else:
+            regex = self.parent.get_regex(postfix="", slash="/", language_code=language_code)
+        slug = self.get_slug(language_code)
+        if slug:
+            slug = slug+slash
+        regex += slug 
+        return regex + postfix
+
     def patterns(self, *args, **kwargs):
         if not self.parent and self.i18n:
             return i18n_patterns(*args, **kwargs)
         return patterns(*args, **kwargs)
-    
-    def get_urls(self, kwargs={}):
-        if self.app:
-            return self.app.get_urls(kwargs)
-        return []
     
     def append_pattern(self, url_patterns):
         if not self.enabled: 
             return
         root_language_code = self.get_root_language_code()
         kwargs = root_language_code and {conf.LANGUAGE_CODE_KWARG: root_language_code} or {}
-        urls = self.get_urls(kwargs)
+        kwargs.update({'route_id': self.id})
+        urls = self.app.get_urls(kwargs)
         if not urls: return
         url_patterns+=self.patterns('', *urls)
     
@@ -114,19 +118,6 @@ class Route(TreeInheritable):
                     self._master = master.descendant
         return self._master
     
-    def get_application(self):
-        if hasattr(self, "_app"):
-            return self._app
-        if not self.application_name:
-            self._app = None
-            return None
-        try:
-            self._app = get_class(self.application_name,libs.Application)(self)
-        except:
-            self._app = None 
-        return self._app
-    
-    app = property(get_application)
     
     def get_meta(self):
         return conf.META_HANDLER_CLS(self)
@@ -136,7 +127,6 @@ class Route(TreeInheritable):
 
     def get_context(self, request, args=(), kwargs={}):
         return {}
-
     
     def permit(self, request, view, args, kwargs):
         pass
@@ -211,10 +201,9 @@ class IncludeRoute(Route):
         verbose_name = _("Include")
         verbose_name_plural = _("Includes")
         db_table = "xadrpy_router_include"
-
-    def get_urls(self, kwargs={}):
-        kwargs.update({'route_id': self.id})
-        return url(self.get_translated_regex(postfix=""), include(self.include_name, self.namespace, self.name), kwargs=kwargs)
+    
+    def get_application_class(self):
+        return xtensions.IncludeApplication
 
 class StaticRoute(Route):
     path = models.FilePathField(max_length=255, verbose_name=_("Path"))
@@ -228,9 +217,9 @@ class StaticRoute(Route):
     def get_regex(self, postfix="$", slash="/"):
         return super(StaticRoute, self).get_regex(postfix=postfix, slash="")
 
-    def get_urls(self, kwargs={}):
-        kwargs.update({'route_id': self.id})
-        return [url(self.get_translated_regex(), 'xadrpy.routers.views.static', kwargs=kwargs)]        
+    def get_application_class(self):
+        return xtensions.StaticApplication
+
 
 class TemplateRoute(Route):
     template_name = models.CharField(max_length=255, verbose_name=_("Template name"))
@@ -244,9 +233,9 @@ class TemplateRoute(Route):
     def get_regex(self, postfix="$", slash="/"):
         return super(TemplateRoute, self).get_regex(postfix=postfix, slash="")
 
-    def get_urls(self, kwargs={}):
-        kwargs.update({'route_id': self.id})
-        return [url(self.get_translated_regex(), 'xadrpy.routers.views.template', kwargs=kwargs)]
+    def get_application_class(self):
+        return xtensions.TemplateApplication
+
     
 class RedirectRoute(Route):
     url = NullCharField(max_length=255, null=False, blank=False, verbose_name=_("URL"))
@@ -257,7 +246,6 @@ class RedirectRoute(Route):
         verbose_name_plural = _("Redirects")
         db_table = "xadrpy_router_redirect"
 
-    def get_urls(self, kwargs={}):
-        kwargs.update({'route_id': self.id})
-        return [url(self.get_translated_regex(), 'xadrpy.routers.views.redirect', kwargs=kwargs)] 
+    def get_application_class(self):
+        return xtensions.RedirectApplication
 

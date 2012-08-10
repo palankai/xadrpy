@@ -3,6 +3,9 @@ from models import Route
 from forms import RouteAdminForm
 from django.utils.translation import ugettext_lazy as _
 from xadrpy.router.models import IncludeRoute
+from django.conf.urls import patterns
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
 class RouteAdmin(ModelAdmin):
     fieldsets = (
@@ -23,6 +26,56 @@ class RouteAdmin(ModelAdmin):
         }),
     )
     readonly_fields = ('created', 'modified',)
+    list_display = ('list_actions','depth_title','slug', 'language_code', 'enabled','visible')
+    list_display_links = ('depth_title', 'slug')
+    list_filter = ('enabled','visible','i18n','site','master','language_code')
+    prepopulated_fields = {"slug": ("title",)}
+    search_fields = ('title','slug','name')
+    readonly_fields = ('created', 'modified',)
+
+    def list_actions(self, obj):
+        obj = Route.objects.get(pk=obj.id)
+        acts = []
+        if obj.get_previous_sibling():
+            acts.append("""<a href="%s">%s</a>""" % ('move_up/%s/' % obj.id ,unicode(_("Move up"))))
+        else:
+            acts.append("""<span>%s</span>""" % unicode(_("Move up")))
+        if obj.get_next_sibling():
+            acts.append("""<a href="%s">%s</a>""" % ('move_down/%s/'% obj.id ,unicode(_("Move down"))))
+        else:
+            acts.append("""<span>%s</span>""" % unicode(_("Move down")))
+        return " | ".join(acts)
+    list_actions.allow_tags = True
+    list_actions.short_description = _("Actions")
+
+    def menu_title(self, obj):
+        return obj.get_meta().meta.get('menu_title',"")
+
+    def meta_title(self, obj):
+        return obj.get_meta().meta.get('meta_title',"")
+    
+    def depth_title(self, obj):
+        depth = "".join([" ----- " for i in range(obj.level)])
+        return depth + obj.title
+
+    def get_urls(self):
+        urls = super(RouteAdmin, self).get_urls()
+        my_urls = patterns('',
+            (r'^move_up/(?P<pk>[0-9]+)/$',  self.move_up),
+            (r'^move_down/(?P<pk>[0-9]+)/$',  self.move_down)
+        )
+        return my_urls + urls
+
+    def move_up(self, request, pk):
+        obj = self.model.objects.get(pk=pk)
+        obj.move_to(obj.get_previous_sibling(), "left")
+        return HttpResponseRedirect(reverse('admin:router_route_changelist'))
+
+    def move_down(self, request, pk):
+        obj = self.model.objects.get(pk=pk)
+        obj.move_to(obj.get_next_sibling(), "right")
+        return HttpResponseRedirect(reverse('admin:router_route_changelist'))
+
 
 class IncludeRouteAdmin(RouteAdmin):
     fieldsets = (

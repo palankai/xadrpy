@@ -23,6 +23,7 @@ from xadrpy.router.signals import prepend_route_urls
 from django.db.models import permalink
 from xadrpy.contrib.blog.managers import EntryManager, CategoryManager
 from xadrpy.core.preferences.libs import prefs
+from xadrpy.contrib.blog.xtensions import BlogApplication
 
 class Column(Page):
     post_comments_enabled = models.BooleanField(default=True, verbose_name = _("Comments enabled"), db_index=True)
@@ -37,6 +38,10 @@ class Column(Page):
 
     def __unicode__(self):
         return self.title
+
+    def get_application_class(self):
+        return BlogApplication 
+
 
     def get_view_name(self):
         return "xadrpy.contrib.blog.views.column"
@@ -57,10 +62,6 @@ class Column(Page):
         conf.RESOLVERS_CACHE[self.resolver] = resolver_class
         self._resolver = resolver_class(self)
         return self._resolver
-
-    def get_urls(self, kwargs={}):
-        resolver = self.get_resolver()
-        return resolver.get_urls(kwargs)
 
     def get_context(self, request, args=(), kwargs={}):
         return dict(super(Column, self).get_context(request, args, kwargs), **{

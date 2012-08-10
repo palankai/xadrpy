@@ -1,8 +1,8 @@
 from xadrpy.router.models import Route
 import logging
-from django.core.urlresolvers import resolve, ResolverMatch
+from django.core.urlresolvers import resolve
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+
 logger = logging.getLogger("xadrpy.router.middleware")
 
 class RouterMiddleware(object):

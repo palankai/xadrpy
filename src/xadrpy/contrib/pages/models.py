@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse, get_resolver, NoReverseMatch,\
 from xadrpy.vendor import trackback
 from django.contrib.sites.models import Site
 from django.http import Http404
+from xadrpy.contrib.pages.xtensions import PageApplication
 
 logger = logging.getLogger("Pages")
 
@@ -37,14 +38,8 @@ class Page(Route, OwnedModel):
     def get_view_name(self):
         return conf.DEFAULT_VIEW
 
-    def get_urls(self, kwargs={}):
-        if self.app:
-            return self.app.get_urls(kwargs)
-        kwargs.update({'route_id': self.id})
-        slash = ""
-        if settings.APPEND_SLASH:
-            slash = "/"
-        return [url(self.get_translated_regex(slash=slash), self.get_view_name(), kwargs=kwargs, name=self.name)]
+    def get_application_class(self):
+        return PageApplication 
 
     def get_content_pages(self):
         return conf.PAGE_BREAK_RE.split(self.content) 
@@ -62,7 +57,7 @@ class Page(Route, OwnedModel):
         return conf.DEFAULT_TEMPLATE
 
     def get_absolute_url(self):
-        if self.app:
+        if self.app and hasattr(self.app, "get_absolute_url"):
             return self.app.get_absolute_url()
         return reverse(self.get_view_name(), kwargs={'route_id': self.id})
     

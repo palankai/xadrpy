@@ -22,7 +22,7 @@ class ThemeMetaHandler(router.MetaHandler):
         """
         Visszaadja a kiválasztott layout nevét - fallback-el a master majd a parent layout nevére
         """
-        layout_name = self.meta.get("layout_name")
+        layout_name = self.meta.get("layout_name", None)
         if not layout_name and self.get_master():
             layout_name = self.get_master().get_layout_name()
         if not layout_name and self.get_parent():

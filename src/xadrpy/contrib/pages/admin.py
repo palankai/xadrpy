@@ -7,7 +7,7 @@ from xadrpy.contrib.pages.models import PageTranslation
 from django.conf.urls import patterns
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.contrib import admin
+from xadrpy.router.models import Route
 
 class PageTranslationInlineAdmin(StackedInline):
     model = PageTranslation
@@ -45,7 +45,7 @@ class PageAdmin(ModelAdmin):
             'fields': ('parent','title','slug', 'content',)
         }),
     )
-    list_display = ('list_actions','depth_title','slug', 'language_code', 'pub_date','enabled','published','visible','view_count')
+    list_display = ('depth_title','slug', 'language_code', 'pub_date','enabled','published','visible','view_count')
     list_display_links = ('depth_title', 'slug')
     list_filter = ('user', 'group', 'enabled','published','visible','show_content','comments_enabled','i18n','site','master','language_code')
     prepopulated_fields = {"slug": ("title",)}

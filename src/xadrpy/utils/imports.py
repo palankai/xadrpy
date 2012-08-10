@@ -22,7 +22,7 @@ def _get_class(import_path, base_class=object):
     except AttributeError:
         raise ImproperlyConfigured('Module "%s" does not define a "%s" '
                                    'class.' % (module, attr))
-    if not issubclass(cls, base_class):
+    if base_class and not issubclass(cls, base_class):
         raise ImproperlyConfigured('Class "%s" is not a subclass of "%s"' %
                                    (cls, base_class))
     return cls

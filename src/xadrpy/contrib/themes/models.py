@@ -92,9 +92,12 @@ class Theme(Inheritable):
     def get_default_skin(self):
         return self.meta['default_skin'] and self.get_skins()[self.meta['default_skin']]
 
-    def template(self, name=None):
+    def template(self, name=None, default=None):
         if not name: return AttrCaller(self.template, "file")
-        return self.get_files("html", self.meta['templates'][name]['source'])
+        try:
+            return self.get_files("html", self.meta['templates'][name]['source'])
+        except:
+            return default
 
     def style(self, name=None):
         if not name: return AttrCaller(self.style, "file")

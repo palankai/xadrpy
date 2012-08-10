@@ -1,16 +1,12 @@
-{% extends "xadrpy/pages/page.html" %}
+{% extends request.theme.template.page %}
 
 {% load pages_tags %}
+{% load xtemplates %}
 
 {% block content %}
 {{ block.super }}
-<div class="posts">
-{% plugin 'x-posts' 'content-footer' posts=page.posts.all %}
-</div>
-{% endblock %}
-
-{% block right %}
-{{ block.super }}
-<br />
-{% plugin 'x-archives' 'right' router=page %}
+{% for entry in entries %}
+	{% include "xadrpy/blog/entry_excerpt.html" %}
+{% endfor %}
+{% plugin "x-pager" "bottom-of-entries" entries %}
 {% endblock %}
