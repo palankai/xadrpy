@@ -17,8 +17,9 @@
 	</div>
 	{% block entry-end %}{% endblock %}
 </div>
-
+{% if entry.is_comments_enabled %}
 <a id="comments" name="comments"></a>
 <h3>{% blocktrans %}Comments{% endblocktrans %}</h3>
 {% plugin 'x-feedback-comments' 'after-entry' %}
+{% endif %}
 {% endblock %}
