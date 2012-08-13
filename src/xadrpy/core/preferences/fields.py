@@ -1,7 +1,7 @@
 import logging
-from xadrpy.models.fields.class_field import ClassField
+from xadrpy.core.models.fields.class_field import ClassField
 from xadrpy.core.preferences.base import Prefs
-from xadrpy.models.fields.dict_field import DictField
+from xadrpy.core.models.fields.dict_field import DictField
 logger = logging.getLogger("xadrpy.core.preferences.fields")
 
 class PrefsField(ClassField):

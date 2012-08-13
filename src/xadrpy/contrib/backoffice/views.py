@@ -3,7 +3,7 @@ from django.template.context import RequestContext
 from django.shortcuts import render_to_response
 from django.contrib import auth
 from django.http import HttpResponseRedirect, HttpResponse
-from xadrpy.auth.models import Consumer,Access,Token
+from xadrpy.core.access.models import Consumer,Access,Token
 from django.core.urlresolvers import reverse
 import conf
 from django.utils.safestring import mark_safe

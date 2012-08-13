@@ -4,11 +4,11 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from managers import PermanentSessionManager
 from django.contrib.sites.models import Site
-from xadrpy.models.fields import ObjectField
+from xadrpy.core.models.fields import ObjectField
 import datetime
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
-from xadrpy.models.inheritable import Inheritable
+from xadrpy.core.models.inheritable import Inheritable
 
 class PermanentSession(models.Model):
     site = models.ForeignKey(Site, verbose_name=_("Site"))

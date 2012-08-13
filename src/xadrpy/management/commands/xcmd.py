@@ -64,14 +64,14 @@ class Command(BaseCommand):
             commands.register()
             general.add_commands(commands, "preferences")
 
-        if is_application_installed("xadrpy.router"):
-            from xadrpy.router.libs import RouterCommands
+        if is_application_installed("xadrpy.core.router"):
+            from xadrpy.core.router.libs import RouterCommands
             commands = RouterCommands(self)
             commands.register()
             general.add_commands(commands, "router")
 
-        if is_application_installed("xadrpy.templates"):
-            from xadrpy.templates.libs import TemplatesCommands
+        if is_application_installed("xadrpy.core.templates"):
+            from xadrpy.core.templates.libs import TemplatesCommands
             commands = TemplatesCommands(self)
             commands.register()
             general.add_commands(commands, "templates")

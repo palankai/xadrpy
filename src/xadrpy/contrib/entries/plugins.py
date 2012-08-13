@@ -1,4 +1,4 @@
-from xadrpy.templates.libs import Plugin
+from xadrpy.core.templates.libs import Plugin
 from django.template.context import Context
 from models import Entry, Category
 import logging

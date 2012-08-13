@@ -1,4 +1,4 @@
-from xadrpy.router.base import Application
+from xadrpy.core.router.base import Application
 from django.db.models import permalink
 from django.conf import settings
 from django.conf.urls import url

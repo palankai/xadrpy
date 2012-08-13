@@ -31,5 +31,6 @@ def receive_trackback(request, content_type_id, object_id):
         return render_to_response("feedback/trackback_response.xml", context, mimetype="text/xml")
 
 def receive_pingback(request):
-    from xadrpy.vendor.trackback import views
-    return views.receive_pingback(request)
+    pass
+#    from xadrpy.vendor.trackback import views
+#    return views.receive_pingback(request)

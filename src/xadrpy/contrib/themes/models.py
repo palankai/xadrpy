@@ -1,6 +1,6 @@
 from django.db import models
-from xadrpy.models.inheritable import Inheritable
-from xadrpy.models.fields.json_field import JSONField
+from xadrpy.core.models.inheritable import Inheritable
+from xadrpy.core.models.fields.json_field import JSONField
 from django.utils.translation import ugettext_lazy as _
 import conf
 from django.db.models import Q
@@ -8,7 +8,7 @@ import logging
 from django.template import loader
 from django.template.base import TemplateDoesNotExist
 from django.contrib.staticfiles import finders
-from xadrpy.models.fields.dict_field import DictField
+from xadrpy.core.models.fields.dict_field import DictField
 logger = logging.getLogger("xadrpy.contrib.themes.models")
 
 class ThemeAdjuster(models.Model):

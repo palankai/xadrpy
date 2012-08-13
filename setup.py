@@ -34,6 +34,6 @@ setup(
     url='https://github.com/pacsee/xadrpy',
     license='GNU LGPL',
     zip_safe=False,
-    scripts=['src/xadrpy/xadrpy-commands.py'],
+    scripts=['src/xadrpy/management/xcmd.py'],
     install_requires=[
     ],)

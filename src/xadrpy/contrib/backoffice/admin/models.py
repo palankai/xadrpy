@@ -1,4 +1,4 @@
-from xadrpy.auth.base import rights
+from xadrpy.core.access.base import rights
 
 rights.register("admin_reset_password", u"Reset someone user password")
 rights.register("admin_add_user", u"Can add new user")

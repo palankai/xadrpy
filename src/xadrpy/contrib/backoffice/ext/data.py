@@ -2,15 +2,13 @@ from xadrpy.utils.jsonlib import JSONEncoder
 from xadrpy.contrib.backoffice.ext.base import JSFunction
 from django.utils.safestring import mark_safe
 from xadrpy.utils.declarative import BaseField, MetaclassFactory
-from xadrpy.api.decorators import APIObject
+from xadrpy.core.api.decorators import APIObject
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.template.context import RequestContext
-from xadrpy.models.libs import model_to_dict
-import urllib
-from django.http import QueryDict
+from xadrpy.core.models.libs import model_to_dict
 from django import forms
-from xadrpy.forms.exceptions import FormException
+from xadrpy.core.forms.exceptions import FormException
 encoder = JSONEncoder()
 
 class Field(BaseField):

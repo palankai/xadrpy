@@ -7,8 +7,7 @@ from xadrpy.contrib.pages.models import PageTranslation
 from django.conf.urls import patterns
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from xadrpy.router.models import Route
-from xadrpy.router.admin import BaseRouteAdmin
+from xadrpy.core.router.admin import BaseRouteAdmin
 
 class PageTranslationInlineAdmin(StackedInline):
     model = PageTranslation

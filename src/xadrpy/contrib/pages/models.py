@@ -2,14 +2,10 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 import conf
 import datetime
-from xadrpy.router.models import RouteTranslation, Route
+from xadrpy.core.router.models import RouteTranslation, Route
 from ckeditor.fields import RichTextField
 import logging
-from xadrpy.access.models import OwnedModel
-from django.core.urlresolvers import get_resolver, NoReverseMatch,\
-    Resolver404
-from xadrpy.vendor import trackback
-from django.contrib.sites.models import Site
+from xadrpy.core.access.models import OwnedModel
 from xadrpy.contrib.pages.xtensions import PageApplication
 
 logger = logging.getLogger("Pages")
@@ -74,16 +70,16 @@ class PageTranslation(RouteTranslation):
 PageTranslation.register(Page)
 
 
-
-def resolver(target_url):
-    try:
-        urlresolver = get_resolver(None)
-        site = Site.objects.get_current()
-        func, args, kwargs = urlresolver.resolve(target_url.replace("http://%s"%site.domain, ''))
-        route = kwargs.pop("route", None)
-        if route:
-            return route.resolve(args, kwargs)
-    except (NoReverseMatch, Resolver404), e:
-        return None        
-            
-trackback.registry.add(resolver)
+#
+#def resolver(target_url):
+#    try:
+#        urlresolver = get_resolver(None)
+#        site = Site.objects.get_current()
+#        func, args, kwargs = urlresolver.resolve(target_url.replace("http://%s"%site.domain, ''))
+#        route = kwargs.pop("route", None)
+#        if route:
+#            return route.resolve(args, kwargs)
+#    except (NoReverseMatch, Resolver404), e:
+#        return None        
+#            
+#trackback.registry.add(resolver)

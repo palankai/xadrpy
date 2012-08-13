@@ -1,4 +1,4 @@
-from xadrpy.templates.libs import Plugin
+from xadrpy.core.templates.libs import Plugin
 
 class CategoriesPlugin(Plugin):
     alias = "x-feedback-comments"

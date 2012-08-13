@@ -1,21 +1,21 @@
-from xadrpy.models.fields.nullchar_field import NullCharField
+from xadrpy.core.models.fields.nullchar_field import NullCharField
 from django.db import models
 import conf 
-from xadrpy.access.models import OwnedModel
+from xadrpy.core.access.models import OwnedModel
 from xadrpy.contrib.pages.models import Page
 import datetime
-from xadrpy.models.inheritable import TreeInheritable
+from xadrpy.core.models.inheritable import TreeInheritable
 from ckeditor.fields import RichTextField
 from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
 from mptt.managers import TreeManager
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import strip_tags
-from xadrpy.i18n.models import Translation
-from xadrpy.i18n.fields import TranslationForeignKey
-from xadrpy.models.fields.language_code_field import LanguageCodeField
+from xadrpy.core.i18n.models import Translation
+from xadrpy.core.i18n.fields import TranslationForeignKey
+from xadrpy.core.models.fields.language_code_field import LanguageCodeField
 from django.dispatch.dispatcher import receiver
-from xadrpy.router.signals import prepend_route_urls
+from xadrpy.core.router.signals import prepend_route_urls
 from django.db.models import permalink
 from managers import EntryManager, CategoryManager
 from xadrpy.core.preferences.libs import prefs

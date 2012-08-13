@@ -1,4 +1,4 @@
-from xadrpy.api.decorators import APIObject
+from xadrpy.core.api.decorators import APIObject
 from xadrpy.utils.declarative import BaseField
 from django.template.loader import render_to_string
 from django.template.context import RequestContext

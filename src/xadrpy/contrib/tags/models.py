@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from xadrpy.models.fields.nullchar_field import NullCharField
+from xadrpy.core.models.fields.nullchar_field import NullCharField
 from django.utils.translation import ugettext_lazy as _
 
 class Tag(models.Model):

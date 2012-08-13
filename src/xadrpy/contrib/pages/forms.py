@@ -1,16 +1,5 @@
 from django import forms
 from xadrpy.contrib.pages.models import Page
-from django.db.models.fields.files import ImageField, FileDescriptor,\
-    ImageFieldFile
-from django.forms.widgets import ClearableFileInput
-from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.files.storage import FileSystemStorage
-from django.core.files.images import ImageFile
-from django.forms.fields import FilePathField
-from filebrowser.fields import FileBrowseFormField, FileBrowseWidget,\
-    FileBrowseField
-from filebrowser.sites import site
 
 class PageAdminForm(forms.ModelForm):
 

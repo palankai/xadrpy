@@ -1,9 +1,5 @@
-from django.template.loader import render_to_string
-from django.template.context import RequestContext
 import logging
-from xadrpy.api.decorators import APIObject
-from django.core.urlresolvers import reverse
-logger = logging.getLogger("BackOffice.generic")
+logger = logging.getLogger("xadrpy.contrib.backoffice.generic")
 
 class Manager(object):
     def __init__(self):

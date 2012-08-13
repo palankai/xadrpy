@@ -3,7 +3,7 @@ import conf
 import logging
 from xadrpy.management.libs import SubCommand
 from django.template.loader import find_template
-from xadrpy import router
+from xadrpy.core import router
 from xadrpy.utils.imports import get_class
 from xadrpy.contrib.themes.models import Theme, Library
 logger = logging.getLogger("xadrpy.contrib.themes.libs")

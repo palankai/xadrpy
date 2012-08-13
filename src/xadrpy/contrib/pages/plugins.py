@@ -1,7 +1,7 @@
-from xadrpy.templates.libs import Plugin
+from xadrpy.core.templates.libs import Plugin
 import re
 from django.core.urlresolvers import resolve
-from xadrpy.router.models import Route
+from xadrpy.core.router.models import Route
 from django.template.loader import render_to_string
 from django.template.context import Context
 

@@ -5,7 +5,7 @@ from forms import EntryAdminForm, ColumnAdminForm
 from django.contrib.admin.options import StackedInline
 from models import CategoryTranslation, Image
 from xadrpy.contrib.pages.admin import PageTranslationInlineAdmin
-from xadrpy.router.admin import BaseRouteAdmin
+from xadrpy.core.router.admin import BaseRouteAdmin
 
 class ColumnAdmin(BaseRouteAdmin):
     form = ColumnAdminForm

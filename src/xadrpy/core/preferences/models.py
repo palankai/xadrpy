@@ -1,12 +1,12 @@
 from django.db import models
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User, Group
-from xadrpy.models.fields.nullchar_field import NullCharField
-from xadrpy.models.fields.object_field import ObjectField
+from xadrpy.core.models.fields.nullchar_field import NullCharField
+from xadrpy.core.models.fields.object_field import ObjectField
 from managers import PrefManager
 import datetime
 from django.utils.translation import get_language
-from xadrpy.models.fields.dict_field import DictField
+from xadrpy.core.models.fields.dict_field import DictField
 from django.utils.translation import ugettext_lazy as _
 
 class Pref(models.Model):

@@ -3,8 +3,8 @@ from xadrpy.contrib.backoffice.forms import LoginForm, AddUserForm, EditUserForm
     PasswordResetForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from xadrpy.forms.exceptions import FormException
-from xadrpy.api.decorators import APIInterface
+from xadrpy.core.forms.exceptions import FormException
+from xadrpy.core.api.decorators import APIInterface
 
 api = APIInterface(r"xadrpy.contrib.backoffice/")
 

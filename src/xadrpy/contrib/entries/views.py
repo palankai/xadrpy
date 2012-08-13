@@ -13,7 +13,6 @@ def column(request):
     paginated = Paginated(entries, 5, orphans=1, page_url=u"?"+_("page")+"=%(index)s")
     paginated.set_first_page(reverse("xadrpy.contrib.entries.views.column", kwargs={"route_id": request.route.id}))
     paginated.set_page(request.GET.get(_("page"),1))
-    logger.debug(u"%s", request.route.prefs.get_meta_title())
     ctx = {
         'content': request.route.get_content(),
         'content_title': request.route.get_title(),

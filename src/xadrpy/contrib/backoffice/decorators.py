@@ -1,4 +1,4 @@
-from xadrpy.api.decorators import APIInterface
+from xadrpy.core.api.decorators import APIInterface
 from xadrpy.contrib.backoffice.generic import store_manager, model_manager
 
 class BackOfficeInterface(APIInterface):
