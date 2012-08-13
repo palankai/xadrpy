@@ -6,6 +6,22 @@ from xadrpy.router.models import IncludeRoute
 from django.conf.urls import patterns
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+import logging
+from django.forms.widgets import Select
+logger = logging.getLogger("xadrpy.router.admin")
+
+class BaseRouteAdmin(ModelAdmin):
+
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        fields = context['adminform'].form.fields
+        if "application_name" in fields:
+            application_name = fields['application_name']
+            applications = obj.get_application_choices() or [('',_("Default application"))]
+            application_name.widget = Select(None, applications)
+        return super(BaseRouteAdmin, self).render_change_form(request, context, add, change, form_url, obj)
+    
+    pass
+    
 
 class RouteAdmin(ModelAdmin):
     fieldsets = (

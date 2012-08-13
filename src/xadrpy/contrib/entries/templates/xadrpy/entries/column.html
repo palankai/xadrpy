@@ -1,0 +1,15 @@
+{% extends request.theme.template.page %}
+
+{% block meta-title %}{{ request.route.prefs.meta_title }}{% endblock %}
+
+
+{% load pages_tags %}
+{% load xtemplates %}
+
+{% block content %}
+{{ block.super }}
+{% for entry in entries %}
+	{% include "xadrpy/entries/entry_excerpt.html" %}
+{% endfor %}
+{% plugin "x-pager" "bottom-of-entries" entries %}
+{% endblock %}

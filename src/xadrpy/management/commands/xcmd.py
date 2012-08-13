@@ -83,11 +83,11 @@ class Command(BaseCommand):
             general.add_commands(commands, "themes")
             
 
-        if is_application_installed("xadrpy.contrib.blog"):
-            from xadrpy.contrib.blog import BlogCommands
-            commands = BlogCommands(self)
+        if is_application_installed("xadrpy.contrib.entries"):
+            from xadrpy.contrib.entries import EntriesCommands
+            commands = EntriesCommands(self)
             commands.register()
-            general.add_commands(commands, "blog")
+            general.add_commands(commands, "entries")
 
     
     def print_header(self):

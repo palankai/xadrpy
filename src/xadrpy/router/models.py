@@ -3,28 +3,22 @@ from django.contrib.sites.models import Site
 from xadrpy.models.fields.nullchar_field import NullCharField
 from xadrpy.models.inheritable import TreeInheritable
 import conf
-from django.utils.translation import ugettext_lazy as _, get_language
-from django.conf.urls import patterns, include, url
-from django.utils.functional import lazy
-from xadrpy.i18n.utils import i18n_patterns
+from django.utils.translation import ugettext_lazy as _
 from django.dispatch.dispatcher import receiver
 from django.db.models.signals import post_save, pre_save
 import os
 import hashlib
-import xadrpy
-from django.conf import settings
 from xadrpy.i18n.models import Translation
 from xadrpy.i18n.fields import TranslationForeignKey
-from xadrpy.utils.signals import autodiscover_signal
-from xadrpy.utils.imports import get_installed_apps_module, get_class
 from xadrpy.models.fields.dict_field import DictField
 from xadrpy.models.fields.language_code_field import LanguageCodeField
 import logging
-import libs
 import base
 import xtensions
-from xadrpy.models.fields.class_field import ClassField
-logger = logging.getLogger("x-router")
+from xadrpy.models.fields.class_field import ClassNameField
+from xadrpy.core.preferences.fields import PrefsStoreField
+
+logger = logging.getLogger("xadrpy.router.models")
 
 class Route(TreeInheritable):
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
@@ -40,14 +34,8 @@ class Route(TreeInheritable):
     visible = models.BooleanField(default=True, verbose_name=_("Is visible"))
     signature = NullCharField(max_length=128, editable=False, default="")
     name = NullCharField(max_length=255, unique=True)
-    application_name = NullCharField(max_length=128, verbose_name=_("Application name"))
-    meta = DictField()
-    app = ClassField(field="application_name", default=lambda obj: obj.get_application_class())
-
-#    meta_title = models.CharField(max_length=255, blank=True, verbose_name=_("Meta title"), default="")
-#    overwrite_meta_title = models.BooleanField(default=False, verbose_name=_("Overwrite meta title"))
-#    meta_keywords = models.CharField(max_length=255, blank=True, verbose_name=_("Meta keywords"), default="")
-#    meta_description = models.TextField(blank=True, verbose_name=_("Meta description"), default="")
+    application_name = ClassNameField("app", max_length=128, verbose_name=_("Application name"), fallback="get_application_class")
+    meta = PrefsStoreField("prefs", fallback="get_prefs_class")
     
     need_reload = True
     
@@ -61,61 +49,34 @@ class Route(TreeInheritable):
         return self.title
     
     def get_application_class(self):
-        return base.Application 
-    
+        return base.Application
 
-    def get_slug(self, language_code):
-        return self.translation(language_code=language_code).slug or self.slug or ""
+    def get_application_choices(self):
+        class_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+        if class_name in conf.APPLICATIONS:
+            return conf.APPLICATIONS[class_name]
+
+    def get_prefs_class(self):
+        return base.RoutePrefs
+    
+    def get_absolute_url(self):
+        return self.app.get_absolute_url()
     
     def get_title(self):
         return self.translation().title
 
-    def get_translated_regex(self, postfix="$", slash="/"):
-        language_code = get_language()
-        return self.get_regex(postfix=postfix, slash=slash, language_code=language_code)
-    
-    get_translated_regex = lazy(get_translated_regex, unicode)
-
-    def get_regex(self, postfix="$", slash="/", language_code=None):
-        root_language_code = self.get_root_language_code()
-        if not self.parent:
-            regex = root_language_code and "^%s/" % root_language_code or "^"
-        else:
-            regex = self.parent.get_regex(postfix="", slash="/", language_code=language_code)
-        slug = self.get_slug(language_code)
-        if slug:
-            slug = slug+slash
-        regex += slug 
-        return regex + postfix
-
-    def patterns(self, *args, **kwargs):
-        if not self.parent and self.i18n:
-            return i18n_patterns(*args, **kwargs)
-        return patterns(*args, **kwargs)
-    
-    def append_pattern(self, url_patterns):
-        if not self.enabled: 
-            return
-        root_language_code = self.get_root_language_code()
-        kwargs = root_language_code and {conf.LANGUAGE_CODE_KWARG: root_language_code} or {}
-        kwargs.update({'route_id': self.id})
-        urls = self.app.get_urls(kwargs)
-        if not urls: return
-        url_patterns+=self.patterns('', *urls)
-    
-    def get_root_language_code(self):
-        return self.get_root().language_code
+    def get_slug(self, language_code):
+        return self.translation(language_code=language_code).slug or self.slug or ""
     
     def get_master(self):
-        self._master = getattr(self, "_master", False)
-        if self._master==False:
-            self._master=None
-            if self.master:
-                self._master = self.master.descendant
-            elif isinstance(self.get_parent(), Route):
-                master = self.get_parent().get_master()
-                if master:
-                    self._master = master.descendant
+        if hasattr(self, "_master"):
+            return self._master
+        if self.master: 
+            self._master = self.master.descendant
+        elif self.get_parent(): 
+            self._master = self.get_parent().get_master()
+        else:
+            self._master = None 
         return self._master
     
     
@@ -124,13 +85,6 @@ class Route(TreeInheritable):
     
     def get_signature(self):
         return u"%s:%s-%s-%s-%s-%s-%s" % (conf.VERSION, self.site.id, not self.parent and self.language_code or None, self.slug, not self.parent and self.i18n, self.enabled, self.application_name)
-
-    def get_context(self, request, args=(), kwargs={}):
-        return {}
-    
-    def permit(self, request, view, args, kwargs):
-        pass
-    
 
 class RouteTranslation(Translation):
     origin = TranslationForeignKey(Route, related_name="+")
@@ -167,35 +121,9 @@ if conf.TOUCH_WSGI_FILE:
             with file(conf.WSGI_PATH, 'a'):
                 os.utime(conf.WSGI_PATH, None)
 
-#class ViewRoute(Route):
-#    view_name = NullCharField(max_length=255)
-#    name = NullCharField(max_length=255, unique=True)
-#    
-#    default_view_name = None
-#    
-#    class Meta:
-#        verbose_name = _("View")
-#        verbose_name_plural = _("Views")
-#        db_table = "xadrpy_router_view"
-#
-#    def get_urls(self, kwargs={}):
-#        kwargs.update({'router': self.id})
-#        if not self.view_name:
-#            return []
-#        
-#        slash = ""
-#        if settings.APPEND_SLASH:
-#            slash = "/"
-#
-#        return [url(self.get_translated_regex(slash=slash), self.view_name, kwargs=kwargs, name=self.name)]
-#    
-#    def get_context(self, request, args=(), kwargs={}):
-#        return {}
-
 class IncludeRoute(Route):
     include_name = models.CharField(max_length=255)
     namespace = NullCharField(max_length=255)
-#    app_name = NullCharField(max_length=255)
 
     class Meta:
         verbose_name = _("Include")
@@ -248,4 +176,3 @@ class RedirectRoute(Route):
 
     def get_application_class(self):
         return xtensions.RedirectApplication
-

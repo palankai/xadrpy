@@ -6,15 +6,10 @@ from xadrpy.router.models import RouteTranslation, Route
 from ckeditor.fields import RichTextField
 import logging
 from xadrpy.access.models import OwnedModel
-from django.conf import settings
-from django.conf.urls import url
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
-from django.core.urlresolvers import reverse, get_resolver, NoReverseMatch,\
+from django.core.urlresolvers import get_resolver, NoReverseMatch,\
     Resolver404
 from xadrpy.vendor import trackback
 from django.contrib.sites.models import Site
-from django.http import Http404
 from xadrpy.contrib.pages.xtensions import PageApplication
 
 logger = logging.getLogger("Pages")
@@ -55,11 +50,6 @@ class Page(Route, OwnedModel):
     
     def get_template(self):
         return conf.DEFAULT_TEMPLATE
-
-    def get_absolute_url(self):
-        if self.app and hasattr(self.app, "get_absolute_url"):
-            return self.app.get_absolute_url()
-        return reverse(self.get_view_name(), kwargs={'route_id': self.id})
     
     def can_render(self):
         if not self.enabled or not self.published:
@@ -67,16 +57,6 @@ class Page(Route, OwnedModel):
         if datetime.datetime.now().replace(tzinfo=None) < self.pub_date.replace(tzinfo=None):
             return False
         return True    
-    
-    def resolve(self, args, kwargs):
-        return self
-    
-    def get_context(self, request, args=(), kwargs={}):
-        return dict(super(Page, self).get_context(request, args, kwargs), **{
-            'content': self.get_content(),
-            'content_title': self.get_title(),
-            'show_content': self.show_content,
-        })
     
     def increment_view_count(self, request):
         if request.user.is_staff or self.user == request.user: return

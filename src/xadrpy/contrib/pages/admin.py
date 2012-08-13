@@ -8,6 +8,7 @@ from django.conf.urls import patterns
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from xadrpy.router.models import Route
+from xadrpy.router.admin import BaseRouteAdmin
 
 class PageTranslationInlineAdmin(StackedInline):
     model = PageTranslation
@@ -20,7 +21,7 @@ class PageTranslationInlineAdmin(StackedInline):
         }),
     )
 
-class PageAdmin(ModelAdmin):
+class PageAdmin(BaseRouteAdmin):
     form = PageAdminForm
     add_form = PageCreateAdminForm
     fieldsets = (
@@ -83,15 +84,16 @@ class PageAdmin(ModelAdmin):
         if not obj.user:
             obj.user = request.user
         for k in form._meta_fields:
-            obj.meta[k] = form.cleaned_data[k] 
+            if form.cleaned_data[k]:
+                obj.prefs.reset(k, form.cleaned_data[k] or None)
         obj.save()    
     
     def menu_title(self, obj):
-        return obj.get_meta().meta['menu_title']
+        return obj.prefs.get("menu_title")
 
     def meta_title(self, obj):
-        return obj.get_meta().meta['meta_title']
-    
+        return obj.prefs.get("meta_title")
+   
     def depth_title(self, obj):
         depth = "".join([" ----- " for i in range(obj.level)])
         return depth + obj.title

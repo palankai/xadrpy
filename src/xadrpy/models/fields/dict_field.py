@@ -18,8 +18,6 @@ class DictField(ObjectField):
     def to_python( self, value ):
         if isinstance( value, DictField.DictFieldValue ):
             return value
-        if isinstance( value, list ):
-            return DictField.ListFieldValue(value)
         return DictField.DictFieldValue( super(DictField, self).to_python( value ) )
 
     def get_db_prep_value( self, value, connection=None, prepared=False ):

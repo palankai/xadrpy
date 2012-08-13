@@ -1,14 +1,22 @@
-import logging
+from xadrpy.models.fields.nullchar_field import NullCharField
 from xadrpy.utils.imports import get_class
+from django.db import models
+import logging
+from inspect import isclass
+
 logger = logging.getLogger("xadrpy.contrib.models.fields.class_field")
+
+class BaseClass(object):
+    def __init__(self, instance, **opts):
+        self.instance = instance
 
 class ClassField(object):
 
-    def __init__(self, field=None, default=None, args=[], kwargs={}):
+    def __init__(self, field=None,  ifnull=None, fallback=None, opts={}):
         self.field = field
-        self.default = default
-        self.args = args
-        self.kwargs = kwargs
+        self.ifnull = ifnull
+        self.fallback = fallback
+        self.opts = opts
         
     def contribute_to_class(self, cls, name):
         self.name = name
@@ -17,24 +25,50 @@ class ClassField(object):
         cls._meta.add_virtual_field(self)
         setattr(cls, name, self)
 
-    def get_default(self, obj):
-        if self.default and callable(self.default):
-            return self.default(obj)
-        return self.default
-
     def get_class(self, obj):
-        if not self.field:                     return self.get_default(obj)
-        if callable(self.field):               return self.field(obj) or self.get_default(obj)
-        if not getattr(obj, self.field):       return self.get_default(obj)
-        if callable(getattr(obj, self.field)): return getattr(obj, self.field)() or self.get_default(obj)
-        return getattr(obj, self.field) or self.get_default(obj)
+        #return a class name what is stored in the field
+        if self.field and getattr(obj, self.field):
+            return getattr(obj, self.field)
+        #return alternative of default
+        if self.ifnull:
+            return self.ifnull
+        #return none of not given self.fallback
+        if not self.fallback:
+            return None
+        #return obj.fallback or obj.fallback()
+        if isinstance(self.fallback, basestring):
+            fallback_member = getattr(obj, self.fallback)
+            if callable(fallback_member):
+                return fallback_member()
+            return fallback_member
+        #return self.fallback given a class 
+        if isclass(self.fallback):
+            return self.fallback
+        if callable(self.fallback):
+            return self.fallback(obj)
+        return None
+    
+    def get_opts(self, obj):
+        if isinstance(self.opts, dict):
+            return self.opts
+        if isinstance(self.opts, basestring):
+            opts_member = getattr(obj, self.opts)
+            if callable(opts_member):
+                return opts_member()
+            return opts_member
+        if callable(self.opts):
+            return self.opts(obj)
     
     def get_instance(self, obj):
         cls = self.get_class(obj)
         if not cls: return None
         if isinstance(cls, basestring):
             cls = get_class(cls)
-        return cls(obj, *self.args, **self.kwargs)
+        opts = self.get_opts(obj) or {}
+        return self.create_instance(obj, cls, opts)
+    
+    def create_instance(self, obj, cls, opts):
+        return cls(obj, **opts)
 
     def __get__(self, obj, obj_type=None):
         if obj is None: return self
@@ -51,3 +85,41 @@ class ClassField(object):
 
     def __set__(self, instance, value):
         raise AttributeError(u"Can't set %s field" % self.name)
+
+
+class ClassNameField(NullCharField):
+    __metaclass__ = models.SubfieldBase
+    
+    def __init__(self, attrib_name, ifnull=None, fallback=None, opts={}, **kwargs):
+        self.attrib_name = attrib_name
+        self.ifnull = ifnull
+        self.fallback = fallback
+        self.opts = opts
+        #self.choices_fallback = choices_fallback
+        kwargs.setdefault("max_length", 255)
+        kwargs.setdefault("default", None)
+#        if choices_fallback:
+#            kwargs.setdefault("choices", [('', "Default")])
+        super(ClassNameField, self).__init__(**kwargs)
+
+    def contribute_to_class(self, cls, name):
+        NullCharField.contribute_to_class(self, cls, name)
+        class_field = ClassField(field=name, ifnull=self.ifnull, fallback=self.fallback, opts=self.opts)
+        class_field.contribute_to_class(cls, self.attrib_name)
+        
+#    def formfield(self, **kwargs):
+#        # Passing max_length to forms.CharField means that the value's length
+#        # will be validated twice. This is considered acceptable since we want
+#        # the value in the form field (to pass into widget for example).
+#        logger.debug("FormField: %s", kwargs)
+#        defaults = {'max_length': self.max_length, 'choices_fallback': self.choices_fallback}
+#        defaults.update(kwargs)
+#        return super(ClassNameField, self).formfield(**defaults)
+        
+
+try:
+    from south.modelsinspector import add_introspection_rules
+except ImportError:
+    pass
+else:
+    add_introspection_rules([], [r"^xadrpy\.models\.fields\.class_name_field\.ClassNameField"])

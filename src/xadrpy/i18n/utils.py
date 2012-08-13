@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 from django.conf import settings
 from django.conf.urls import patterns
@@ -10,6 +11,8 @@ def i18n_patterns(prefix, *args):
     Adds the language code prefix to every URL pattern within this
     function. This may only be used in the root URLconf, not in an included
     URLconf.
+    Fontos: Ez a függvény az eredetitől annyiban tér el, hogy saját
+    LocaleRegexURLResolver-t ad vissza! 
 
     """
     pattern_list = patterns(prefix, *args)
@@ -24,6 +27,9 @@ class LocaleRegexURLResolver(RegexURLResolver):
 
     Rather than taking a regex argument, we just override the ``regex``
     function to always return the active language-code as regex.
+    
+    Bővített: Configurációs opciótól függően, az alapértelmezett nyelvnél
+    le lehet tiltani, hogy prefixel jelenjen meg!
     """
     def __init__(self, urlconf_name, default_kwargs=None, app_name=None, namespace=None):
         super(LocaleRegexURLResolver, self).__init__(

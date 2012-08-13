@@ -1,4 +1,5 @@
-from libs import MetaHandler, Application
+from libs import MetaHandler
+from base import Application
 import logging
 from django.dispatch.dispatcher import receiver
 from xadrpy.utils.signals import autodiscover_signal

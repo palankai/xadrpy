@@ -22,7 +22,5 @@ class RouterMiddleware(object):
     
     def process_view(self, request, view_func, view_args, view_kwargs):
         view_kwargs.pop("route_id",None)
-        if request.route:
-            request.route.permit(request, view_func, view_args, view_kwargs)
             
 

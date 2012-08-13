@@ -96,19 +96,6 @@ class MetaHandler(object):
             return self.meta.get("meta_description")
         return self.get_parent() and self.get_parent().get_meta_description() or "" 
     
-
-class Application(object):
-    def __init__(self, route):
-        self._route = route
-    
-    def get_route(self):
-        return self._route
-    
-    def get_urls(self, kwargs):
-        return []
-    
-    route = property(get_route)
-
 class RouterCommands(SubCommand):
 
     def register(self):
