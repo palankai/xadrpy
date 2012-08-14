@@ -1,0 +1,1 @@
+_plugin_cache = {}

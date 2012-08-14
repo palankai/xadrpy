@@ -70,11 +70,11 @@ class Command(BaseCommand):
             commands.register()
             general.add_commands(commands, "router")
 
-        if is_application_installed("xadrpy.core.templates"):
-            from xadrpy.core.templates.libs import TemplatesCommands
-            commands = TemplatesCommands(self)
+        if is_application_installed("xadrpy.contrib.plugins"):
+            from xadrpy.contrib.plugins.libs import PluginsCommands
+            commands = PluginsCommands(self)
             commands.register()
-            general.add_commands(commands, "templates")
+            general.add_commands(commands, "plugins")
         
         if is_application_installed("xadrpy.contrib.themes"):
             from xadrpy.contrib.themes.libs import ThemesCommands

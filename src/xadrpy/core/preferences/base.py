@@ -4,7 +4,9 @@ from xadrpy.utils.key_string import key_string, key_string_set
 class Prefs( object ):
     
     def __init__(self, instance, store, **opts):
+        self.instance = instance
         self.store = store
+        self.opts = opts
 
     def __getitem__(self, key):
         return self.get(key)

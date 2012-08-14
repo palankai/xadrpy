@@ -7,6 +7,9 @@ from xadrpy.core.preferences.base import Prefs
 from xadrpy.utils.key_string import key_string
 from django.core.exceptions import ObjectDoesNotExist
 
+def get_local_request():
+    return getattr(conf._local, "request", None)
+
 class RoutePrefs(Prefs):
 
     def __init__(self, instance, store, **opts):

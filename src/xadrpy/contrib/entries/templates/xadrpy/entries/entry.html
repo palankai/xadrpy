@@ -1,6 +1,6 @@
 {% extends request.theme.template.page %}
 
-{% load i18n xtemplates %}
+{% load i18n plugins %}
 
 {% block meta-title %}{{ entry.get_meta_title }}{% endblock %}
 {% block meta-keywords %}{{ entry.get_meta_keywords }}{% endblock %}
@@ -20,6 +20,6 @@
 {% if entry.is_comments_enabled %}
 <a id="comments" name="comments"></a>
 <h3>{% blocktrans %}Comments{% endblocktrans %}</h3>
-{% plugin 'x-feedback-comments' 'after-entry' %}
+{% plugin 'x-feedback-comments' entry %}
 {% endif %}
 {% endblock %}

@@ -4,12 +4,12 @@
 
 
 {% load pages_tags %}
-{% load xtemplates %}
+{% load plugins %}
 
 {% block content %}
 {{ block.super }}
 {% for entry in entries %}
 	{% include "xadrpy/entries/entry_excerpt.html" %}
 {% endfor %}
-{% plugin "x-pager" "bottom-of-entries" entries %}
+{% plugin "x-pager"  entries %}
 {% endblock %}

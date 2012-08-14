@@ -1,7 +1,7 @@
 from django.template.loader import render_to_string
 from xadrpy.core.router.models import Route
 from django.core.urlresolvers import resolve
-from xadrpy.core.templates.libs import WidgetLibrary
+from xadrpy.core.templates.base import WidgetLibrary
  
 register = WidgetLibrary()
 

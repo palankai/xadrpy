@@ -6,7 +6,10 @@ from xadrpy.core.router.models import RouteTranslation, Route
 from ckeditor.fields import RichTextField
 import logging
 from xadrpy.core.access.models import OwnedModel
-from xadrpy.contrib.pages.xtensions import PageApplication
+from xadrpy.contrib.plugins.models import PluginPlace
+from xadrpy.core.i18n.models import Translation
+from xadrpy.core.i18n.fields import TranslationForeignKey
+from xadrpy.core.models.fields.language_code_field import LanguageCodeField
 
 logger = logging.getLogger("Pages")
 
@@ -30,6 +33,7 @@ class Page(Route, OwnedModel):
         return conf.DEFAULT_VIEW
 
     def get_application_class(self):
+        from xadrpy.contrib.pages.xtensions import PageApplication
         return PageApplication 
 
     def get_content_pages(self):
@@ -68,6 +72,26 @@ class PageTranslation(RouteTranslation):
         db_table = "xadrpy_pages_page_translation"
 
 PageTranslation.register(Page)
+
+
+class SnippetPlace(PluginPlace):
+    body = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        verbose_name = _("Snippet Plugin")
+        verbose_name_plural = _("Snippet Plugins")
+        db_table = "xadrpy_pages_snippet"
+
+class SnippetTranslation(Translation):
+    origin = TranslationForeignKey(SnippetPlace)
+    language_code = LanguageCodeField()
+
+    body = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = "xadrpy_pages_snippet_translation"
+
+SnippetTranslation.register(SnippetPlace)
 
 
 #

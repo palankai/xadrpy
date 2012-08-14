@@ -17,6 +17,7 @@ import base
 import xtensions
 from xadrpy.core.models.fields.class_field import ClassNameField
 from xadrpy.core.preferences.fields import PrefsStoreField
+from xadrpy.core.router.base import get_local_request
 
 logger = logging.getLogger("xadrpy.router.models")
 
@@ -86,6 +87,15 @@ class Route(TreeInheritable):
     def get_signature(self):
         return u"%s:%s-%s-%s-%s-%s-%s" % (conf.VERSION, self.site.id, not self.parent and self.language_code or None, self.slug, not self.parent and self.i18n, self.enabled, self.application_name)
 
+    def save( self, *args, **kwargs ):
+        signature = hashlib.md5(self.get_signature()).hexdigest()
+        if self.signature != signature:
+            logger.info("Route (#%s) signature changed", self.id)
+            self.signature = signature
+            setattr(conf._local, "need_wsgi_reload", True)
+        TreeInheritable.save(self, *args, **kwargs)
+
+
 class RouteTranslation(Translation):
     origin = TranslationForeignKey(Route, related_name="+")
     language_code = LanguageCodeField()
@@ -103,23 +113,6 @@ class RouteTranslation(Translation):
         db_table = "xadrpy_router_route_translation"
 
 RouteTranslation.register(Route)
-
-@receiver(pre_save, sender=None)
-def check_signature(sender, instance, **kwargs):
-    if isinstance(instance, Route):
-        signature = hashlib.md5(instance.get_signature()).hexdigest()
-        instance.signature_changed = instance.signature != signature
-        if instance.signature_changed:
-            logger.info("Route (#%s) signature changed", instance.id)
-            instance.signature = signature
-            instance.signature_changed = instance.need_reload and conf.WSGI_PATH
-    
-if conf.TOUCH_WSGI_FILE:
-    @receiver(post_save, sender=None)
-    def touch_wsgi_file(sender, instance, **kwargs):
-        if isinstance(instance, Route) and instance.need_reload and conf.WSGI_PATH and instance.signature_changed:
-            with file(conf.WSGI_PATH, 'a'):
-                os.utime(conf.WSGI_PATH, None)
 
 class IncludeRoute(Route):
     include_name = models.CharField(max_length=255)

@@ -2,6 +2,10 @@ from django.conf import settings
 from xadrpy.core.i18n import conf as i18n_conf
 from django.utils.translation import ugettext_lazy as _
 import os
+from threading import local
+
+_local = local()
+
 
 DEFAULT_SITE_ID = getattr(settings, 'SITE_ID')
 LANGUAGE_CODE_KWARG = i18n_conf.LANGUAGE_CODE_KWARG
