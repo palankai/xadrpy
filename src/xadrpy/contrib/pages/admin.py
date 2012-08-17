@@ -85,6 +85,8 @@ class PageAdmin(BaseRouteAdmin):
         for k in form._meta_fields:
             if form.cleaned_data[k]:
                 obj.prefs.reset(k, form.cleaned_data[k] or None)
+            else:
+                obj.prefs.reset(k, None)
         obj.save()    
     
     def menu_title(self, obj):

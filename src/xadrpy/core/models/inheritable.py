@@ -59,6 +59,9 @@ try:
         objects = TreeInheritableManager()
         tree = TreeInheritableManager()
     
+        def get_root(self):
+            return mptt.models.MPTTModel.get_root(self).descendant
+    
         def get_parent(self):
             return self.parent and self.parent.descendant or None
     

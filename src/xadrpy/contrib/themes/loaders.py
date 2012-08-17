@@ -1,18 +1,74 @@
-'''
-Created on 2012.07.26.
 
-@author: pcsaba
-'''
 from xadrpy.utils.imports import get_installed_apps_module
 from django.conf import settings
 import base
 import conf 
 import models
-from django.template.loader import render_to_string
+from django.template.loader import render_to_string, BaseLoader
 from django.utils import simplejson
 import logging
 from xadrpy.core.preferences.libs import prefs
+from django.template.base import TemplateDoesNotExist
+from xadrpy.core.router.base import get_local_request
+from django.template.loaders import filesystem, app_directories
+import os
+from django.utils._os import safe_join
 logger = logging.getLogger("xadrpy.contrib.themes.loaders")
+
+class Loader(BaseLoader):
+    is_usable = True
+
+    def get_base_template_sources(self, theme_path, template_name, template_dirs=None):
+        """
+        Returns the absolute paths to "template_name", when appended to each
+        directory in "template_dirs". Any paths that don't lie inside one of the
+        template dirs are excluded from the result set, for security reasons.
+        """
+        if not template_dirs:
+            template_dirs = settings.TEMPLATE_DIRS
+        for template_dir in template_dirs:
+            try:
+                yield safe_join(template_dir, theme_path, template_name)
+            except UnicodeDecodeError:
+                # The template dir name was a bytestring that wasn't valid UTF-8.
+                raise
+            except ValueError:
+                # The joined path was located outside of this particular
+                # template_dir (it might be inside another one, so this isn't
+                # fatal).
+                pass
+
+
+    def load_template_source(self, template_name, template_dirs=None):
+        if template_name.startswith("theme:"):
+            return self.load_theme_template_source(template_name[6:], template_dirs)
+        raise TemplateDoesNotExist("Template not found.")
+    load_template_source.is_usable = True
+
+
+    def load_theme_template_source(self, template_name, template_dirs=None):
+        request = get_local_request()
+        theme = request.theme
+        theme_path = os.path.join("themes", request.theme.name)
+        for filepath in self.get_base_template_sources(theme_path, template_name, template_dirs):
+            try:
+                file = open(filepath)
+                try:
+                    return (file.read().decode(settings.FILE_CHARSET), filepath)
+                finally:
+                    file.close()
+            except IOError:
+                pass
+#        if template_name == "xadrpy/plugins/feedback-comments.html":
+#            logger.debug("Request :) %s",get_local_request().theme.name)
+            #return ("",None)
+        #logger.debug(u"source: %s: %s", template_name, template_dirs)
+        raise TemplateDoesNotExist("Template does not exists")
+        
+
+    load_template_source.is_usable = True
+
+
 
 def get_default_theme(user=None):
     theme_name = prefs(key="default_theme", 

@@ -33,12 +33,15 @@ class PluginNode(XWidgetBase):
         except Exception, e:
             logger.exception(e)
             raise
-        plugin.init_template(template)
+        plugin.init_inline(template)
+        #plugin.init_template(template)
         context_len = len(context.dicts)
         try:
             plugin.init(context)
             if plugin.is_visible():
                 return plugin.render(context)
+            else:
+                return ""
         except Exception, e:
             logger.exception("Plugin '%s' (placeholder=%s) render error: %s", name, placeholder, e)
             return "Plugin exception: %s" % e
