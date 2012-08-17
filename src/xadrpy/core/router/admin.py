@@ -12,9 +12,10 @@ class BaseRouteAdmin(ModelAdmin):
 
     def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
         fields = context['adminform'].form.fields
+        model = context['adminform'].form._meta.model
         if "application_name" in fields:
             application_name = fields['application_name']
-            applications = obj.get_application_choices() or [('',_("Default application"))]
+            applications = model.get_application_choices() or [('',_("Default application"))]
             application_name.widget = Select(None, applications)
         return super(BaseRouteAdmin, self).render_change_form(request, context, add, change, form_url, obj)
     

@@ -52,8 +52,9 @@ class Route(TreeInheritable):
     def get_application_class(self):
         return base.Application
 
-    def get_application_choices(self):
-        class_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+    @classmethod
+    def get_application_choices(cls):
+        class_name = "%s.%s" % (cls.__module__, cls.__name__)
         if class_name in conf.APPLICATIONS:
             return conf.APPLICATIONS[class_name]
 
