@@ -6,26 +6,32 @@
 xadrpy |version| dokumentáció!
 ==============================
 
-Ez a dokumentum a |release| verziót mutatja be.
+This documentation describes `xadrpy` version |version|.
 
-
-Kezdés
-******
+Beginning
+---------
 
 .. toctree::
 	:maxdepth: 2
    
 	getting-started/installation
 	getting-started/coding-standards
+	getting-started/xtensions-approach
 
-Core modulok
-************
+Core packages
+-------------
+	
+.. toctree::
+	:maxdepth: 2
+   
+	core/theming
 
-Kiegészítő modulok
-******************
 
-Külső (vendor) modulok
-**********************
+Contrib packages
+----------------
+
+External (Vendor) packages
+--------------------------
 
 
 Index
