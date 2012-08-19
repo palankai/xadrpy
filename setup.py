@@ -5,6 +5,11 @@ import os
 import sys
 import codecs
 
+SRC_PATH = os.path.realpath(os.path.join(os.path.dirname(__file__),"src"))
+sys.path.append(SRC_PATH) 
+
+import xadrpy
+
 def read(fname):
     return codecs.open(os.path.join(os.path.dirname(__file__), fname)).read()
 
@@ -13,7 +18,7 @@ setup(
     packages=find_packages('src'),
     package_dir={'':'src'},
     include_package_data=True,    
-    version=read(os.path.join('src','xadrpy','VERSION')).strip(),
+    version=xadrpy.get_version(),
     description="Django tool",
     long_description='''Django and python tool with many useful packages, modules.''',
     classifiers=[
