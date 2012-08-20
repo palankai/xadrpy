@@ -6,7 +6,7 @@ logger = logging.getLogger("x-pages")
 def page(request):
     ctx = get_page_context(request.route)
     request.route.increment_view_count(request)
-    return render_to_response(request.theme.template().page, ctx, RequestContext(request))
+    return render_to_response("xadrpy/pages/page.html", ctx, RequestContext(request))
 
 def get_page_context(page):
     ctx ={

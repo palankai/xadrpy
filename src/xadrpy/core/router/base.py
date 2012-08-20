@@ -54,9 +54,6 @@ class RoutePrefs(Prefs):
             return tvalue
         return value
     
-    def get_layout_name(self, translated=False, **opts):
-        return "ez jo"
-    
     def get_menu_title(self, **opts):
         return self.translated.get('menu_title') or self.route.get_title()
     

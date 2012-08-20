@@ -10,17 +10,22 @@ Approach
 - The Theming recognizes these definitions.
 - Provides selecting layouts, skins
 
+Background
+++++++++++
+
+You can reference the layout with '@layout_name' formula. The `Loader` resolve '@layout_name' and ensure proper layout html file.
+The context processor set `theming_layout` variable to base / selected layout. 
+
 Installation
 ------------
 
 .. code-block:: python
 
-	MIDDLEWARE_CLASSES = (
+	TEMPLATE_LOADERS = (
+		'xadrpy.core.theming.loaders.Loader', #Be the first
 		...
-	    'xadrpy.core.theming.middleware.ThemingMiddleware',
-	    ...
 	)
-	
+
 	TEMPLATE_CONTEXT_PROCESSORS = (
 		...
 		'xadrpy.core.theming.context_processors.theming',
@@ -29,15 +34,12 @@ Installation
 	
 	INSTALLED_APPS = (
 		...
+		'xadrpy',
+		...
 		'xadrpy.core.theming',
 		...
 	)
 
-after installed run: 
-
-.. code-block:: bash
-
-	$ python manage.py syncdb
 
 Theme definition
 ----------------
@@ -78,12 +80,12 @@ Theme definition
 			("base", { 							#The reference name of the skin
 				"title: "",						#you can give description elements
 				"styles": (
-					("style.css", {"media": "all"}),
-					("style2.css", {"condition": "if IE"}),
+					{"file": "style.css", "media": "all"},
+					{"file": "style2.css", "condition": "if IE"},
 				)
-				"scripts": [
+				"scripts": (
 					"skin-scripts.js",			#relative path for required js files
-				],
+				),
 				"rewrite": {
 												#you can give some rewrites for this skin - see layout rewrites
 				},
@@ -116,18 +118,23 @@ Registering
 
 Using
 -----
-You can reference the selected layout: "${theming:layout}"
+The context processor set the selected (with route/page...) layout to `theming_layout` context var. You can redefine it from your views. 
 
 .. code-block:: html
 	
-	{% extends "${theming:layout}" %}
+	{% extends "theming_layout" %}
+	...
+
+.. code-block:: html
+
+	{% extends "@layout_name" %}
 	...
 	
 or
 
 .. code-block:: python
 	
-	render_to_response("${theming:layout}", ...)
+	render_to_response("@layout_name", ...)
 	...
 
-but the best solution: define a base.html in your template root and it containts just one line: {% extends "${theming:layout}" %}. You can use proper "base.html".
+but the best solution: define a base.html in your template root and it contains just one line: {% extends "theming_layout" %}. You can use proper "base.html".
