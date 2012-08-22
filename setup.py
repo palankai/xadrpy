@@ -5,8 +5,8 @@ import os
 import sys
 import codecs
 
-SRC_PATH = os.path.realpath(os.path.join(os.path.dirname(__file__),"src"))
-sys.path.append(SRC_PATH) 
+SRC_PATH = os.path.realpath(os.path.join(os.path.dirname(__file__), "src"))
+sys.path.insert(0, SRC_PATH)
 
 import xadrpy
 
@@ -17,7 +17,7 @@ setup(
     name='xadrpy',
     packages=find_packages('src'),
     package_dir={'':'src'},
-    include_package_data=True,    
+    include_package_data=True,
     version=xadrpy.get_version(),
     description="Django tool",
     long_description='''Django and python tool with many useful packages, modules.''',
@@ -34,8 +34,8 @@ setup(
     keywords=('django'),
     author='Csaba Palankai',
     author_email='csaba.palankai@gmail.com',
-    maintainer = 'Csaba Palankai',
-    maintainer_email = 'csaba.palankai@gmail.com',
+    maintainer='Csaba Palankai',
+    maintainer_email='csaba.palankai@gmail.com',
     url='https://github.com/pacsee/xadrpy',
     license='GNU LGPL',
     zip_safe=False,
