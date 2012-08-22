@@ -12,6 +12,7 @@ class PluginNode(XWidgetBase):
     def value(self, context, name, *args, **kwargs):
         placeholder = kwargs.get('placeholder', None)
         template = kwargs.pop('TEMPLATE', None)
+        request = context['request']
         try:
             store = PluginStore.objects.get_plugin(name)
             if not store.enabled:
@@ -34,6 +35,7 @@ class PluginNode(XWidgetBase):
             logger.exception(e)
             raise
         plugin.init_inline(template)
+        request.xtensions.append(plugin)
         #plugin.init_template(template)
         context_len = len(context.dicts)
         try:

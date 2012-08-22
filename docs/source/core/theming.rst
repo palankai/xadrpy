@@ -26,10 +26,10 @@ Installation
 		...
 	)
 
-	TEMPLATE_CONTEXT_PROCESSORS = (
+	MIDDLEWARE_CLASSES = (
 		...
-		'xadrpy.core.theming.context_processors.theming',
-		...
+	    'xadrpy.core.theming.middleware.ThemingMiddleware',
+	    ...
 	)
 	
 	INSTALLED_APPS = (
@@ -118,11 +118,11 @@ Registering
 
 Using
 -----
-The context processor set the selected (with route/page...) layout to `theming_layout` context var. You can redefine it from your views. 
+The middleware set the selected (for route/page...) layout to `theming_layout` attribute. You can redefine it from your views. 
 
 .. code-block:: html
 	
-	{% extends "theming_layout" %}
+	{% extends request.theming_layout %}
 	...
 
 .. code-block:: html
@@ -137,4 +137,4 @@ or
 	render_to_response("@layout_name", ...)
 	...
 
-but the best solution: define a base.html in your template root and it contains just one line: {% extends "theming_layout" %}. You can use proper "base.html".
+but the best solution: define a base.html in your template root and it contains just one line: {% extends request.theming_layout %}. You can use proper "base.html".

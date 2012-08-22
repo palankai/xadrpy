@@ -1,0 +1,35 @@
+{% load staticfiles xtemplates i18n toolbar %}
+<div class="x-toolbar-wrapper-absolute">
+	<div class="x-toolbar">
+		{% if toolbar.title %}
+		<div class="x-toolbar-title">{{ toolbar.title }}</div>
+		{% endif %}
+		{% if toolbar.items %}
+		<ul class="x-toolbar-left x-toolbar-menu">
+		{% for item in toolbar.items %}
+			<li>{% render_toolbar_item item %}</li>
+		{% endfor %}
+		{% if toolbar.plugins %}
+			<li><a href="#">{% trans "Plugins" %}</a>
+				<ul>
+					{% for item in toolbar.plugins %}
+						<li>{% render_toolbar_item item %}</li>
+					{% endfor %}
+				</ul>
+			</li>
+		{% endif %}
+		</ul>
+		{% endif %}
+		<ul class="x-toolbar-right x-toolbar-menu">
+			{% for item in toolbar.switches %}
+				<li>{% render_toolbar_item item %}</li>
+			{% endfor %}
+			<li><a href="#">{{ request.user }}</a>
+				<ul>
+					<li><a href="/admin">{% trans "Back to administration" %}</a></li>
+					<li><a href="#">{% trans "Logout" %}</a></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+</div>

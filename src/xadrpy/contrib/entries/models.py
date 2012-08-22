@@ -35,14 +35,6 @@ class Column(Page):
 
     def get_application_class(self):
         return MonthBasedEntriesApplication
-
-    def get_application_choices(self):
-        application_choices = super(Column, self).get_application_choices()
-        if not application_choices:
-            return [
-                    ('', _("Month based entries")),
-                    ('xadrpy.contrib.entries.xtensions.SimpleEntriesApplication', _("Simple entries"))
-                    ]
     
     def get_entries(self, **kwargs):
         return Entry.objects.get_entries_for_column(self, **kwargs)

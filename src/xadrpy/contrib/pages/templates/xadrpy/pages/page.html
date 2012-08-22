@@ -3,8 +3,8 @@
 {% block meta-title%}{{page.get_meta_title}} | {{ block.super }}{% endblock %}
 
 {% block content %}
-{% if not page.content_disabled %}
-<h2>{{ page.title }}</h2>
-{{ page.content|safe }}
+{% if not hide_disabled %}
+<h2>{{ content_title }}</h2>
+{{ content|safe }}
 {% endif %}
 {% endblock %}

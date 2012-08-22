@@ -13,16 +13,16 @@ class Plugin(object):
         self.options = options
         self.store = None
         self.place = None
-    
+
     def set_store(self, store):
         self.store = store
-        
+
     def set_place(self, place):
         self.place = place
-    
+
     def init_inline(self, inline):
         self.inline = inline
-    
+
     def init_template(self, template):
         if template:
             self.template = template
@@ -33,25 +33,28 @@ class Plugin(object):
         if isinstance(template, basestring):
             return get_template(template)
         return template
-        
-    
+
+
     def get_template(self):
         if isinstance(self.template, basestring):
             self.template = get_template(self.template)
         return self.template
-    
+
     def render_template(self, context={}, template=None):
         if template:
             return self._get_renderable(template).render(context)
         return self.get_template().render(context)
-    
+
     @classmethod
     def get_name(cls):
         return "%s.%s" % (cls.__module__, cls.__name__)
-    
+
     def is_visible(self):
         return self.visible
-    
+
+    def toolbar_setup(self, context, toolbar):
+        pass
+
     def init(self, context):
         """
         Run just before render() called
@@ -59,7 +62,7 @@ class Plugin(object):
         """
         if not self.inline and not self.template:
             self.visible = False
-    
+
     def render(self, context):
         """
         Render default template

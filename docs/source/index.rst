@@ -33,6 +33,18 @@ Contrib packages
 External (Vendor) packages
 --------------------------
 
+xDP - xadr[py] Development Plan
+-------------------------
+
+The xDP describes the plans and specifications of development.
+
+.. toctree::
+	:maxdepth: 1
+	
+	xdp/001-versions
+	xdp/002-navigation
+	xdp/003-html
+
 
 Index
 =====

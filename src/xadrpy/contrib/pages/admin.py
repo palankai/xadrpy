@@ -113,22 +113,22 @@ class PageAdmin(BaseRouteAdmin):
     list_actions.allow_tags = True
     list_actions.short_description = _("Actions")
 
-    def get_urls(self):
-        urls = super(PageAdmin, self).get_urls()
-        my_urls = patterns('',
-            (r'^move_up/(?P<pk>[0-9]+)/$',  self.move_up),
-            (r'^move_down/(?P<pk>[0-9]+)/$',  self.move_down)
-        )
-        return my_urls + urls
-
-    def move_up(self, request, pk):
-        obj = self.model.objects.get(pk=pk)
-        obj.move_to(obj.get_previous_sibling(), "left")
-        return HttpResponseRedirect(reverse('admin:pages_page_changelist'))
-
-    def move_down(self, request, pk):
-        obj = self.model.objects.get(pk=pk)
-        obj.move_to(obj.get_next_sibling(), "right")
-        return HttpResponseRedirect(reverse('admin:pages_page_changelist'))
+#    def get_urls(self):
+#        urls = super(PageAdmin, self).get_urls()
+#        my_urls = patterns('',
+#            (r'^move_up/(?P<pk>[0-9]+)/$',  self.move_up),
+#            (r'^move_down/(?P<pk>[0-9]+)/$',  self.move_down)
+#        )
+#        return my_urls + urls
+#
+#    def move_up(self, request, pk):
+#        obj = self.model.objects.get(pk=pk)
+#        obj.move_to(obj.get_previous_sibling(), "left")
+#        return HttpResponseRedirect(reverse('admin:pages_page_changelist'))
+#
+#    def move_down(self, request, pk):
+#        obj = self.model.objects.get(pk=pk)
+#        obj.move_to(obj.get_next_sibling(), "right")
+#        return HttpResponseRedirect(reverse('admin:pages_page_changelist'))
 
 site.register(Page, PageAdmin)

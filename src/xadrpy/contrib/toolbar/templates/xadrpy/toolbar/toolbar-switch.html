@@ -1,0 +1,8 @@
+{% load xtemplates %}
+<a href='#'>{{ label }}: <strong>{{ current }}</strong></a>
+<ul>
+{% for value, label in options %}
+	<li><a href="{% url xadrpy.contrib.toolbar.views.switch key=key %}?v={{ value|JSON }}&next={{ next }}">{{ label }}</a></li>
+{% endfor %}
+</ul>
+

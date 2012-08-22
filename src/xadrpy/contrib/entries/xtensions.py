@@ -5,9 +5,10 @@ from django.conf.urls import url
 from xadrpy.contrib.entries.feeds import ColumnEntriesFeed
 import copy
 from django.utils.translation import ugettext_lazy as _
+from xadrpy.contrib.pages.xtensions import PageApplication
 
 
-class EntriesApplication(Application):
+class EntriesApplication(PageApplication):
 
     @permalink
     def get_absolute_url(self):

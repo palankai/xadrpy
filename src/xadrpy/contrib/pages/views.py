@@ -12,6 +12,6 @@ def get_page_context(page):
     ctx ={
         'content': page.get_content(),
         'content_title': page.get_title(),
-        'show_content': page.show_content,
+        'hide_content': not page.show_content,
     }
     return ctx

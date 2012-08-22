@@ -6,10 +6,14 @@ from django.db.models import permalink
 from xadrpy.contrib.plugins.base import Plugin
 from xadrpy.contrib.pages.models import SnippetPlace
 from django.utils.safestring import mark_safe
-from django.core.urlresolvers import resolve
+from django.core.urlresolvers import resolve, reverse
 from xadrpy.core.router.models import Route
+from django.utils.translation import ugettext_lazy as _
+from xadrpy.contrib.toolbar.base import ToolbarButton, ToolbarSwitch
 
 class PageApplication(Application):
+    
+    title = _("Page")
 
     @permalink
     def get_absolute_url(self):
@@ -20,6 +24,14 @@ class PageApplication(Application):
         if settings.APPEND_SLASH:
             slash = "/"
         return [url(self.get_translated_regex(slash=slash), conf.DEFAULT_VIEW, kwargs=kwargs, name=self.route.name)]
+    
+#    def toolbar_setup(self, request, toolbar):
+#        Application.toolbar_setup(self, request, toolbar)
+#        info = self.route._meta.app_label, self.route._meta.module_name
+#        window = {"width": 1020, "height": 650, "toolbar": 0, "titlebar":0,"status":0,"resizable":1,"scrollbars":1,"location":0,"left":'auto' }
+        
+
+    
 
 class SnippetPlugin(Plugin):
     alias = "x-snippet"

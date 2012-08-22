@@ -55,8 +55,9 @@ class Route(TreeInheritable):
     @classmethod
     def get_application_choices(cls):
         class_name = "%s.%s" % (cls.__module__, cls.__name__)
-        if class_name in conf.APPLICATIONS:
-            return conf.APPLICATIONS[class_name]
+        routes = dict(conf.ROUTES)
+        if class_name in routes:
+            return routes[class_name]['applications']
 
     def get_prefs_class(self):
         return base.RoutePrefs

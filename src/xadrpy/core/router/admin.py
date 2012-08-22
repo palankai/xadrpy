@@ -1,8 +1,8 @@
 from django.contrib.admin import site, ModelAdmin
 from models import Route, IncludeRoute
 from django.utils.translation import ugettext_lazy as _
-from django.conf.urls import patterns
-from django.http import HttpResponseRedirect
+from django.conf.urls import patterns, url
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 import logging
 from django.forms.widgets import Select
@@ -18,11 +18,45 @@ class BaseRouteAdmin(ModelAdmin):
             applications = model.get_application_choices() or [('',_("Default application"))]
             application_name.widget = Select(None, applications)
         return super(BaseRouteAdmin, self).render_change_form(request, context, add, change, form_url, obj)
+
+    def response_change(self, request, obj):
+        if request.GET.get('from-toolbar') == "1":
+            return HttpResponse("<script type='text/javascript'>window.opener.location.reload();window.close();</script>");
+        return ModelAdmin.response_change(self, request, obj)
+
+    def response_add(self, request, obj, post_url_continue='../%s/'):
+        if request.GET.get('from-toolbar') == "1":
+            return HttpResponse("<script type='text/javascript'>window.opener.location.reload();window.close();</script>");
+        return ModelAdmin.response_add(self, request, obj, post_url_continue)
     
-    pass
+    def get_urls(self):
+        urls = super(BaseRouteAdmin, self).get_urls()
+        info = self.model._meta.app_label, self.model._meta.module_name
+
+        my_urls = patterns('',
+            url(r'^move_up/(?P<pk>[0-9]+)/$',  self.move_up, name="x-%s-%s-admin-forward" % info),
+            url(r'^move_down/(?P<pk>[0-9]+)/$',  self.move_down, name="x-%s-%s-admin-backward" % info),
+            url(r'^delete/(?P<pk>[0-9]+)/$',  self.delete, name="x-%s-%s-admin-delete" % info),
+        )
+        return my_urls + urls
+
+    def delete(self, request, pk):
+        obj = self.model.objects.get(pk=pk)
+        obj.delete()
+        return HttpResponseRedirect(request.GET.get('next', reverse('admin:router_route_changelist')))
+
+    def move_up(self, request, pk):
+        obj = self.model.objects.get(pk=pk)
+        obj.move_to(obj.get_previous_sibling(), "left")
+        return HttpResponseRedirect(request.GET.get('next', reverse('admin:router_route_changelist')))
+
+    def move_down(self, request, pk):
+        obj = self.model.objects.get(pk=pk)
+        obj.move_to(obj.get_next_sibling(), "right")
+        return HttpResponseRedirect(request.GET.get('next', reverse('admin:router_route_changelist')))
     
 
-class RouteAdmin(ModelAdmin):
+class RouteAdmin(BaseRouteAdmin):
     fieldsets = (
         (None, {
             'fields': ('parent','title','slug')
@@ -72,24 +106,6 @@ class RouteAdmin(ModelAdmin):
     def depth_title(self, obj):
         depth = "".join([" ----- " for i in range(obj.level)])
         return depth + obj.title
-
-    def get_urls(self):
-        urls = super(RouteAdmin, self).get_urls()
-        my_urls = patterns('',
-            (r'^move_up/(?P<pk>[0-9]+)/$',  self.move_up),
-            (r'^move_down/(?P<pk>[0-9]+)/$',  self.move_down)
-        )
-        return my_urls + urls
-
-    def move_up(self, request, pk):
-        obj = self.model.objects.get(pk=pk)
-        obj.move_to(obj.get_previous_sibling(), "left")
-        return HttpResponseRedirect(reverse('admin:router_route_changelist'))
-
-    def move_down(self, request, pk):
-        obj = self.model.objects.get(pk=pk)
-        obj.move_to(obj.get_next_sibling(), "right")
-        return HttpResponseRedirect(reverse('admin:router_route_changelist'))
 
 
 class IncludeRouteAdmin(RouteAdmin):

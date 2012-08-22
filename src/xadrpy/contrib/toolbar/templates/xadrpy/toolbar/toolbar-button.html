@@ -1,0 +1,13 @@
+{% if question %}
+<a href='javascript:if (confirm("{{ question }}")) window.open("{{ url }}","{{ name }}","{{ opts }}",{{ replace }}).focus();'>{{ label }}</a>
+{% else %}
+<a href='javascript:window.open("{{ url }}","{{ name }}","{{ opts }}",{{ replace }}).focus();'>{{ label }}</a>
+{% endif %}
+{% if menu %}
+{% load toolbar %}
+<ul>
+{% for item in menu %}
+<li>{% render_toolbar_item item %}</li>
+{% endfor %}
+</ul>
+{% endif %}

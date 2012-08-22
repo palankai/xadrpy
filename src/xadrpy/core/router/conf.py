@@ -13,7 +13,7 @@ LANGUAGE_CODE_KWARG = i18n_conf.LANGUAGE_CODE_KWARG
 TOUCH_WSGI_FILE = True
 
 WSGI_PATH = getattr(settings, u'WSGI_PATH', os.environ.get('WSGI_PATH', None))
-APPLICATIONS = getattr(settings, "APPLICATIONS", {})
+ROUTES = getattr(settings, "ROUTES", {})
 
 META_HANDLER = "xadrpy.core.router.libs.MetaHandler"
 

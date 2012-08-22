@@ -8,12 +8,14 @@ from django.core.handlers.wsgi import WSGIHandler
 from xadrpy.utils.reload import reload_wsgi
 import conf
 from xadrpy.core.router.base import get_local_request
+from django.utils import simplejson
 
 logger = logging.getLogger("xadrpy.core.router.middleware")
 
 class RouterMiddleware(object):
     
     def process_request(self, request):
+        request.xtensions=[]
         setattr(conf._local, "request", request)
         try:
             resolved = resolve(request.path_info)
