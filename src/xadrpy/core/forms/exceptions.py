@@ -2,10 +2,11 @@ from django import forms
 from django.utils.translation import ugettext as _
 
 class FormException(Exception):
-    
+
     def __init__(self, *forms_or_formsets):
         super(FormException, self).__init__(_("Data fill error"))
         self.fields = {}
+        self.messages = []
         self.field_errors = {}
         self.non_field_errors = []
         for form_or_formset in forms_or_formsets:
@@ -23,16 +24,19 @@ class FormException(Exception):
         non_field_errors = []
         fields = {}
         for field in form:
-            fields[form.prefix+"-"+field.name if form.prefix else field.name] = unicode(field.label)
-        for k,v in form.errors.items():
-            if k=="__all__":
-                non_field_errors=v
+            fields[form.prefix + "-" + field.name if form.prefix else field.name] = unicode(field.label)
+        for k, v in form.errors.items():
+            if k == "__all__":
+                non_field_errors = v
             else:
                 if form.prefix:
-                    field_errors[form.prefix+"-"+k]=v
+                    field_errors[form.prefix + "-" + k] = v
                 else:
-                    field_errors[k]=v
+                    field_errors[k] = v
         self.field_errors.update(field_errors)
         self.non_field_errors.extend(non_field_errors)
+        self.messages.extend(non_field_errors)
+        for fe in field_errors.values():
+            self.messages.extend(fe)
         self.fields.update(fields)
         return fields, non_field_errors, field_errors

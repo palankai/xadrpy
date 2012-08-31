@@ -11,16 +11,16 @@ def api_autodiscover(**kwargs):
     from urls import urlpatterns
 
     for app in settings.INSTALLED_APPS:
-        
-        try:                                                                                                                          
-            app_path = importlib.import_module(app).__path__                                                                          
-        except AttributeError:                                                                                                        
-            continue 
-        
-        try:                                                                                                                          
-            imp.find_module('api', app_path)                                                                               
-        except ImportError:                                                                                                           
-            continue                                                                                                                  
+
+        try:
+            app_path = importlib.import_module(app).__path__
+        except AttributeError:
+            continue
+
+        try:
+            imp.find_module('api', app_path)
+        except ImportError:
+            continue
         module = importlib.import_module("%s.api" % app)
         #module_name = getattr(module, "API_MODULE_NAME", app)
 
