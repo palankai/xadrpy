@@ -1,4 +1,4 @@
-VERSION = (0,6,1,"alpha",1)
+VERSION = (0,6,1,"alpha",2)
 
 def autodiscover():
     import logging

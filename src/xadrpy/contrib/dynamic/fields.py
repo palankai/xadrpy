@@ -2,6 +2,8 @@ from django.db import models
 
 class KeyTableField(models.ForeignKey): 
     def __init__(self, key_table_name, **kwargs):
+        self.key_table_name = key_table_name
+        kwargs.pop("to",{})
         limit_choices_to = kwargs.pop("limit_choices_to", {})
         limit_choices_to.update({
             'key_table__name': key_table_name,
@@ -9,16 +11,18 @@ class KeyTableField(models.ForeignKey):
         kwargs.update({
             'related_name': "+"
         })
-        super(KeyTableField, self).__init__("dynamic.KeyTableEntry", limit_choices_to=limit_choices_to, **kwargs)
+        super(KeyTableField, self).__init__(to="dynamic.KeyTableEntry", limit_choices_to=limit_choices_to, **kwargs)
 
 class MultiKeyTableField(models.ManyToManyField):
     def __init__(self, key_table_name, **kwargs):
+        self.key_table_name = key_table_name
+        kwargs.pop("to",{})
         limit_choices_to = kwargs.pop("limit_choices_to", {})
         limit_choices_to.update({
             'key_table__name': key_table_name,
         })
         kwargs['related_name']="%s_%s+" % (key_table_name, self.creation_counter)
-        super(MultiKeyTableField, self).__init__("dynamic.KeyTableEntry", limit_choices_to=limit_choices_to, **kwargs)
+        super(MultiKeyTableField, self).__init__(to="dynamic.KeyTableEntry", limit_choices_to=limit_choices_to, **kwargs)
 
 class AttributeForeignKey(models.ForeignKey):
 
@@ -43,7 +47,19 @@ except ImportError:
     pass
 else:
     add_introspection_rules([], [r"^xadrpy\.contrib\.dynamic\.fields\.AttributeForeignKey"])
-    add_introspection_rules([], [r"^xadrpy\.contrib\.dynamic\.fields\.KeyTableField"])
-    add_introspection_rules([], [r"^xadrpy\.contrib\.dynamic\.fields\.MultiKeyTableField"])
+    add_introspection_rules([(
+        [KeyTableField], # Class(es) these apply to
+        [],         # Positional arguments (not used)
+        {           # Keyword argument
+            "key_table_name": ["key_table_name", {}],
+        },
+    ),], [r"^xadrpy\.contrib\.dynamic\.fields\.KeyTableField"])
+    add_introspection_rules([(
+        [MultiKeyTableField], # Class(es) these apply to
+        [],         # Positional arguments (not used)
+        {           # Keyword argument
+            "key_table_name": ["key_table_name", {}],
+        },
+    ),], [r"^xadrpy\.contrib\.dynamic\.fields\.MultiKeyTableField"])
 
 

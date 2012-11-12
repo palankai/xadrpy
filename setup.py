@@ -37,7 +37,7 @@ setup(
     maintainer='Csaba Palankai',
     maintainer_email='csaba.palankai@gmail.com',
     url='https://github.com/pacsee/xadrpy',
-    license='GNU LGPL',
+    license='GNU GPLv3',
     zip_safe=False,
     scripts=['src/xadrpy/management/xcmd.py'],
     install_requires=[
