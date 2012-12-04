@@ -26,7 +26,7 @@ setup(
         'Operating System :: OS Independent',
         'Natural Language :: English',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Framework :: Django',
         'Topic :: Software Development :: Libraries :: Python Modules',
